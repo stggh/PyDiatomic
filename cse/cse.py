@@ -1,12 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
-import sys
-reload(sys)  
-sys.setdefaultencoding('utf8')
 import numpy as np
 
 from . import johnson
@@ -166,7 +158,7 @@ class Xs():
            if eni is None:
                eni = self.gs.energy
            self.gs.solve(eni, roti)
-           print('E(v"={}) = {:.2f} cm-1 '.format(self.gs.vib, self.gs.cm))
+           print(u'E(v"={}) = {:.2f} cm-1 '.format(self.gs.vib, self.gs.cm))
 
        if mu is not None or coupf is not None or rotf is not None:
            # recalculate final couples states

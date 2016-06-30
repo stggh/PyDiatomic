@@ -1,8 +1,4 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
+# -*- coding: utf-8 -*
 ###############################################################################
 # rkr.py
 # Rydberg-Klein-Rees potential energy curve from spectroscopic constants 
@@ -94,7 +90,7 @@ def turning_points(mu, vv, Gv, Bv, dv=0.1):
     V = np.append([-1/2+0.0001], V)
     Rmin = []; Rmax = []; E = []
     # compute turning points using RKR method
-    print("RKR: v   Rmin(A)  Rmax(A)  E(cm-1)")
+    print(u"RKR: v   Rmin(A)  Rmax(A)  E(cm-1)")
     for vib in V:
         E.append(G(vib, gsp))    # energy of vibrational level
         ff = fg_integral(vib, gsp, bsp, lambda x, y: 1)
@@ -104,7 +100,7 @@ def turning_points(mu, vv, Gv, Bv, dv=0.1):
         Rmax.append((fg + ff)*DD)
         frac, integ = np.modf(vib)
         if frac > 0 and frac < dv: 
-            print("     {:d}   {:6.4f}    {:6.4f}    {:6.2f}".
+            print(u"     {:d}   {:6.4f}    {:6.4f}    {:6.2f}".
                   format(int(vib), Rmin[-1], Rmax[-1], np.float(E[-1])))
 
     return Rmin, Rmax, E
@@ -115,7 +111,7 @@ def formPEC(R, Rmin, Rmax, E, De, limb):
 
     # combine Rmin with Rmax to form PEC
     Re = (Rmin[0] + Rmax[0])/2
-    print("RKR: Re = {:g}".format(Re))
+    print(u"RKR: Re = {:g}".format(Re))
 
     RTP = np.append(Rmin[::-1], Rmax, 0)  # radial positions of turning-points
     PTP = np.append(E[::-1], E, 0)  # potential energy at turning point
@@ -145,8 +141,8 @@ def inner_limb_Morse(R, P, RTP, PTP, Re, De):
         if r > RTP[0]: break
         tmp = 1 - np.exp(-beta*(r-Re))
         P[i] = De*tmp*tmp
-    print("RKR: Inner limb  De[1-exp(beta*(Re-R))]^2")
-    print("RKR:  {:g}-{:g}A   {:g}(De)  {:g}(Re)  {:g}(beta)".
+    print(u"RKR: Inner limb  De[1-exp(beta*(Re-R))]^2")
+    print(u"RKR:  {:g}-{:g}A   {:g}(De)  {:g}(Re)  {:g}(beta)".
           format(R[0], r, De, Re, beta))
 
 def outer_limb_Morse(R, P, RTP, PTP, De):
@@ -158,8 +154,8 @@ def outer_limb_Morse(R, P, RTP, PTP, De):
         if r < RTP[-1] : continue
         tmp = 1 - np.exp(-beta*(r-Re))
         P[i] = De*tmp*tmp
-    print("RKR: Outer limb  De[1-exp(beta*(Re-R))]^2")
-    print("RKR:   {:g}-{:g}A   {:g}(De)  {:g}(Re)  {:g}(beta)".
+    print(u"RKR: Outer limb  De[1-exp(beta*(Re-R))]^2")
+    print(u"RKR:   {:g}-{:g}A   {:g}(De)  {:g}(Re)  {:g}(beta)".
           format(RTP[-1], R[-1], De, re, beta))
 
 def outer_limb_LeRoy(R, P, RTP, PTP, De):
@@ -168,6 +164,6 @@ def outer_limb_LeRoy(R, P, RTP, PTP, De):
     for i,r in enumerate(R):
         if r < RTP[-1] : continue
         P[i] = De - Cn/r**n
-    print("RKR:  Outer limb  De - Cn/R^n")
-    print("RKR:  {:g}-{:g}A   {:g}(De)  {:g}(n)  {:g}(Cn)".
+    print(u"RKR:  Outer limb  De - Cn/R^n")
+    print(u"RKR:  {:g}-{:g}A   {:g}(De)  {:g}(n)  {:g}(Cn)".
           format(RTP[-1], R[-1], De, n, Cn))
