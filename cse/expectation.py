@@ -16,7 +16,7 @@ from functools import partial
 
 from . import johnson
 
-"""
+u"""
   expectation values - cross section, oscillator strengths, 
                        spectroscopic constanst ...
 
