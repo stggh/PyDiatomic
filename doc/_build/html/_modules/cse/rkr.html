@@ -1,0 +1,370 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>cse.rkr &mdash; PyCSE 0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="PyCSE 0.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> PyCSE
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme_link.html">PyCSE README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cse.html">PyCSE package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes.html">Johnson Renormalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes.html#id1">Johnson Renormalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes.html#normalization">Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes.html#id5">Normalization</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">PyCSE</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>cse.rkr</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for cse.rkr</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
+
+<span class="c1">###############################################################################</span>
+<span class="c1"># rkr.py</span>
+<span class="c1"># Rydberg-Klein-Rees potential energy curve from spectroscopic constants </span>
+<span class="c1"># Gv Bv</span>
+<span class="c1"># Stephen.Gibson@anu.edu.au - May 2016</span>
+<span class="c1">###############################################################################</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="k">import</span> <span class="n">splrep</span><span class="p">,</span> <span class="n">splev</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<div class="viewcode-block" id="rkr"><a class="viewcode-back" href="../../cse.html#cse.rkr.rkr">[docs]</a><span class="k">def</span> <span class="nf">rkr</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">vv</span><span class="p">,</span> <span class="n">Gv</span><span class="p">,</span> <span class="n">Bv</span><span class="p">,</span> <span class="n">De</span><span class="p">,</span> <span class="n">limb</span><span class="o">=</span><span class="s1">&#39;L&#39;</span><span class="p">,</span> <span class="n">dv</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">Rgrid</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.005</span><span class="p">,</span> <span class="mf">10.004</span><span class="p">,</span> <span class="mf">0.005</span><span class="p">)):</span>
+    <span class="sd">&quot;&quot;&quot; Rydberg-Klien-Rees potential energy curve.</span>
+<span class="sd">      </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ---------</span>
+<span class="sd">    mu : float</span>
+<span class="sd">        reduced mass in atomic units</span>
+<span class="sd">    vv : numpy 1d array of floats</span>
+<span class="sd">        vibrational quantum number for Gv, Bv</span>
+<span class="sd">    Gv : numpy 1d array of floats</span>
+<span class="sd">        vibrational constants at vv in cm-1</span>
+<span class="sd">    Bv : numpy 1d array of floats</span>
+<span class="sd">        rotational constants at vv in cm-1</span>
+<span class="sd">    De : float</span>
+<span class="sd">        dissociation energy in cm-1 </span>
+<span class="sd">    limb : str</span>
+<span class="sd">        analytical function to extrapolate outer limb to the dissociation limit</span>
+<span class="sd">        &#39;L&#39; = LeRoy otherwise Morse</span>
+<span class="sd">        note, inner limb is Morse</span>
+<span class="sd">    dv : float</span>
+<span class="sd">        evaluate the turning points at dv increments</span>
+<span class="sd">    Rgrid : numpy 1d array of floats</span>
+<span class="sd">        radial grid on which to interpolate and extrapolate the potential</span>
+<span class="sd">        energy curve</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Rgrid : numpy 1d array of float</span>
+<span class="sd">        grid for internuclear distance</span>
+<span class="sd">    PEC : numpy 1d array of float</span>
+<span class="sd">        potential energy curve</span>
+<span class="sd">    RTP : numpy 1d array of float</span>
+<span class="sd">        internuclear distance at turning point</span>
+<span class="sd">    PTP : numpy 1d array of float</span>
+<span class="sd">        potential energy at turning point</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">Rmin</span><span class="p">,</span> <span class="n">Rmax</span><span class="p">,</span> <span class="n">E</span> <span class="o">=</span> <span class="n">turning_points</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">vv</span><span class="p">,</span> <span class="n">Gv</span><span class="p">,</span> <span class="n">Bv</span><span class="p">,</span> <span class="n">dv</span><span class="p">)</span>
+
+    <span class="n">PEC</span><span class="p">,</span> <span class="n">RTP</span><span class="p">,</span> <span class="n">PTP</span> <span class="o">=</span> <span class="n">formPEC</span><span class="p">(</span><span class="n">Rgrid</span><span class="p">,</span> <span class="n">Rmin</span><span class="p">,</span> <span class="n">Rmax</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">De</span><span class="p">,</span> <span class="n">limb</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Rgrid</span><span class="p">,</span> <span class="n">PEC</span><span class="p">,</span> <span class="n">RTP</span><span class="p">,</span> <span class="n">PTP</span></div>
+
+
+<span class="c1"># interpolate Gv, Bv</span>
+<span class="n">G</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">,</span> <span class="n">gsp</span><span class="p">:</span> <span class="n">splev</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">gsp</span><span class="p">,</span> <span class="n">der</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">B</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">,</span> <span class="n">bsp</span><span class="p">:</span> <span class="n">splev</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">bsp</span><span class="p">,</span> <span class="n">der</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    
+<span class="c1"># RKR integrals</span>
+<span class="k">def</span> <span class="nf">fg_integral</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">gsp</span><span class="p">,</span> <span class="n">bsp</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+   <span class="c1"># Gaussian integration with weight function (see STG thesis)</span>
+    <span class="n">xi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">0.9578284203</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.7844439484</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.4986347571</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1412716403</span><span class="p">,</span>\
+                    <span class="mf">0.2364578932</span><span class="p">,</span> <span class="mf">0.5804412628</span><span class="p">,</span> <span class="mf">0.8413988804</span><span class="p">,</span> <span class="mf">0.9819452459</span><span class="p">])</span>
+    <span class="n">hi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0767987527</span><span class="p">,</span> <span class="mf">0.1760795557</span><span class="p">,</span> <span class="mf">0.2691489156</span><span class="p">,</span> <span class="mf">0.3525039628</span><span class="p">,</span> \
+                   <span class="mf">0.4231213525</span><span class="p">,</span> <span class="mf">0.4784468878</span><span class="p">,</span> <span class="mf">0.5164804522</span><span class="p">,</span> <span class="mf">0.5358472454</span><span class="p">])</span>
+    <span class="n">dv</span> <span class="o">=</span> <span class="n">v</span> <span class="o">+</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span> 
+    <span class="n">e</span> <span class="o">=</span> <span class="n">G</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">gsp</span><span class="p">)</span>
+    <span class="n">sumi</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">l</span><span class="p">,</span><span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">xi</span><span class="p">):</span>
+      <span class="n">vd</span> <span class="o">=</span> <span class="p">(</span><span class="n">v</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="n">x</span><span class="o">*</span><span class="n">dv</span><span class="p">)</span><span class="o">/</span><span class="mf">2.0</span><span class="p">;</span>
+      <span class="n">sumi</span> <span class="o">+=</span> <span class="n">hi</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="n">func</span><span class="p">(</span><span class="n">vd</span><span class="p">,</span> <span class="n">bsp</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">e</span><span class="o">-</span><span class="n">G</span><span class="p">(</span><span class="n">vd</span><span class="p">,</span> <span class="n">gsp</span><span class="p">));</span>
+    <span class="k">return</span> <span class="n">sumi</span><span class="o">*</span><span class="n">dv</span><span class="o">/</span><span class="mf">2.0</span>
+
+
+<span class="k">def</span> <span class="nf">turning_points</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">vv</span><span class="p">,</span> <span class="n">Gv</span><span class="p">,</span> <span class="n">Bv</span><span class="p">,</span> <span class="n">dv</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="n">DD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">h</span><span class="o">/</span><span class="p">(</span><span class="mi">8</span><span class="o">*</span><span class="n">mu</span><span class="o">*</span><span class="n">const</span><span class="o">.</span><span class="n">m_u</span><span class="o">*</span><span class="n">const</span><span class="o">.</span><span class="n">c</span><span class="o">*</span><span class="mi">100</span><span class="p">))</span><span class="o">*</span><span class="mf">1.0e10</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="c1"># Gv spline</span>
+    <span class="n">gsp</span> <span class="o">=</span> <span class="n">splrep</span><span class="p">(</span><span class="n">vv</span><span class="p">,</span> <span class="n">Gv</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># Bv spline</span>
+    <span class="n">bsp</span> <span class="o">=</span> <span class="n">splrep</span><span class="p">(</span><span class="n">vv</span><span class="p">,</span> <span class="n">Bv</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># vibrational QN at which to evaluate turning points</span>
+    <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">dv</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">vv</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dv</span><span class="p">)</span> 
+    <span class="c1"># add a point close to v=-0.5, the bottom of the well</span>
+    <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="mf">0.0001</span><span class="p">],</span> <span class="n">V</span><span class="p">)</span>
+    <span class="n">Rmin</span> <span class="o">=</span> <span class="p">[];</span> <span class="n">Rmax</span> <span class="o">=</span> <span class="p">[];</span> <span class="n">E</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># compute turning points using RKR method</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;RKR: v   Rmin(A)  Rmax(A)  E(cm-1)&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">vib</span> <span class="ow">in</span> <span class="n">V</span><span class="p">:</span>
+        <span class="n">E</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">G</span><span class="p">(</span><span class="n">vib</span><span class="p">,</span> <span class="n">gsp</span><span class="p">))</span>    <span class="c1"># energy of vibrational level</span>
+        <span class="n">ff</span> <span class="o">=</span> <span class="n">fg_integral</span><span class="p">(</span><span class="n">vib</span><span class="p">,</span> <span class="n">gsp</span><span class="p">,</span> <span class="n">bsp</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">gg</span> <span class="o">=</span> <span class="n">fg_integral</span><span class="p">(</span><span class="n">vib</span><span class="p">,</span> <span class="n">gsp</span><span class="p">,</span> <span class="n">bsp</span><span class="p">,</span> <span class="n">B</span><span class="p">)</span>
+        <span class="n">fg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ff</span><span class="o">/</span><span class="n">gg</span> <span class="o">+</span> <span class="n">ff</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">Rmin</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">fg</span> <span class="o">-</span> <span class="n">ff</span><span class="p">)</span><span class="o">*</span><span class="n">DD</span><span class="p">)</span> <span class="c1"># turning points</span>
+        <span class="n">Rmax</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">fg</span> <span class="o">+</span> <span class="n">ff</span><span class="p">)</span><span class="o">*</span><span class="n">DD</span><span class="p">)</span>
+        <span class="n">frac</span><span class="p">,</span> <span class="n">integ</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">modf</span><span class="p">(</span><span class="n">vib</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">frac</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">frac</span> <span class="o">&lt;</span> <span class="n">dv</span><span class="p">:</span> 
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;     </span><span class="si">{:d}</span><span class="s2">   </span><span class="si">{:6.4f}</span><span class="s2">    </span><span class="si">{:6.4f}</span><span class="s2">    </span><span class="si">{:6.2f}</span><span class="s2">&quot;</span><span class="o">.</span>
+                  <span class="nb">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">vib</span><span class="p">),</span> <span class="n">Rmin</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">Rmax</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">E</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])))</span>
+
+    <span class="k">return</span> <span class="n">Rmin</span><span class="p">,</span> <span class="n">Rmax</span><span class="p">,</span> <span class="n">E</span>
+
+
+<span class="k">def</span> <span class="nf">formPEC</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">Rmin</span><span class="p">,</span> <span class="n">Rmax</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">De</span><span class="p">,</span> <span class="n">limb</span><span class="p">):</span>
+    <span class="n">evcm</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="o">/</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">c</span><span class="o">*</span><span class="n">const</span><span class="o">.</span><span class="n">h</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span> <span class="c1"># converts cm-1 to eV</span>
+
+    <span class="c1"># combine Rmin with Rmax to form PEC</span>
+    <span class="n">Re</span> <span class="o">=</span> <span class="p">(</span><span class="n">Rmin</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">Rmax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;RKR: Re = </span><span class="si">{:g}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Re</span><span class="p">))</span>
+
+    <span class="n">RTP</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Rmin</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">Rmax</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># radial positions of turning-points</span>
+    <span class="n">PTP</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">E</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># potential energy at turning point</span>
+
+    <span class="c1"># interpolate</span>
+    <span class="n">psp</span> <span class="o">=</span> <span class="n">splrep</span><span class="p">(</span><span class="n">RTP</span><span class="p">,</span> <span class="n">PTP</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># Interpolate RKR curve to this grid</span>
+    <span class="n">PEC</span> <span class="o">=</span> <span class="n">splev</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">psp</span><span class="p">,</span> <span class="n">der</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># extrapolate using analytical function</span>
+    <span class="n">inner_limb_Morse</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">PEC</span><span class="p">,</span> <span class="n">RTP</span><span class="p">,</span> <span class="n">PTP</span><span class="p">,</span> <span class="n">Re</span><span class="p">,</span> <span class="n">De</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">limb</span><span class="o">==</span><span class="s1">&#39;L&#39;</span><span class="p">:</span> 
+        <span class="n">outer_limb_LeRoy</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">PEC</span><span class="p">,</span> <span class="n">RTP</span><span class="p">,</span> <span class="n">PTP</span><span class="p">,</span> <span class="n">De</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">outer_limb_Morse</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">PEC</span><span class="p">,</span> <span class="n">RTP</span><span class="p">,</span> <span class="n">PTP</span><span class="p">,</span> <span class="n">De</span><span class="p">)</span>
+
+    <span class="n">PTP</span> <span class="o">/=</span> <span class="n">evcm</span>
+    <span class="n">PEC</span> <span class="o">/=</span> <span class="n">evcm</span>  <span class="c1"># convert to eV</span>
+
+    <span class="k">return</span> <span class="n">PEC</span><span class="p">,</span> <span class="n">RTP</span><span class="p">,</span> <span class="n">PTP</span>
+
+<span class="c1"># analytical functions</span>
+<span class="k">def</span> <span class="nf">inner_limb_Morse</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">RTP</span><span class="p">,</span> <span class="n">PTP</span><span class="p">,</span> <span class="n">Re</span><span class="p">,</span> <span class="n">De</span><span class="p">):</span>
+    <span class="n">ln0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">PTP</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">De</span><span class="p">))</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="n">ln0</span><span class="o">/</span><span class="p">(</span><span class="n">Re</span> <span class="o">-</span> <span class="n">RTP</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">R</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="o">&gt;</span> <span class="n">RTP</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="k">break</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">beta</span><span class="o">*</span><span class="p">(</span><span class="n">r</span><span class="o">-</span><span class="n">Re</span><span class="p">))</span>
+        <span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">De</span><span class="o">*</span><span class="n">tmp</span><span class="o">*</span><span class="n">tmp</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;RKR: Inner limb  De[1-exp(beta*(Re-R))]^2&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;RKR:  </span><span class="si">{:g}</span><span class="s2">-</span><span class="si">{:g}</span><span class="s2">A   </span><span class="si">{:g}</span><span class="s2">(De)  </span><span class="si">{:g}</span><span class="s2">(Re)  </span><span class="si">{:g}</span><span class="s2">(beta)&quot;</span><span class="o">.</span>
+          <span class="nb">format</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="p">,</span> <span class="n">De</span><span class="p">,</span> <span class="n">Re</span><span class="p">,</span> <span class="n">beta</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">outer_limb_Morse</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">RTP</span><span class="p">,</span> <span class="n">PTP</span><span class="p">,</span> <span class="n">De</span><span class="p">):</span>
+    <span class="n">l1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">PTP</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">De</span><span class="p">))</span>
+    <span class="n">l2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">PTP</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="n">De</span><span class="p">))</span>
+    <span class="n">re</span> <span class="o">=</span> <span class="p">(</span><span class="n">l2</span><span class="o">*</span><span class="n">RTP</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">l1</span><span class="o">*</span><span class="n">RTP</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">l2</span><span class="o">-</span><span class="n">l1</span><span class="p">)</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="n">l1</span><span class="o">/</span><span class="p">(</span><span class="n">Re</span> <span class="o">-</span> <span class="n">RTP</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">R</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;</span> <span class="n">RTP</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="p">:</span> <span class="k">continue</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">beta</span><span class="o">*</span><span class="p">(</span><span class="n">r</span><span class="o">-</span><span class="n">Re</span><span class="p">))</span>
+        <span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">De</span><span class="o">*</span><span class="n">tmp</span><span class="o">*</span><span class="n">tmp</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;RKR: Outer limb  De[1-exp(beta*(Re-R))]^2&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;RKR:   </span><span class="si">{:g}</span><span class="s2">-</span><span class="si">{:g}</span><span class="s2">A   </span><span class="si">{:g}</span><span class="s2">(De)  </span><span class="si">{:g}</span><span class="s2">(Re)  </span><span class="si">{:g}</span><span class="s2">(beta)&quot;</span><span class="o">.</span>
+          <span class="nb">format</span><span class="p">(</span><span class="n">RTP</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">R</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">De</span><span class="p">,</span> <span class="n">re</span><span class="p">,</span> <span class="n">beta</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">outer_limb_LeRoy</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">RTP</span><span class="p">,</span> <span class="n">PTP</span><span class="p">,</span> <span class="n">De</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">De</span> <span class="o">-</span> <span class="n">PTP</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">De</span> <span class="o">-</span> <span class="n">PTP</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">RTP</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="n">RTP</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">Cn</span> <span class="o">=</span> <span class="p">(</span><span class="n">De</span> <span class="o">-</span> <span class="n">PTP</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">RTP</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="n">n</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">R</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;</span> <span class="n">RTP</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="p">:</span> <span class="k">continue</span>
+        <span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">De</span> <span class="o">-</span> <span class="n">Cn</span><span class="o">/</span><span class="n">r</span><span class="o">**</span><span class="n">n</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;RKR:  Outer limb  De - Cn/R^n&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;RKR:  </span><span class="si">{:g}</span><span class="s2">-</span><span class="si">{:g}</span><span class="s2">A   </span><span class="si">{:g}</span><span class="s2">(De)  </span><span class="si">{:g}</span><span class="s2">(n)  </span><span class="si">{:g}</span><span class="s2">(Cn)&quot;</span><span class="o">.</span>
+          <span class="nb">format</span><span class="p">(</span><span class="n">RTP</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">R</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">De</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">Cn</span><span class="p">))</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, PyCSE team.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

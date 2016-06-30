@@ -1,0 +1,541 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>cse.johnson &mdash; PyCSE 0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="PyCSE 0.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> PyCSE
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme_link.html">PyCSE README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cse.html">PyCSE package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes.html">Johnson Renormalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes.html#id1">Johnson Renormalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes.html#normalization">Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notes.html#id5">Normalization</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">PyCSE</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>cse.johnson</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for cse.johnson</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
+
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">linalg</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">leastsq</span>
+<span class="kn">from</span> <span class="nn">scipy.integrate.quadrature</span> <span class="k">import</span> <span class="n">simps</span>
+<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="k">import</span> <span class="n">inv</span>
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="k">import</span> <span class="n">sph_jn</span><span class="p">,</span> <span class="n">sph_yn</span>
+
+<span class="c1">##############################################################################</span>
+<span class="c1">#  PyCSE - solve the coupled-channel time-independent Schrödinger equation</span>
+<span class="c1">#          using recipe of B.R. Johnson J Chem Phys 69, 4678 (1977).</span>
+<span class="c1">#</span>
+<span class="c1">#  Stephen.Gibson@anu.edu.au</span>
+<span class="c1">#  January 2016</span>
+<span class="c1">##############################################################################</span>
+
+
+<span class="c1">#===== Johnson === Renormalized Numerov method ============</span>
+
+<div class="viewcode-block" id="WImat"><a class="viewcode-back" href="../../cse.html#cse.johnson.WImat">[docs]</a><span class="k">def</span> <span class="nf">WImat</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">rot</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span> 
+    <span class="sd">&quot;&quot;&quot; Interaction matrix.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    energy : float</span>
+<span class="sd">        energy in eV or estimate (for bound states) at which to solve the TISE</span>
+<span class="sd">    rot : int</span>
+<span class="sd">        rotational quantum number J</span>
+<span class="sd">    V : numpy 3d array - shape oo, n, n = radial grid size, number of channels</span>
+<span class="sd">        potential energy curve matrix, diagonals are the diabatic potential energy curves,</span>
+<span class="sd">        off-diagonals the coupling</span>
+<span class="sd">    R : numpy 1d array</span>
+<span class="sd">        the internuclear distance grid for the potential curve matrix, size = oo</span>
+<span class="sd">    mu : float</span>
+<span class="sd">        reduced mass in kg</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    WI : numpy 3d array - shape oo, n, n</span>
+<span class="sd">       inverse of the interation matrix W</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">dR2</span> <span class="o">=</span> <span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span>
+    <span class="n">factor</span> <span class="o">=</span> <span class="n">mu</span><span class="o">*</span><span class="mf">1.0e-20</span><span class="o">*</span><span class="n">dR2</span><span class="o">*</span><span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="o">/</span><span class="n">const</span><span class="o">.</span><span class="n">hbar</span><span class="o">/</span><span class="n">const</span><span class="o">.</span><span class="n">hbar</span><span class="o">/</span><span class="mf">6.0</span>
+
+    <span class="n">oo</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="n">V</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">rot</span><span class="p">:</span>
+        <span class="c1"># centrifugal barrier -   hbar^2 J(J+1)/2 mu R^2 in eV</span>
+        <span class="n">rot2ev</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">hbar</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="mf">1.0e20</span><span class="o">/</span><span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">mu</span><span class="o">*</span><span class="n">R</span><span class="p">[:]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">barrier</span> <span class="o">=</span> <span class="n">rot</span><span class="o">*</span><span class="p">(</span><span class="n">rot</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">rot2ev</span>
+
+        <span class="n">VT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
+        <span class="n">dia</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag_indices</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="c1"># add centrifugal barrier to diagonal</span>
+        <span class="n">VT</span><span class="p">[</span><span class="n">dia</span><span class="p">]</span> <span class="o">+=</span> <span class="n">barrier</span>
+        <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">VT</span><span class="p">)</span>
+
+    <span class="c1"># generate W^-1</span>
+    <span class="n">WI</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
+    <span class="n">WI</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">inv</span><span class="p">(</span><span class="n">I</span> <span class="o">+</span> <span class="p">(</span><span class="n">energy</span><span class="o">*</span><span class="n">I</span> <span class="o">-</span> <span class="n">V</span><span class="p">[:])</span><span class="o">*</span><span class="n">factor</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">WI</span></div>
+
+
+<div class="viewcode-block" id="RImat"><a class="viewcode-back" href="../../cse.html#cse.johnson.RImat">[docs]</a><span class="k">def</span> <span class="nf">RImat</span><span class="p">(</span><span class="n">WI</span><span class="p">,</span> <span class="n">mx</span><span class="p">):</span>   
+    <span class="sd">&quot;&quot;&quot; R matrix </span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    WI : numpy 3d array </span>
+<span class="sd">        array of inverted interaction arrays, as returned from WImat</span>
+
+<span class="sd">    mx: int</span>
+<span class="sd">        matching point in inward and outward solutions (bound states only)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    RI : numpy 3d array</span>
+<span class="sd">        R matrix of the Johnson method</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+ 
+    <span class="n">oo</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="n">WI</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">RI</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">WI</span><span class="p">)</span>
+
+    <span class="n">U</span> <span class="o">=</span> <span class="mi">12</span><span class="o">*</span><span class="n">WI</span><span class="o">-</span><span class="n">I</span><span class="o">*</span><span class="mi">10</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">mx</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>     <span class="n">RI</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">U</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">RI</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="n">oo</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="n">mx</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span> <span class="n">RI</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">U</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">RI</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">RI</span></div>
+
+
+<div class="viewcode-block" id="fmat"><a class="viewcode-back" href="../../cse.html#cse.johnson.fmat">[docs]</a><span class="k">def</span> <span class="nf">fmat</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">RI</span><span class="p">,</span> <span class="n">WI</span><span class="p">,</span>  <span class="n">mx</span><span class="p">):</span>
+   <span class="sd">&quot;&quot;&quot; f-matrix of the Johnson method.</span>
+
+<span class="sd">   Parameters</span>
+<span class="sd">   ----------</span>
+<span class="sd">   j : int</span>
+<span class="sd">       open channel number</span>
+<span class="sd">   RI : numpy 3d array</span>
+<span class="sd">       inverted R-matrix as returned from RImat</span>
+<span class="sd">   WI : numpy 3d array</span>
+<span class="sd">       inverted interaction matrix as returned from WImat</span>
+<span class="sd">   mx : int</span>
+<span class="sd">       matching point for inward and outward solutions</span>
+
+<span class="sd">   Returns</span>
+<span class="sd">   -------</span>
+<span class="sd">   f : numpy 2d array</span>
+<span class="sd">       Johnson f-matrix</span>
+
+<span class="sd">   &quot;&quot;&quot;</span>
+   <span class="n">oo</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="n">WI</span><span class="o">.</span><span class="n">shape</span>
+   <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">oo</span><span class="p">,</span><span class="n">n</span><span class="p">))</span>
+
+   <span class="n">f</span><span class="p">[</span><span class="n">mx</span><span class="p">]</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">WI</span><span class="p">[</span><span class="n">mx</span><span class="p">])[</span><span class="n">j</span><span class="p">]</span>
+
+   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="n">mx</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span> <span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">@</span> <span class="n">RI</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="n">mx</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">oo</span><span class="p">):</span>     <span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">@</span> <span class="n">RI</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+   <span class="k">return</span> <span class="n">f</span></div>
+
+
+<div class="viewcode-block" id="wavefunction"><a class="viewcode-back" href="../../cse.html#cse.johnson.wavefunction">[docs]</a><span class="k">def</span> <span class="nf">wavefunction</span><span class="p">(</span><span class="n">WI</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+   <span class="sd">&quot;&quot;&quot; evaluate wavefunctions from f-matrix array.</span>
+
+<span class="sd">   Parameters</span>
+<span class="sd">   ----------</span>
+<span class="sd">   WI : numpy 3d array</span>
+<span class="sd">       inverted interaction matrix, as returned from WImat</span>
+<span class="sd">   j : int</span>
+<span class="sd">       open channel number</span>
+<span class="sd">   f : numpy 2d array</span>
+<span class="sd">       f-matrix as returned from fmat</span>
+
+<span class="sd">   Returns</span>
+<span class="sd">   -------</span>
+<span class="sd">   wf : numpy 3d array</span>
+<span class="sd">       oo x n x nopen array of wavefunctions</span>
+
+<span class="sd">   &quot;&quot;&quot;</span>
+   <span class="n">oo</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">shape</span>
+   <span class="n">wf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">oo</span><span class="p">):</span>
+       <span class="n">wf</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">@</span> <span class="n">WI</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+   <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">wf</span><span class="p">)</span></div>
+
+<span class="c1">#==== end of Johnson stuff ====================</span>
+
+<div class="viewcode-block" id="matching_point"><a class="viewcode-back" href="../../cse.html#cse.johnson.matching_point">[docs]</a><span class="k">def</span> <span class="nf">matching_point</span><span class="p">(</span><span class="n">en</span><span class="p">,</span> <span class="n">rot</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; estimate matching point for inward and outward solutions position based on the determinant of the R-matrix.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    en : float</span>
+<span class="sd">        potential energy of the solution</span>
+<span class="sd">    rot : int</span>
+<span class="sd">        rotational quantum number J</span>
+<span class="sd">    V : numpy 3d array</span>
+<span class="sd">        potential curve and couplings matrix</span>
+<span class="sd">    R : numpy 1d array</span>
+<span class="sd">        internuclear distance grid</span>
+<span class="sd">    mu : float</span>
+<span class="sd">        reduced mass in kg</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    mx : int</span>
+<span class="sd">        matching point grid index</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">oo</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="n">V</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">if</span> <span class="n">en</span> <span class="o">&gt;</span> <span class="n">V</span><span class="p">[</span><span class="n">oo</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span> <span class="k">return</span> <span class="n">oo</span><span class="o">-</span><span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">Vnn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">V</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">mx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Vnn</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">Vnn</span><span class="p">[</span><span class="n">en</span><span class="o">&gt;</span><span class="n">Vnn</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">WI</span> <span class="o">=</span> <span class="n">WImat</span><span class="p">(</span><span class="n">en</span><span class="p">,</span> <span class="n">rot</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
+        <span class="n">Rm</span> <span class="o">=</span> <span class="n">RImat</span><span class="p">(</span><span class="n">WI</span><span class="p">,</span> <span class="n">mx</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">Rm</span><span class="p">[</span><span class="n">mx</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span> <span class="n">mx</span> <span class="o">-=</span><span class="mi">1</span>
+    <span class="k">return</span> <span class="n">mx</span></div>
+
+<div class="viewcode-block" id="eigen"><a class="viewcode-back" href="../../cse.html#cse.johnson.eigen">[docs]</a><span class="k">def</span> <span class="nf">eigen</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">rot</span><span class="p">,</span> <span class="n">mx</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; determine eigen energy solution based on |R^-1[mx] - R^-1[mx+1]| ~ 0.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    energy : float</span>
+<span class="sd">        energy (eV) of the attempted solution</span>
+<span class="sd">    rot : int</span>
+<span class="sd">        rotational quantum number</span>
+<span class="sd">    mx : int</span>
+<span class="sd">        matching point index, for inward and outward solutions</span>
+<span class="sd">    V : numpy 3d array</span>
+<span class="sd">        potential energy curve and coupling matrix</span>
+<span class="sd">    R : numpy 1d array</span>
+<span class="sd">        internuclear distance grid</span>
+<span class="sd">    mu : float</span>
+<span class="sd">        reduced mass in kg</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    eigenvalue : float</span>
+<span class="sd">        energy of the solution</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">WI</span> <span class="o">=</span> <span class="n">WImat</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">rot</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
+    <span class="n">RI</span> <span class="o">=</span> <span class="n">RImat</span><span class="p">(</span><span class="n">WI</span><span class="p">,</span> <span class="n">mx</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">RI</span><span class="p">[</span><span class="n">mx</span><span class="p">])</span><span class="o">-</span><span class="n">RI</span><span class="p">[</span><span class="n">mx</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="normalize"><a class="viewcode-back" href="../../cse.html#cse.johnson.normalize">[docs]</a><span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">wf</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; normalize a bound state wavefunction</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wf : numpy 3d array</span>
+<span class="sd">        wavefunction array </span>
+
+<span class="sd">    R : numpy 1d array</span>
+<span class="sd">        internuclear distance grid</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    wf: numpy 3d array </span>
+<span class="sd">        normalized wavefunction array</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">oo</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">nopen</span> <span class="o">=</span> <span class="n">wf</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">norm</span> <span class="o">+=</span> <span class="n">simps</span><span class="p">(</span><span class="n">wf</span><span class="p">[:,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">R</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wf</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">norm</span><span class="p">)</span></div>
+
+<span class="k">def</span> <span class="nf">amplitude</span> <span class="p">(</span><span class="n">wf</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">edash</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
+    <span class="c1"># Mies    F ~ JA + NB       J ~ sin(kR)/kR</span>
+    <span class="c1"># normalization sqrt(2 mu/pu hbar^2) = zz</span>
+    <span class="n">zz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">mu</span><span class="o">/</span><span class="n">const</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">/</span><span class="n">const</span><span class="o">.</span><span class="n">hbar</span>
+
+    <span class="n">oo</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">nopen</span>  <span class="o">=</span> <span class="n">wf</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="c1"># two asymptotic points on wavefunction wf[:, j]</span>
+    <span class="n">i1</span> <span class="o">=</span> <span class="n">oo</span><span class="o">-</span><span class="mi">5</span>
+    <span class="n">i2</span> <span class="o">=</span> <span class="n">i1</span><span class="o">-</span><span class="mi">1</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="n">R</span><span class="p">[</span><span class="n">i1</span><span class="p">]</span><span class="o">*</span><span class="mf">1.0e-10</span>
+    <span class="n">x2</span> <span class="o">=</span> <span class="n">R</span><span class="p">[</span><span class="n">i2</span><span class="p">]</span><span class="o">*</span><span class="mf">1.0e-10</span>
+
+    <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nopen</span><span class="p">,</span> <span class="n">nopen</span><span class="p">))</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nopen</span><span class="p">,</span> <span class="n">nopen</span><span class="p">))</span>
+    <span class="n">oc</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+       <span class="k">if</span> <span class="n">edash</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span> <span class="k">continue</span>
+       <span class="c1"># open channel</span>
+       <span class="n">ke</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">mu</span><span class="o">*</span><span class="n">edash</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">*</span><span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="p">)</span><span class="o">/</span><span class="n">const</span><span class="o">.</span><span class="n">hbar</span>
+       <span class="n">rtk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ke</span><span class="p">)</span>
+       <span class="n">kex1</span> <span class="o">=</span> <span class="n">ke</span><span class="o">*</span><span class="n">x1</span>
+       <span class="n">kex2</span> <span class="o">=</span> <span class="n">ke</span><span class="o">*</span><span class="n">x2</span>
+      
+       <span class="n">j1</span> <span class="o">=</span> <span class="n">sph_jn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">kex1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">x1</span><span class="o">*</span><span class="n">rtk</span><span class="o">*</span><span class="n">zz</span>
+       <span class="n">y1</span> <span class="o">=</span> <span class="n">sph_yn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">kex1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">x1</span><span class="o">*</span><span class="n">rtk</span><span class="o">*</span><span class="n">zz</span>
+
+       <span class="n">j2</span> <span class="o">=</span> <span class="n">sph_jn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">kex2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">x2</span><span class="o">*</span><span class="n">rtk</span><span class="o">*</span><span class="n">zz</span>
+       <span class="n">y2</span> <span class="o">=</span> <span class="n">sph_yn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">kex2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">x2</span><span class="o">*</span><span class="n">rtk</span><span class="o">*</span><span class="n">zz</span>
+
+       <span class="n">det</span> <span class="o">=</span> <span class="n">j1</span><span class="o">*</span><span class="n">y2</span> <span class="o">-</span> <span class="n">j2</span><span class="o">*</span><span class="n">y1</span>
+
+       <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nopen</span><span class="p">):</span>
+           <span class="n">A</span><span class="p">[</span><span class="n">oc</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">y2</span><span class="o">*</span><span class="n">wf</span><span class="p">[</span><span class="n">i1</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">-</span> <span class="n">y1</span><span class="o">*</span><span class="n">wf</span><span class="p">[</span><span class="n">i2</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">])</span><span class="o">/</span><span class="n">det</span>
+           <span class="n">B</span><span class="p">[</span><span class="n">oc</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">j1</span><span class="o">*</span><span class="n">wf</span><span class="p">[</span><span class="n">i2</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">-</span> <span class="n">j2</span><span class="o">*</span><span class="n">wf</span><span class="p">[</span><span class="n">i1</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">])</span><span class="o">/</span><span class="n">det</span>
+
+       <span class="n">oc</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">AI</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">B</span> <span class="o">@</span> <span class="n">AI</span>
+
+    <span class="k">return</span> <span class="n">K</span><span class="p">,</span> <span class="n">AI</span><span class="p">,</span> <span class="n">B</span>
+
+
+<span class="k">def</span> <span class="nf">solveCSE</span> <span class="p">(</span><span class="n">en</span><span class="p">,</span> <span class="n">rot</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">VT</span><span class="p">):</span>
+    <span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">oo</span> <span class="o">=</span> <span class="n">VT</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">VT</span><span class="p">)</span>
+
+    <span class="c1"># find channels that are open, as defined by E&#39; &gt; 0</span>
+    <span class="n">edash</span> <span class="o">=</span> <span class="n">en</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">VT</span><span class="p">[:,</span> <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">openchann</span> <span class="o">=</span> <span class="n">edash</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">nopen</span> <span class="o">=</span> <span class="n">edash</span><span class="p">[</span><span class="n">openchann</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
+    
+    <span class="n">mx</span> <span class="o">=</span> <span class="n">matching_point</span> <span class="p">(</span><span class="n">en</span><span class="p">,</span> <span class="n">rot</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">mx</span> <span class="o">&lt;</span> <span class="n">oo</span><span class="o">-</span><span class="mi">5</span><span class="p">:</span> 
+        <span class="n">out</span> <span class="o">=</span> <span class="n">leastsq</span> <span class="p">(</span><span class="n">eigen</span><span class="p">,</span> <span class="p">(</span><span class="n">en</span><span class="p">,</span> <span class="p">),</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">rot</span><span class="p">,</span> <span class="n">mx</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">mu</span><span class="p">),</span> <span class="n">xtol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+        <span class="n">en</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    
+    <span class="c1"># solve CSE according to Johnson renormalized Numerov method</span>
+    <span class="n">WI</span> <span class="o">=</span> <span class="n">WImat</span><span class="p">(</span><span class="n">en</span><span class="p">,</span> <span class="n">rot</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
+    <span class="n">RI</span> <span class="o">=</span> <span class="n">RImat</span><span class="p">(</span><span class="n">WI</span><span class="p">,</span> <span class="n">mx</span><span class="p">)</span>
+    <span class="n">wf</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">nopen</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">oc</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ed</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">edash</span><span class="p">):</span>
+           <span class="k">if</span> <span class="n">ed</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+               <span class="n">f</span>  <span class="o">=</span> <span class="n">fmat</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">RI</span><span class="p">,</span> <span class="n">WI</span><span class="p">,</span> <span class="n">mx</span><span class="p">)</span>
+               <span class="n">wf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wavefunction</span><span class="p">(</span><span class="n">WI</span><span class="p">,</span> <span class="n">oc</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
+               <span class="n">oc</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">f</span>  <span class="o">=</span> <span class="n">fmat</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">RI</span><span class="p">,</span> <span class="n">WI</span><span class="p">,</span> <span class="n">mx</span><span class="p">)</span>
+        <span class="n">wf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wavefunction</span><span class="p">(</span><span class="n">WI</span><span class="p">,</span> <span class="n">nopen</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
+
+    <span class="n">wf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wf</span><span class="p">)</span>
+    <span class="n">wf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">wf</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">nopen</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">wf</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">wf</span><span class="p">,</span> <span class="n">R</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">K</span><span class="p">,</span> <span class="n">AI</span><span class="p">,</span> <span class="n">B</span> <span class="o">=</span> <span class="n">amplitude</span><span class="p">(</span><span class="n">wf</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">edash</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>   <span class="c1"># shape = nopen x nopen</span>
+
+        <span class="c1"># K = BA-1 = U tan xi UT</span>
+        <span class="n">eig</span><span class="p">,</span> <span class="n">U</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">K</span><span class="p">)</span> 
+
+        <span class="c1"># form A^-1 U cos xi exp(i xi) UT</span>
+        <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">nopen</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="n">xi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">eig</span><span class="p">)</span><span class="o">*</span><span class="n">I</span>
+        <span class="n">cosxi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">xi</span><span class="p">)</span><span class="o">*</span><span class="n">I</span>
+        <span class="n">expxi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">((</span><span class="mi">0</span><span class="o">+</span><span class="mi">1</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="n">xi</span><span class="p">)</span><span class="o">*</span><span class="n">I</span>
+
+        <span class="n">expxiUT</span> <span class="o">=</span> <span class="n">expxi</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">U</span><span class="p">)</span>
+        <span class="n">cosxiexpxiUT</span> <span class="o">=</span> <span class="n">cosxi</span> <span class="o">@</span> <span class="n">expxiUT</span>
+
+        <span class="n">UcosxiexpxiUT</span> <span class="o">=</span> <span class="n">U</span> <span class="o">@</span> <span class="n">cosxiexpxiUT</span>
+        <span class="n">Norm</span> <span class="o">=</span> <span class="n">AI</span> <span class="o">@</span> <span class="n">UcosxiexpxiUT</span>    <span class="c1"># == (cu, su) complex</span>
+
+        <span class="c1"># complex wavefunction array  oo x n x nopen</span>
+        <span class="n">wf</span> <span class="o">=</span> <span class="n">wf</span> <span class="o">@</span> <span class="n">Norm</span>
+
+    <span class="k">return</span> <span class="n">wf</span><span class="p">,</span> <span class="n">en</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, PyCSE team.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

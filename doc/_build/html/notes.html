@@ -1,0 +1,467 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Johnson Renormalization &mdash; PyCSE 0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="PyCSE 0.1 documentation" href="index.html"/>
+        <link rel="prev" title="Example: example_O2xs.py" href="example_O2xs.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PyCSE
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme_link.html">PyCSE README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cse.html">PyCSE package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Johnson Renormalization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#outward-solution">Outward Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inward-solution-matrices">Inward Solution (<span class="math">\(\hat{\ }\)</span> - matrices)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#id1">Johnson Renormalization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">Outward Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">Inward Solution (<span class="math">\(\hat{\ }\)</span> - matrices)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#multiple-open-channels">Multiple Open Channels</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#normalization">Normalization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id4">Multiple Open Channels</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#id5">Normalization</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">PyCSE</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Johnson Renormalization</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/notes.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="johnson-renormalization">
+<h1>Johnson Renormalization<a class="headerlink" href="#johnson-renormalization" title="Permalink to this headline">¶</a></h1>
+<div class="line-block">
+<div class="line">[B. R. Johnson JCP <strong>69</strong>, 4678 (1978).]</div>
+</div>
+<div class="math">
+\[\mathbf{T}_n = -\frac{2(\Delta R)^2\mu}{12\hbar^2} (E\mathbf{I}-\mathbf{V}_n)\]</div>
+<div class="math">
+\[\begin{split}\begin{array}{l}
+  \mathbf{F}_n = \mathbf{W}_n \boldsymbol{\chi}_n = [\mathbf{I} - \mathbf{T}_n] \chi \\
+  \left.
+   \begin{array}{l}
+    \mathbf{F}_{n+1} - \mathbf{U}_n\mathbf{F}_n + \mathbf{F}_{n-1} = \mathbf{0} \\
+    \mathbf{R}_n = \mathbf{F}_{n+1}\mathbf{F}^{-1}_n \\
+   \end{array}
+  \right\}
+  \Rightarrow
+   \begin{array}{l}
+    \mathbf{R}_n = \mathbf{U}_n - \mathbf{R}^{-1}_{n-1} \\
+    \mathbf{U}_n = 12\mathbf{W}^{-1}_n - 10\mathbf{I} \\
+   \end{array}
+\end{array}\end{split}\]</div>
+<div class="math">
+\[\begin{split}\begin{aligned}
+\mathbf{V} &amp;= \left( \begin{array}{lllll}
+                       V_{00} &amp; V_{01} &amp; V_{02} &amp; \ldots &amp; V_{0\text{n}} \\
+                              &amp; V_{11} &amp; V_{12} &amp; \ldots &amp; V_{1\text{n}} \\
+                              &amp;        &amp; \ddots &amp;        &amp;  \vdots       \\
+                              &amp;        &amp;        &amp; \ddots &amp; V_{\text{n}\text{n}}\\
+                    \end{array}
+             \right)\end{aligned}\end{split}\]</div>
+<p><span class="math">\(V_{ii}\)</span> diabatic potential energy curves, <span class="math">\(V_{ij\neq i}\)</span></p>
+<p>off-diagonal coupling terms [H. Lefebvre Brion and R.&nbsp;W.&nbsp;Field table 2.2
+page 39.]</p>
+<div class="line-block">
+<div class="line"><span class="math">\(\Delta \Omega = 0\)</span> homogeneous</div>
+<div class="line"><span class="math">\(\Delta \Omega = \pm 1\)</span> heterogenous - <span class="math">\(J\)</span> dependent.</div>
+</div>
+<div class="section" id="outward-solution">
+<h2>Outward Solution<a class="headerlink" href="#outward-solution" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<blockquote>
+<div><div class="math">
+\[\begin{split}\begin{array}{ll}
+\mathbf{R}_n = \mathbf{U}_n - \mathbf{R}^{-1}_{n-1} &amp;
+n = 1 \rightarrow m \text{ with}\ \mathbf{R}^{-1}_0 = 0 \\
+\mathbf{F}_n = \mathbf{R}^{-1}_n\mathbf{F}_{n+1} &amp; n = m \rightarrow 0
+\text{ with}\ \mathbf{F}_\infty = \mathbf{W}_\infty \boldsymbol{\chi}_\infty
+\end{array}\end{split}\]</div>
+</div></blockquote>
+<p>Except when <span class="math">\(\left| \mathbf{R}_n \right| \sim 0\)</span> then</p>
+<blockquote>
+<div><span class="math">\(\mathbf{R}^{-1}_n\)</span> is not well defined.</div></blockquote>
+<div class="line-block">
+<div class="line">Use
+<span class="math">\(\mathbf{F}_n = \mathbf{U}_{n+1}\mathbf{F}_{n+1} - \mathbf{F}_{n+2}\)</span></div>
+</div>
+</div>
+<div class="section" id="inward-solution-matrices">
+<h2>Inward Solution (<span class="math">\(\hat{\ }\)</span> - matrices)<a class="headerlink" href="#inward-solution-matrices" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><div class="math">
+\[\begin{split}\begin{array}{ll}
+\hat{\mathbf{R}}_n = \mathbf{U}_n - \hat{\mathbf{R}}^{-1}_{n+1} &amp;
+n = \infty \rightarrow m \text{ with}\ \hat{\mathbf{R}}^{-1}_\infty = 0 \\
+\mathbf{F}_n = \hat{\mathbf{R}}^{-1}_n \mathbf{F}_{n-1} &amp;
+n = m \rightarrow \infty
+\ \text{ with}\ \mathbf{F}_0 = \mathbf{W}_0\boldsymbol{\chi}_0\\
+\end{array}\end{split}\]</div>
+</div></blockquote>
+<dl class="docutils">
+<dt>Except when <span class="math">\(\left| \mathbf{R}_n \right| \sim 0\)</span> then</dt>
+<dd><span class="math">\(\mathbf{R}^{-1}_n\)</span> is not well defined.</dd>
+</dl>
+<div class="line-block">
+<div class="line">Use
+<span class="math">\(\mathbf{F}_n = \mathbf{U}_{n-1}\mathbf{F}_{n-1} - \mathbf{F}_{n-2}\)</span></div>
+</div>
+</div>
+</div>
+<div class="section" id="id1">
+<h1>Johnson Renormalization<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="line-block">
+<div class="line">[B. R. Johnson JCP <strong>69</strong>, 4678 (1978).]</div>
+</div>
+<div class="math">
+\[\mathbf{T}_n = -\frac{2(\Delta R)^2\mu}{12\hbar^2} (E\mathbf{I}-\mathbf{V}_n)\]</div>
+<div class="math">
+\[\begin{split}\begin{array}{l}
+  \mathbf{F}_n = \mathbf{W}_n \boldsymbol{\chi}_n = [\mathbf{I} - \mathbf{T}_n] \chi \\
+  \left.
+   \begin{array}{l}
+    \mathbf{F}_{n+1} - \mathbf{U}_n\mathbf{F}_n + \mathbf{F}_{n-1} = \mathbf{0} \\
+    \mathbf{R}_n = \mathbf{F}_{n+1}\mathbf{F}^{-1}_n \\
+   \end{array}
+  \right\}
+  \Rightarrow
+   \begin{array}{l}
+    \mathbf{R}_n = \mathbf{U}_n - \mathbf{R}^{-1}_{n-1} \\
+    \mathbf{U}_n = 12\mathbf{W}^{-1}_n - 10\mathbf{I} \\
+   \end{array}
+\end{array}\end{split}\]</div>
+<div class="math">
+\[ \begin{align}\begin{aligned}\begin{split}  \begin{aligned}
+  \mathbf{V} &amp;= \left( \begin{array}{lllll}
+                         V_{00} &amp; V_{01} &amp; V_{02} &amp; \ldots &amp; V_{0\text{n}} \\
+                                &amp; V_{11} &amp; V_{12} &amp; \ldots &amp; V_{1\text{n}} \\
+                                &amp;        &amp; \ddots &amp;        &amp;  \vdots       \\
+                                &amp;        &amp;        &amp; \ddots &amp; V_{\text{n}\text{n}}\\
+                      \end{array}
+               \right)\end{aligned}\end{split}\\
+:math:`V_{ii}` diabatic potential energy curves, :math:`V_{ij\neq i}`\end{aligned}\end{align} \]</div>
+<p>off-diagonal coupling terms [H. Lefebvre Brion and R.&nbsp;W.&nbsp;Field table 2.2
+page 39.]</p>
+<div class="line-block">
+<div class="line"><span class="math">\(\Delta \Omega = 0\)</span> &amp; homogeneous</div>
+<div class="line"><span class="math">\(\Delta \Omega = \pm 1\)</span> &amp;</div>
+</div>
+<p>heterogenous - <span class="math">\(J\)</span> dependent.</p>
+<div class="section" id="id2">
+<h2>Outward Solution<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><div class="math">
+\[\begin{split}\begin{array}{ll}
+\mathbf{R}_n = \mathbf{U}_n - \mathbf{R}^{-1}_{n-1} &amp;
+n = 1 \rightarrow m \text{\ with}\ \mathbf{R}^{-1}_0 = 0 \\
+\mathbf{F}_n = \mathbf{R}^{-1}_n\mathbf{F}_{n+1} &amp; n = m \rightarrow 0
+\text{with}\ \mathbf{F}_\infty = \mathbf{W}_\infty \boldsymbol{\chi}_\infty
+\end{array}\end{split}\]</div>
+</div></blockquote>
+<p>Except when <span class="math">\(\left| \mathbf{R}_n \right| \sim 0\)</span> then</p>
+<blockquote>
+<div><span class="math">\(\mathbf{R}^{-1}_n\)</span> is not well defined.</div></blockquote>
+<div class="line-block">
+<div class="line">Use
+<span class="math">\(\mathbf{F}_n = \mathbf{U}_{n+1}\mathbf{F}_{n+1} - \mathbf{F}_{n+2}\)</span></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>Inward Solution (<span class="math">\(\hat{\ }\)</span> - matrices)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<blockquote>
+<div><div class="math">
+\[ \begin{align}\begin{aligned}\begin{split}  \begin{array}{ll}
+  \hat{\mathbf{R}}_n = \mathbf{U}_n - \hat{\mathbf{R}}^{-1}_{n+1} &amp;
+  n = \infty \rightarrow m \text{with}\ \hat{\mathbf{R}}^{-1}_\infty = 0 \\
+  \mathbf{F}_n = \hat{\mathbf{R}}^{-1}_n \mathbf{F}_{n-1} &amp;
+  n = m \rightarrow \infty
+  \ \text{with}\ \mathbf{F}_0 = \mathbf{W}_0\boldsymbol{\chi}_0\\
+  \end{array}\end{split}\\Except when :math:`\left| \mathbf{R}_n \right| \sim 0 ` then\end{aligned}\end{align} \]</div>
+<p><span class="math">\(\mathbf{R}^{-1}_n\)</span> is not well defined.</p>
+</div></blockquote>
+<div class="line-block">
+<div class="line">Use
+<span class="math">\(\mathbf{F}_n = \mathbf{U}_{n-1}\mathbf{F}_{n-1} - \mathbf{F}_{n-2}\)</span></div>
+</div>
+</div>
+<div class="section" id="multiple-open-channels">
+<h2>Multiple Open Channels<a class="headerlink" href="#multiple-open-channels" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line"><span class="math">\(n_{\rm open}\)</span> linearly independent solutions:</div>
+<div class="line"><br /></div>
+</div>
+<blockquote>
+<div><div class="math">
+\[\begin{split}\mathbf{R}(R=\infty) =
+\begin{pmatrix}
+1       &amp; 0  &amp; \hdotsfor{2} &amp; 0 \\
+0       &amp; 1  &amp; \hdotsfor{2} &amp; 0 \\
+\vdots  &amp; \vdots  &amp; \ddots &amp; \hdotsfor{1} &amp; \vdots\\
+0       &amp; 0  &amp; \hdotsfor{2} &amp; 1\\
+\end{pmatrix}
+\rightarrow \text{CSE} \rightarrow
+\boldsymbol{\chi}(R) =
+\begin{pmatrix}
+   \chi_{00} &amp; \chi_{01} &amp; \chi_{02} &amp; \ldots &amp;
+\chi_{0N_{\text{open}}}\\
+   \chi_{10} &amp; \chi_{11} &amp; \chi_{12} &amp; \ldots \\
+   \vdots    &amp; \vdots    &amp; \vdots    &amp;        &amp; \vdots \\
+   \chi_{N_{\text{total}}0} &amp; &amp;  &amp; \ldots &amp;
+\chi_{N_{\text{total}}N_{\text{open}
+}} \\
+\end{pmatrix}\end{split}\]</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="normalization">
+<h1>Normalization<a class="headerlink" href="#normalization" title="Permalink to this headline">¶</a></h1>
+<div class="line-block">
+<div class="line">[Mies - Molecular Physics <strong>14</strong>, 953 (1980).]</div>
+</div>
+<p><span class="math">\(\boldsymbol{\chi} = \mathbf{JA} + \mathbf{NB}\)</span></p>
+<p><span class="math">\(\mathbf{F}^K = \boldsymbol{\chi} \mathbf{A}^{-1} = \mathbf{J} + \mathbf{NK}\)</span> where
+<span class="math">\(\mathbf{K} = \mathbf{BA}^{-1} = \mathbf{U}\tan \boldsymbol{\xi}
+\hat{\mathbf{U}}\)</span>.</p>
+<p>Physical solution
+:math:` mathbf{F}^S = mathbf{F}^kmathbf{U}cosboldsymbol{xi}
+e^{text{i} boldsymbol{xi}} hat{mathbf{U}} = text{i}e^{-text{i}mathbf{k}R} - text{i}e^{text{i}mathbf{k}R}mathbf{S} `</p>
+<p>Determine matrices , by energy normalization of each wavefunction.
+:math:` chi_{ij} = left( frac{2mu}{hbar^2pi} right) ^{frac{1}{2}}
+frac{1}{sqrt{k}} left[ J_i a_{ij} + N_i b_{ij} right] ` for
+potential <span class="math">\(i\)</span>.</p>
+<div class="section" id="id4">
+<h2>Multiple Open Channels<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line"><span class="math">\(n_{\rm open}\)</span> linearly independent solutions:</div>
+<div class="line"><br /></div>
+</div>
+<blockquote>
+<div><div class="math">
+\[\begin{split}\mathbf{R}(R=\infty) =
+\begin{pmatrix}
+1       &amp; 0  &amp; \hdotsfor{2} &amp; 0 \\
+0       &amp; 1  &amp; \hdotsfor{2} &amp; 0 \\
+\vdots  &amp; \vdots  &amp; \ddots &amp; \hdotsfor{1} &amp; \vdots\\
+0       &amp; 0  &amp; \hdotsfor{2} &amp; 1\\
+\end{pmatrix}
+\rightarrow \text{CSE} \rightarrow
+\boldsymbol{\chi}(R) =
+\begin{pmatrix}
+   \chi_{00} &amp; \chi_{01} &amp; \chi_{02} &amp; \ldots &amp;
+\chi_{0N_{\text{open}}}\\
+   \chi_{10} &amp; \chi_{11} &amp; \chi_{12} &amp; \ldots \\
+   \vdots    &amp; \vdots    &amp; \vdots    &amp;        &amp; \vdots \\
+   \chi_{N_{\text{total}}0} &amp; &amp;  &amp; \ldots &amp;
+\chi_{N_{\text{total}}N_{\text{open}
+}} \\
+\end{pmatrix}\end{split}\]</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="id5">
+<h1>Normalization<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h1>
+<div class="line-block">
+<div class="line">[Mies - Molecular Physics <strong>14</strong>, 953 (1980).]</div>
+</div>
+<p><span class="math">\(\boldsymbol{\chi} = \mathbf{JA} + \mathbf{NB}\)</span></p>
+<p><span class="math">\(\mathbf{F}^K = \boldsymbol{\chi} \mathbf{A}^{-1} = \mathbf{J} + \mathbf{NK}\)</span> where
+<span class="math">\(\mathbf{K} = \mathbf{BA}^{-1} = \mathbf{U}\tan \boldsymbol{\xi}
+\hat{\mathbf{U}}\)</span>.</p>
+<p>Physical solution
+:math:` mathbf{F}^S = mathbf{F}^kmathbf{U}cosboldsymbol{xi}
+e^{text{i} boldsymbol{xi}} hat{mathbf{U}} = text{i}e^{-text{i}mathbf{k}R} - text{i}e^{text{i}mathbf{k}R}mathbf{S} `</p>
+<p>Determine matrices , by energy normalization of each wavefunction.
+:math:` chi_{ij} = left( frac{2mu}{hbar^2pi} right) ^{frac{1}{2}}
+frac{1}{sqrt{k}} left[ J_i a_{ij} + N_i b_{ij} right] ` for
+potential <span class="math">\(i\)</span>.</p>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="example_O2xs.html" class="btn btn-neutral" title="Example: example_O2xs.py" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, PyCSE team.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

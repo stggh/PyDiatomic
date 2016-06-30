@@ -1,0 +1,671 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>PyCSE package &mdash; PyCSE 0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="PyCSE 0.1 documentation" href="index.html"/>
+        <link rel="next" title="Examples" href="examples.html"/>
+        <link rel="prev" title="PyCSE README" href="readme_link.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PyCSE
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme_link.html">PyCSE README</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">PyCSE package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-cse.cse">cse.cse module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-cse.johnson">cse.johnson module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-cse.expectation">cse.expectation module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-cse.cse_setup">cse.cse_setup module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-cse.rkr">rkr  module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes.html">Johnson Renormalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes.html#id1">Johnson Renormalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes.html#normalization">Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes.html#id5">Normalization</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">PyCSE</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>PyCSE package</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/cse.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pycse-package">
+<h1>PyCSE package<a class="headerlink" href="#pycse-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-cse.cse">
+<span id="cse-cse-module"></span><h2>cse.cse module<a class="headerlink" href="#module-cse.cse" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="cse.cse.Cse">
+<em class="property">class </em><code class="descclassname">cse.cse.</code><code class="descname">Cse</code><span class="sig-paren">(</span><em>mu=None</em>, <em>R=None</em>, <em>VT=None</em>, <em>coup=None</em>, <em>rot=0</em>, <em>en=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cse/cse.html#Cse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cse.cse.Cse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="docutils">
+<dt>Class to setup and solve the TISE via the Johnson renormalized</dt>
+<dd>Numerov method i.e. drive johnson.py for a single
+set of coupled states.</dd>
+</dl>
+<p>The following attributes may be available subject to the calculation.</p>
+<dl class="attribute">
+<dt id="cse.cse.Cse.Bv">
+<code class="descname">Bv</code><a class="headerlink" href="#cse.cse.Cse.Bv" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; evaluated rotational constant (if single wavefunction)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cse.cse.Cse.R">
+<code class="descname">R</code><a class="headerlink" href="#cse.cse.Cse.R" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float array</em> &#8211; internuclear distance grid</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cse.cse.Cse.VT">
+<code class="descname">VT</code><a class="headerlink" href="#cse.cse.Cse.VT" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy 3d array</em> &#8211; transpose of the potential curve and couplings array</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cse.cse.Cse.cm">
+<code class="descname">cm</code><a class="headerlink" href="#cse.cse.Cse.cm" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; eigen energy in cm-1 (from method solve)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cse.cse.Cse.energy">
+<code class="descname">energy</code><a class="headerlink" href="#cse.cse.Cse.energy" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; eigen energy in eV</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cse.cse.Cse.limits">
+<code class="descname">limits</code><a class="headerlink" href="#cse.cse.Cse.limits" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>tuple</em> &#8211; array sizes: (oo, n, Rmin, Rmax, Vmin, Te)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cse.cse.Cse.mu">
+<code class="descname">mu</code><a class="headerlink" href="#cse.cse.Cse.mu" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; reduced mass in kg</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cse.cse.Cse.vib">
+<code class="descname">vib</code><a class="headerlink" href="#cse.cse.Cse.vib" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; vibrational quantum number (if available)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cse.cse.Cse.wavefunction">
+<code class="descname">wavefunction</code><a class="headerlink" href="#cse.cse.Cse.wavefunction" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy array</em> &#8211; wavefunction(s) for all channels</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cse.cse.Cse.wavenumber">
+<code class="descname">wavenumber</code><a class="headerlink" href="#cse.cse.Cse.wavenumber" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy float</em> &#8211; wavenumber eigenvalue of the solution</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cse.cse.Cse.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#cse.cse.Cse.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cse.cse.Xs">
+<em class="property">class </em><code class="descclassname">cse.cse.</code><code class="descname">Xs</code><span class="sig-paren">(</span><em>mu=None</em>, <em>Ri=None</em>, <em>VTi=None</em>, <em>coupi=None</em>, <em>eni=0</em>, <em>roti=0</em>, <em>Rf=None</em>, <em>VTf=None</em>, <em>coupf=None</em>, <em>rotu=0</em>, <em>dipolemoment=None</em>, <em>transition_energy=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cse/cse.html#Xs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cse.cse.Xs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class to evaluate photodissociation cross sections, i.e. solve to coupled-channel problems, for initial and final coupled-channels.</p>
+<p>The following attributes may be available subject to the calculation.</p>
+<dl class="attribute">
+<dt id="cse.cse.Xs.wavenumber">
+<code class="descname">wavenumber</code><a class="headerlink" href="#cse.cse.Xs.wavenumber" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy float array</em> &#8211; wavenumber range of calculation</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cse.cse.Xs.xs">
+<code class="descname">xs</code><a class="headerlink" href="#cse.cse.Xs.xs" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy float array</em> &#8211; photodissociation cross section for each open channel</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cse.cse.Xs.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#cse.cse.Xs.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-cse.johnson">
+<span id="cse-johnson-module"></span><h2>cse.johnson module<a class="headerlink" href="#module-cse.johnson" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="cse.johnson.WImat">
+<code class="descclassname">cse.johnson.</code><code class="descname">WImat</code><span class="sig-paren">(</span><em>energy</em>, <em>rot</em>, <em>V</em>, <em>R</em>, <em>mu</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cse/johnson.html#WImat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cse.johnson.WImat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interaction matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>energy</strong> (<em>float</em>) &#8211; energy in eV or estimate (for bound states) at which to solve the TISE</li>
+<li><strong>rot</strong> (<em>int</em>) &#8211; rotational quantum number J</li>
+<li><strong>V</strong> (<em>numpy 3d array - shape oo, n, n = radial grid size, number of channels</em>) &#8211; potential energy curve matrix, diagonals are the diabatic potential energy curves,
+off-diagonals the coupling</li>
+<li><strong>R</strong> (<em>numpy 1d array</em>) &#8211; the internuclear distance grid for the potential curve matrix, size = oo</li>
+<li><strong>mu</strong> (<em>float</em>) &#8211; reduced mass in kg</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>WI</strong> &#8211; inverse of the interation matrix W</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy 3d array - shape oo, n, n</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cse.johnson.RImat">
+<code class="descclassname">cse.johnson.</code><code class="descname">RImat</code><span class="sig-paren">(</span><em>WI</em>, <em>mx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cse/johnson.html#RImat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cse.johnson.RImat" title="Permalink to this definition">¶</a></dt>
+<dd><p>R matrix</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>WI</strong> (<em>numpy 3d array</em>) &#8211; array of inverted interaction arrays, as returned from WImat</li>
+<li><strong>mx</strong> (<em>int</em>) &#8211; matching point in inward and outward solutions (bound states only)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>RI</strong> &#8211; R matrix of the Johnson method</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy 3d array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cse.johnson.fmat">
+<code class="descclassname">cse.johnson.</code><code class="descname">fmat</code><span class="sig-paren">(</span><em>j</em>, <em>RI</em>, <em>WI</em>, <em>mx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cse/johnson.html#fmat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cse.johnson.fmat" title="Permalink to this definition">¶</a></dt>
+<dd><p>f-matrix of the Johnson method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>j</strong> (<em>int</em>) &#8211; open channel number</li>
+<li><strong>RI</strong> (<em>numpy 3d array</em>) &#8211; inverted R-matrix as returned from RImat</li>
+<li><strong>WI</strong> (<em>numpy 3d array</em>) &#8211; inverted interaction matrix as returned from WImat</li>
+<li><strong>mx</strong> (<em>int</em>) &#8211; matching point for inward and outward solutions</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>f</strong> &#8211; Johnson f-matrix</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy 2d array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cse.johnson.wavefunction">
+<code class="descclassname">cse.johnson.</code><code class="descname">wavefunction</code><span class="sig-paren">(</span><em>WI</em>, <em>j</em>, <em>f</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cse/johnson.html#wavefunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cse.johnson.wavefunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>evaluate wavefunctions from f-matrix array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>WI</strong> (<em>numpy 3d array</em>) &#8211; inverted interaction matrix, as returned from WImat</li>
+<li><strong>j</strong> (<em>int</em>) &#8211; open channel number</li>
+<li><strong>f</strong> (<em>numpy 2d array</em>) &#8211; f-matrix as returned from fmat</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>wf</strong> &#8211; oo x n x nopen array of wavefunctions</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy 3d array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cse.johnson.matching_point">
+<code class="descclassname">cse.johnson.</code><code class="descname">matching_point</code><span class="sig-paren">(</span><em>en</em>, <em>rot</em>, <em>V</em>, <em>R</em>, <em>mu</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cse/johnson.html#matching_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cse.johnson.matching_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>estimate matching point for inward and outward solutions position based on the determinant of the R-matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>en</strong> (<em>float</em>) &#8211; potential energy of the solution</li>
+<li><strong>rot</strong> (<em>int</em>) &#8211; rotational quantum number J</li>
+<li><strong>V</strong> (<em>numpy 3d array</em>) &#8211; potential curve and couplings matrix</li>
+<li><strong>R</strong> (<em>numpy 1d array</em>) &#8211; internuclear distance grid</li>
+<li><strong>mu</strong> (<em>float</em>) &#8211; reduced mass in kg</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>mx</strong> &#8211; matching point grid index</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cse.johnson.eigen">
+<code class="descclassname">cse.johnson.</code><code class="descname">eigen</code><span class="sig-paren">(</span><em>energy</em>, <em>rot</em>, <em>mx</em>, <em>V</em>, <em>R</em>, <em>mu</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cse/johnson.html#eigen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cse.johnson.eigen" title="Permalink to this definition">¶</a></dt>
+<dd><p>determine eigen energy solution based on <a href="#id3"><span class="problematic" id="id4">|R^-1[mx] - R^-1[mx+1]|</span></a> ~ 0.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>energy</strong> (<em>float</em>) &#8211; energy (eV) of the attempted solution</li>
+<li><strong>rot</strong> (<em>int</em>) &#8211; rotational quantum number</li>
+<li><strong>mx</strong> (<em>int</em>) &#8211; matching point index, for inward and outward solutions</li>
+<li><strong>V</strong> (<em>numpy 3d array</em>) &#8211; potential energy curve and coupling matrix</li>
+<li><strong>R</strong> (<em>numpy 1d array</em>) &#8211; internuclear distance grid</li>
+<li><strong>mu</strong> (<em>float</em>) &#8211; reduced mass in kg</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>eigenvalue</strong> &#8211; energy of the solution</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cse.johnson.normalize">
+<code class="descclassname">cse.johnson.</code><code class="descname">normalize</code><span class="sig-paren">(</span><em>wf</em>, <em>R</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cse/johnson.html#normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cse.johnson.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>normalize a bound state wavefunction</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>wf</strong> (<em>numpy 3d array</em>) &#8211; wavefunction array</li>
+<li><strong>R</strong> (<em>numpy 1d array</em>) &#8211; internuclear distance grid</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>wf</strong> &#8211; normalized wavefunction array</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy 3d array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-cse.expectation">
+<span id="cse-expectation-module"></span><h2>cse.expectation module<a class="headerlink" href="#module-cse.expectation" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="cse.expectation.cross_section">
+<code class="descclassname">cse.expectation.</code><code class="descname">cross_section</code><span class="sig-paren">(</span><em>wavenumber</em>, <em>wfu</em>, <em>wfi</em>, <em>R</em>, <em>dipolemoment</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cse/expectation.html#cross_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cse.expectation.cross_section" title="Permalink to this definition">¶</a></dt>
+<dd><p>photodissociation cross section <a href="#id1"><span class="problematic" id="id2">|</span></a>&lt;f|M|i&gt;|^2.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>wavenumber</strong> (<em>float</em>) &#8211; wavenumber at which to evaluate the cross section</li>
+<li><strong>wfu</strong> (<em>numpy 3d array oo, n, nopen</em>) &#8211; wavefunction array for the upper coupled states</li>
+<li><strong>wfi</strong> (<em>numpy 3d array oo, ni, 1</em>) &#8211; wavefunction array for the initial coupled states</li>
+<li><strong>dipolemoment</strong> (<em>numpy array</em>) &#8211; transition moments between initial and final PECs</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cross section</strong> &#8211; photodissociation cross section for each open channel</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cse.expectation.xs">
+<code class="descclassname">cse.expectation.</code><code class="descname">xs</code><span class="sig-paren">(</span><em>dipolemoment</em>, <em>ei</em>, <em>rot</em>, <em>mu</em>, <em>R</em>, <em>VT</em>, <em>wfi</em>, <em>wavenumber</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cse/expectation.html#xs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cse.expectation.xs" title="Permalink to this definition">¶</a></dt>
+<dd><p>solve CSE of upper coupled states for the transition energy.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="cse.expectation.xs_vs_wav">
+<code class="descclassname">cse.expectation.</code><code class="descname">xs_vs_wav</code><span class="sig-paren">(</span><em>wavenumber</em>, <em>dipolemoment</em>, <em>ei</em>, <em>rot</em>, <em>mu</em>, <em>R</em>, <em>VT</em>, <em>wfi</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cse/expectation.html#xs_vs_wav"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cse.expectation.xs_vs_wav" title="Permalink to this definition">¶</a></dt>
+<dd><p>mulitprocessor pool function.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="cse.expectation.Bv">
+<code class="descclassname">cse.expectation.</code><code class="descname">Bv</code><span class="sig-paren">(</span><em>R</em>, <em>wavefunction</em>, <em>mu</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cse/expectation.html#Bv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cse.expectation.Bv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bv rotational constant from expectation &lt;v|1/R^2|v&gt;.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-cse.cse_setup">
+<span id="cse-cse-setup-module"></span><h2>cse.cse_setup module<a class="headerlink" href="#module-cse.cse_setup" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="cse.cse_setup.reduced_mass">
+<code class="descclassname">cse.cse_setup.</code><code class="descname">reduced_mass</code><span class="sig-paren">(</span><em>amu=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cse/cse_setup.html#reduced_mass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cse.cse_setup.reduced_mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduced mass of diatomic molecule.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>amu</strong> (<em>str or float</em>) &#8211; reduced mass, str one of &#8216;H2&#8217;, &#8216;HCl&#8217;, &#8216;OH&#8217;, &#8216;N2&#8217;, &#8216;N14&#8217;, &#8216;N14N15&#8217;, &#8216;N15&#8217;, &#8216;NO&#8217;, &#8216;O2&#8217;, &#8216;O16O17&#8217;, &#8216;O17O18&#8217;, &#8216;O16O18&#8217;, &#8216;O18&#8217;, &#8216;CO&#8217;, &#8216;Cl2&#8217;, &#8216;CS2&#8217;, &#8216;Cs2&#8217;, &#8216;ICl&#8217;, &#8216;I2&#8217;, &#8216;Br&#8217;, &#8216;S2&#8217;, &#8216;S32&#8217;, &#8216;S32O16&#8217;, &#8216;S33O16&#8217;, &#8216;S34O16&#8217; or float in amu</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>mu</strong></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">reduced mass in kg</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cse.cse_setup.potential_energy_curves">
+<code class="descclassname">cse.cse_setup.</code><code class="descname">potential_energy_curves</code><span class="sig-paren">(</span><em>pecfs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cse/cse_setup.html#potential_energy_curves"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cse.cse_setup.potential_energy_curves" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read potential energy curve file(s) and assemble as diagonals in an nxn array for the n-filenames provided.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pecfs</strong> (<em>list of strings</em>) &#8211; potential energy curve file name list [&#8216;pot1&#8217;, &#8216;pot2&#8217;, &#8216;pot3&#8217; ... ]
+Each file has 2 column format:  R(Angstroms)  V(eV)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul>
+<li><strong>R</strong> (<em>numpy 1d array</em>) &#8211; radial coordinates</li>
+<li><strong>VT</strong> (<em>numpy 2D array size nxn</em>) &#8211; (transposed) potential energy array for the n-filenames given:<div class="highlight-python3"><div class="highlight"><pre><span></span><span class="n">VT</span> <span class="o">=</span> <span class="p">[</span> <span class="n">V1</span>  <span class="mi">0</span>   <span class="mi">0</span> <span class="o">...</span><span class="p">]</span>
+     <span class="p">[</span>  <span class="mi">0</span> <span class="n">V2</span>   <span class="mi">0</span> <span class="o">...</span><span class="p">]</span>
+     <span class="p">[</span>  <span class="mi">0</span>  <span class="mi">0</span>  <span class="n">V3</span> <span class="o">...</span><span class="p">]</span>
+        <span class="p">:</span>  <span class="p">:</span>   <span class="p">:</span>
+     <span class="p">[</span>  <span class="mi">0</span>  <span class="mi">0</span>  <span class="o">...</span> <span class="n">Vn</span><span class="p">]</span>
+</pre></div>
+</div>
+</li>
+<li><strong>pecfs</strong> (<em>list of str</em>) &#8211; as inputted</li>
+<li><strong>limits</strong> (<em>tuple</em>) &#8211; (oo, n, Rm, Rx, Vm, Voo)
+oo = int, common length of radial and potential arrays
+n  = int, number of potential curves
+Rm = highest minimum
+Rx = lowest maximum
+Vm = lowest minimum (Te)
+Voo = lowest dissociation limit energy</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cse.cse_setup.coupling_function">
+<code class="descclassname">cse.cse_setup.</code><code class="descname">coupling_function</code><span class="sig-paren">(</span><em>R</em>, <em>VT</em>, <em>pecfs</em>, <em>coup=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cse/cse_setup.html#coupling_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cse.cse_setup.coupling_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill the off-diagonal coupling elements of VT.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>R</strong> (<em>numpy 1d array of floats</em>) &#8211; </li>
+<li><strong>VT</strong> (<em>numpy 2D array size nxn of floats</em>) &#8211; </li>
+<li><strong>pecfs</strong> (<em>list</em>) &#8211; list or potential curve names, to enquire the coupling</li>
+<li><strong>coup</strong> (<em>list</em>) &#8211; list potential curve couplings (in cm-1)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-cse.rkr">
+<span id="rkr-module"></span><h2>rkr  module<a class="headerlink" href="#module-cse.rkr" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="cse.rkr.rkr">
+<code class="descclassname">cse.rkr.</code><code class="descname">rkr</code><span class="sig-paren">(</span><em>mu</em>, <em>vv</em>, <em>Gv</em>, <em>Bv</em>, <em>De</em>, <em>limb='L'</em>, <em>dv=0.1</em>, <em>Rgrid=array([  5.00000000e-03</em>, <em>1.00000000e-02</em>, <em>1.50000000e-02</em>, <em>...</em>, <em>9.99000000e+00</em>, <em>9.99500000e+00</em>, <em>1.00000000e+01])</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cse/rkr.html#rkr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cse.rkr.rkr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rydberg-Klien-Rees potential energy curve.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>mu</strong> (<em>float</em>) &#8211; reduced mass in atomic units</li>
+<li><strong>vv</strong> (<em>numpy 1d array of floats</em>) &#8211; vibrational quantum number for Gv, Bv</li>
+<li><strong>Gv</strong> (<em>numpy 1d array of floats</em>) &#8211; vibrational constants at vv in cm-1</li>
+<li><strong>Bv</strong> (<em>numpy 1d array of floats</em>) &#8211; rotational constants at vv in cm-1</li>
+<li><strong>De</strong> (<em>float</em>) &#8211; dissociation energy in cm-1</li>
+<li><strong>limb</strong> (<em>str</em>) &#8211; analytical function to extrapolate outer limb to the dissociation limit
+&#8216;L&#8217; = LeRoy otherwise Morse
+note, inner limb is Morse</li>
+<li><strong>dv</strong> (<em>float</em>) &#8211; evaluate the turning points at dv increments</li>
+<li><strong>Rgrid</strong> (<em>numpy 1d array of floats</em>) &#8211; radial grid on which to interpolate and extrapolate the potential
+energy curve</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>Rgrid</strong> (<em>numpy 1d array of float</em>) &#8211; grid for internuclear distance</li>
+<li><strong>PEC</strong> (<em>numpy 1d array of float</em>) &#8211; potential energy curve</li>
+<li><strong>RTP</strong> (<em>numpy 1d array of float</em>) &#8211; internuclear distance at turning point</li>
+<li><strong>PTP</strong> (<em>numpy 1d array of float</em>) &#8211; potential energy at turning point</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="readme_link.html" class="btn btn-neutral" title="PyCSE README" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, PyCSE team.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
