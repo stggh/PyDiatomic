@@ -118,6 +118,37 @@ A simple :math:`^3\Sigma_{u}^{-} \leftrightarrow {}^3\Sigma^{-}_{u}` Rydberg-val
 Documentation
 -------------
 
+PyCSE uses Sphinx and `Napoleon <http://sphinxcontrib-napoleon.readthedocs.io/en/latest/index.html>`_ to process Numpy style docstrings, and is synchronized to `pyabel.readthedocs.io <http://pyabel.readthedocs.io>`_. To build the documentation locally, you will need `Sphinx <http://www.sphinx-doc.org/>`_, the `recommonmark <https://github.com/rtfd/recommonmark>`_ package, and the `sphinx_rtd_theme <https://github.com/snide/sphinx_rtd_theme/>`_. You can install all this this using ::
+
+    pip install sphinx
+    pip install recommonmark
+    pip install sphinx_rtd_theme
+
+Once you have that installed, then you can build the documentation using ::
+
+    cd PyCSE/doc/
+     make html
+
+Then you can open ``doc/_build/hmtl/index.html`` to look at the documentation. Sometimes you need to use ::
+
+    make clean
+    make html
+
+to clear out the old documentation and get things to re-build properly.
+
+When you get tired of typing ``make html`` every time you make a change to the documentation, it's nice to use use `sphix-autobuild <https://pypi.python.org/pypi/sphinx-autobuild>`_ to automatically update the documentation in your browser for you. So, install sphinx-autobuild using ::
+
+    pip install sphinx-autobuild
+
+Now you should be able to ::
+
+    cd PyCSE/doc/
+    make livehtml
+
+which should launch a browser window displaying the docs. When you save a change to any of the docs, the re-build should happen automatically and the docs should update in a matter of a few seconds.
+
+Alternatively, `restview <https://pypi.python.org/pypi/restview>`_ is a nice way to preview the ``.rst`` files.
+
 
 
 Historical
