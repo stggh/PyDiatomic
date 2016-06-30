@@ -4,6 +4,9 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import sys
+reload(sys)  
+sys.setdefaultencoding('utf8')
 import numpy as np
 
 from . import johnson
@@ -52,7 +55,8 @@ class Cse():
 
         if R is not None:   
             # PEC array provided directly
-            self.R = R; self.VT = VT 
+            self.R = R
+            self.VT = VT 
         else:
             # list of file names provided in VT
             self.R, self.VT, self.pecfs, self.limits =\
