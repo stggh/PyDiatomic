@@ -1,5 +1,5 @@
 PyDiatomic README
-============
+=================
 
 
 Introduction
@@ -110,9 +110,7 @@ A simple :math:`^3\Sigma_{u}^{-} \leftrightarrow {}^3\Sigma^{-}_{u}` Rydberg-val
    plt.plot(Z.wavenumber, Z.xs)
    plt.show()
 
-.. image:: 
-
-   `file://examples/Rydberg-valence.png`
+.. image:: file://examples/data/example_O2xs.png
 
 
 Documentation

@@ -3,3 +3,4 @@
 build/
 *.egg-info/
 doc/_build/
+cse/__pycache__
