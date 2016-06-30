@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# PyCSE documentation build configuration file, created by
+# PyDiatomic documentation build configuration file, created by
 # sphinx-quickstart on Wed Jan 13 17:11:12 2016.
 #
 # This file is execfile()d with the current directory set to its
@@ -79,9 +79,9 @@ source_suffix = ['.rst', '.md']
 master_doc = 'index'
 
 # General information about the project.
-project = 'PyCSE'
-copyright = '2016, PyCSE team'
-author = 'PyCSE team'
+project = 'PyDiatomic'
+copyright = '2016, PyDiatomic team'
+author = 'PyDiatomic team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -234,7 +234,7 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'PyCSEdoc'
+htmlhelp_basename = 'PyDiatomicdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -256,8 +256,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'PyCSE.tex', 'PyCSE Documentation',
-   'PyCSE team', 'manual'),
+  (master_doc, 'PyDiatomic.tex', 'PyDiatomic Documentation',
+   'PyDiatomic team', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -286,7 +286,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'pyabel', 'PyCSE Documentation',
+    (master_doc, 'pyabel', 'PyDiatomic Documentation',
      [author], 1)
 ]
 
@@ -300,8 +300,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  (master_doc, 'PyCSE', 'PyCSE Documentation',
-   author, 'PyCSE', 'Numerical solution to the time-independent coupled-channel Sch\"odinger equation using the Johnson renormalized Numerov method.',
+  (master_doc, 'PyDiatomic', 'PyDiatomic Documentation',
+   author, 'PyDiatomic', 'Numerical solution to the time-independent coupled-channel Sch\"odinger equation using the Johnson renormalized Numerov method.',
    'diatomic spectra'),
 ]
 
