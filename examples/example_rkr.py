@@ -5,7 +5,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-"""
+u"""
   Rydberg-Klein-Rees evaluation of a potential energy curve from spectroscopic constants
 
   Stephen.Gibson@anu.edu.au

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
+u"""
   CSE  - solve the coupled-channel time-independent Schrödinger equation
          using recipe of B.R. Johnson J Chem Phys 69, 4678 (1977).
 
