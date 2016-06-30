@@ -118,7 +118,7 @@ A simple :math:`^3\Sigma_{u}^{-} \leftrightarrow {}^3\Sigma^{-}_{u}` Rydberg-val
 Documentation
 -------------
 
-PyDiatomic documentation is available at `readthedocs <http://pycse.readthedocs.org>`_.
+PyDiatomic documentation is available at `readthedocs <http://pydiatomic.readthedocs.org>`_.
 
 
 Historical
