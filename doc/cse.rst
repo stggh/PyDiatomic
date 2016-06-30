@@ -1,5 +1,5 @@
-PyCSE package
-=============
+PyDiatomic package
+==================
 
 cse.cse module
 --------------

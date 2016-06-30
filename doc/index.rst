@@ -1,5 +1,5 @@
-PyCSE documentation
-===================
+PyDiatomic documentation
+========================
 
 Start by having a look at the :doc:`README <readme_link>`.
 
