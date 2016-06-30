@@ -45,7 +45,6 @@ print(u"CSE: ...  in {:.2g} seconds".format(time.time()-t0))
 
 print(u'CSE: E(v"={:d}) = {:.2f} cm-1, {:.3g} eV'.format(X.gs.node_count(), 
                                                    X.gs.cm, X.gs.energy))
-# np.savetxt("example_O2xs.dat", np.column_stack((wav, xs)))
 
 # graphics ---------------------------------------
 ax0 = plt.subplot2grid((2, 4), (0, 0), colspan=2, rowspan=2)
@@ -86,7 +85,7 @@ ax1.annotate(u'${}^{3}\Pi$', (1.34, 65000), color='r')
 ax1.set_title(u"diabatic PECs", fontsize=12)
 ax1.axis(xmin=0.5, xmax=2, ymin=40000+X.gs.cm, ymax=100000+X.gs.cm)
 ax1.set_xlabel(u"R ($\AA$)")
-#ax1.set_ylabel("V (eV)")
+#ax1.set_ylabel(u"V (eV)")
 ax1.axes.get_yaxis().set_visible(False)
 
 plt.suptitle(u"example_O2xs.py", fontsize=12)
