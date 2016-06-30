@@ -29,7 +29,7 @@ a0 = const.physical_constants["Bohr radius"][0]
 CONST = 2*(np.pi*const.e*a0)**2*1.0e4/3/const.epsilon_0
 
 def cross_section(wavenumber, wfu, wfi, R, dipolemoment):
-    """ photodissociation cross section |<f|M|i>|^2.
+   u""" photodissociation cross section |<f|M|i>|^2.
 
     Parameters
     ----------
@@ -72,7 +72,7 @@ def cross_section(wavenumber, wfu, wfi, R, dipolemoment):
 
 
 def xs(dipolemoment, ei, rot, mu, R, VT, wfi, wavenumber):
-    """ solve CSE of upper coupled states for the transition energy.
+   u""" solve CSE of upper coupled states for the transition energy.
 
     """
     dE = wavenumber/8065.541
@@ -83,7 +83,7 @@ def xs(dipolemoment, ei, rot, mu, R, VT, wfi, wavenumber):
 
 
 def xs_vs_wav(wavenumber, dipolemoment, ei, rot, mu, R, VT, wfi):
-    """ mulitprocessor pool function.
+   u""" mulitprocessor pool function.
 
     """
     pool = multiprocessing.Pool()
@@ -98,7 +98,7 @@ def xs_vs_wav(wavenumber, dipolemoment, ei, rot, mu, R, VT, wfi):
 
 
 def Bv(R, wavefunction, mu):
-    """ Bv rotational constant from expectation <v|1/R^2|v>.
+   u""" Bv rotational constant from expectation <v|1/R^2|v>.
  
     """
     ex = simps((wavefunction/R)**2, R)

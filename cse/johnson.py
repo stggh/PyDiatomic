@@ -20,7 +20,7 @@ from scipy.special import sph_jn, sph_yn
 #===== Johnson === Renormalized Numerov method ============
 
 def WImat(energy, rot, V, R, mu): 
-    """ Interaction matrix.
+   u""" Interaction matrix.
 
     Parameters
     ----------
@@ -68,7 +68,7 @@ def WImat(energy, rot, V, R, mu):
 
 
 def RImat(WI, mx):   
-    """ R matrix 
+   u""" R matrix 
 
     Parameters
     ----------
@@ -96,7 +96,7 @@ def RImat(WI, mx):
 
 
 def fmat(j, RI, WI,  mx):
-   """ f-matrix of the Johnson method.
+  u""" f-matrix of the Johnson method.
 
    Parameters
    ----------
@@ -126,7 +126,7 @@ def fmat(j, RI, WI,  mx):
 
 
 def wavefunction(WI, j, f):
-   """ evaluate wavefunctions from f-matrix array.
+  u""" evaluate wavefunctions from f-matrix array.
 
    Parameters
    ----------
@@ -154,7 +154,7 @@ def wavefunction(WI, j, f):
 #==== end of Johnson stuff ====================
 
 def matching_point(en, rot, V, R, mu):
-    """ estimate matching point for inward and outward solutions position based on the determinant of the R-matrix.
+   u""" estimate matching point for inward and outward solutions position based on the determinant of the R-matrix.
 
     Parameters
     ----------
@@ -188,7 +188,7 @@ def matching_point(en, rot, V, R, mu):
     return mx
 
 def eigen(energy, rot, mx, V, R, mu):
-    """ determine eigen energy solution based on |R^-1[mx] - R^-1[mx+1]| ~ 0.
+   u""" determine eigen energy solution based on |R^-1[mx] - R^-1[mx+1]| ~ 0.
 
     Parameters
     ----------
@@ -217,7 +217,7 @@ def eigen(energy, rot, mx, V, R, mu):
     return linalg.det(linalg.inv(RI[mx])-RI[mx+1])
 
 def normalize(wf, R):
-    """ normalize a bound state wavefunction
+   u""" normalize a bound state wavefunction
 
     Parameters
     ----------

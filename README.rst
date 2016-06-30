@@ -115,6 +115,9 @@ A simple :math:`^3\Sigma_{u}^{-} \leftrightarrow {}^3\Sigma^{-}_{u}` Rydberg-val
    `file://examples/Rydberg-valence.png`
 
 
+Documentation
+-------------
+
 
 
 Historical

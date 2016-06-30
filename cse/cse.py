@@ -11,7 +11,7 @@ from . import expectation
 from . import cse_setup
 
 class Cse():
-    """ Class to setup and solve the TISE via the Johnson renormalized
+   u""" Class to setup and solve the TISE via the Johnson renormalized
         Numerov method i.e. drive johnson.py for a single
         set of coupled states.
 
@@ -113,7 +113,7 @@ class Cse():
 
 
 class Xs():
-    """ Class to evaluate photodissociation cross sections, i.e. solve to coupled-channel problems, for initial and final coupled-channels.
+   u""" Class to evaluate photodissociation cross sections, i.e. solve to coupled-channel problems, for initial and final coupled-channels.
 
     The following attributes may be available subject to the calculation.
 
