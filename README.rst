@@ -1,27 +1,27 @@
-PyCSE README
+PyDiatomic README
 ============
 
 
 Introduction
 ------------
 
-PyCSE solves the time-independent coupled-channel Schroedinger equation
+PyDiatomic solves the time-independent coupled-channel Schroedinger equation
 using the Johnson renormalized Numerov method [1]. This is very compact and stable algorithm.
 
-The PyCSE code is oriented toward the calculation of diatomic molecular photodissociation cross sections. Coupling of electronic states results in broadening and line-shape asymmetry. A coupled-channel calculation is the only correct method compute the cross-section.
+The PyDiatomic code is oriented toward the calculation of diatomic molecular photodissociation cross sections. Coupling of electronic states results in broadening and line-shape asymmetry. A coupled-channel calculation is the only correct method compute the cross-section.
 
 
 
 Installation
 ------------
 
-PyCSE requires Python 3, numpy and scipy. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.continuum.io/downloads>`_, which is available for free.
+PyDiatomic requires Python 3, numpy and scipy. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.continuum.io/downloads>`_, which is available for free.
 
 Download the latest version from github ::
 
-    git clone https://github.com/PyCSE/PyCSE.git
+    git clone https://github.com/PyDiatomic/PyDiatomic.git
 
-`cd`  to the PyCSE directory, and use ::
+`cd`  to the PyDiatomic directory, and use ::
 
     python3 setup.py install --user
 
@@ -33,7 +33,7 @@ Or, if you wish to edit the PyAbel source code without re-installing each time :
 Example of use
 --------------
 
-PyCSE has a wrapper classes :class:`cse.Cse()` and :class:`cse.Xs()` 
+PyDiatomic has a wrapper classes :class:`cse.Cse()` and :class:`cse.Xs()` 
 
 :class:`cse.Cse()` set ups the CSE problem 
 (interaction matrix of potential energy curves, and couplings) and solves 
@@ -118,13 +118,13 @@ A simple :math:`^3\Sigma_{u}^{-} \leftrightarrow {}^3\Sigma^{-}_{u}` Rydberg-val
 Documentation
 -------------
 
-PyCSE documentation is available at `readthedocs <http://pycse.readthedocs.org>`_.
+PyDiatomic documentation is available at `readthedocs <http://pycse.readthedocs.org>`_.
 
 
 Historical
 ----------
 
-PyCSE is a Python implementation of the Johnson renormalized Numerov method. 
+PyDiatomic is a Python implementation of the Johnson renormalized Numerov method. 
 It provides a simple introduction to the profound effects of channel-coupling
 in the calculation of diatomic photodissociation spectra.
 

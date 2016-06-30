@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name = "PyCSE",
+    name = "PyDiatomic",
     version = "0.1",
     description='A Python package to solve the time-independent coupled-channel Schr&ouml;inger equation using the Johnson renormalized Numberov method',
     packages=find_packages(),
