@@ -113,7 +113,7 @@ class Cse():
 
 
 class Xs():
-   u""" Class to evaluate photodissociation cross sections, i.e. solve to coupled-channel problems, for initial and final coupled-channels.
+    u""" Class to evaluate photodissociation cross sections, i.e. solve to coupled-channel problems, for initial and final coupled-channels.
 
     The following attributes may be available subject to the calculation.
 

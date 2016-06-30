@@ -4,7 +4,7 @@ import numpy as np
 import scipy.constants as const
 
 def reduced_mass(amu=None):
-   u""" Reduced mass of diatomic molecule.
+    u""" Reduced mass of diatomic molecule.
 
     Parameters
     ----------
@@ -60,7 +60,7 @@ def reduced_mass(amu=None):
 
 
 def potential_energy_curves(pecfs=None):
-   u""" Read potential energy curve file(s) and assemble as diagonals in an nxn array for the n-filenames provided.
+    u""" Read potential energy curve file(s) and assemble as diagonals in an nxn array for the n-filenames provided.
 
     Parameters
     ----------
@@ -141,7 +141,7 @@ def potential_energy_curves(pecfs=None):
 
 
 def coupling_function(R, VT, pecfs, coup=None):
-   u""" Fill the off-diagonal coupling elements of VT.
+    u""" Fill the off-diagonal coupling elements of VT.
 
     Parameters
     ----------
