@@ -77,9 +77,9 @@ cross section.
    # CSE: coupling B3S-1.dat <-> E3S-1.dat cm-1 [0]? 4000
    # CSE: dipolemoment filename or value B3S-1.dat <- X3S-1.dat : 1
    # CSE: dipolemoment filename or value E3S-1.dat <- X3S-1.dat : 0
-   Y.calculate_xs(wavelength=np.arange(110, 174, 0.1), eni=800)
+   Y.calculate_xs(transition_energy=np.arange(110, 174, 0.1), eni=800)
    # attributes
-   # Y.calculate_xs  Y.gs            Y.set_param     Y.wavelength     Y.xs
+   # Y.calculate_xs  Y.gs            Y.set_param     Y.xs
    # Y.dipolemoment  Y.nopen         Y.us            Y.wavenumber  
    # and those associated with the initial and final states
    # 
@@ -107,7 +107,7 @@ A simple :math:`^3\Sigma_{u}^{-} \leftrightarrow {}^3\Sigma^{-}_{u}` Rydberg-val
               coupf=[4000], dipolemoment=[1, 0],
               transition_energy=np.arange(110, 174, 0.1), eni=800)
    
-   plt.plot(Z.wavelength, Z.xs)
+   plt.plot(Z.wavenumber, Z.xs)
    plt.show()
 
 .. image:: 
