@@ -126,7 +126,7 @@ in the calculation of diatomic photodissociation spectra.
 
 More sophisticated C and Fortran implementations have been in use for a number 
 of years, see references below. These were developed by Stephen Gibson (ANU),
-Brenton Lewis (ANU), and Alan Heayes (ANU and Leiden). 
+Brenton Lewis (ANU), and Alan Heays (ANU and Leiden). 
 
 
 Reference
