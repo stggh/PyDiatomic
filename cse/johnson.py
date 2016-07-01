@@ -198,7 +198,7 @@ def matching_point(en, rot, V, R, mu):
 
 
 def eigen(energy, rot, mx, V, R, mu):
-    u""" determine eigen energy solution based on |R^-1[mx] - R^-1[mx+1]| ~ 0.
+    u""" determine eigen energy solution based.
 
     Parameters
     ----------
