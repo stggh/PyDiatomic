@@ -12,7 +12,7 @@ from functools import partial
 from . import johnson
 
 u"""
-  expectation values - cross section, oscillator strengths, 
+  expectation values - cross section, oscillator strengths,
                        spectroscopic constanst ...
 
   Stephen.Gibson@anu.edu.au
@@ -22,6 +22,7 @@ u"""
 
 a0 = const.physical_constants["Bohr radius"][0]
 CONST = 2*(np.pi*const.e*a0)**2*1.0e4/3/const.epsilon_0
+
 
 def cross_section(wavenumber, wfu, wfi, R, dipolemoment):
     u""" photodissociation cross section |<f|M|i>|^2.
@@ -57,12 +58,12 @@ def cross_section(wavenumber, wfu, wfi, R, dipolemoment):
 
     xsp = []
     for j in range(nopen):
-        Rx = simps(ReX[:,j], R)
-        Ix = simps(ImX[:,j], R)
+        Rx = simps(ReX[:, j], R)
+        Ix = simps(ImX[:, j], R)
         xx = Rx**2 + Ix**2
         xs = xx*CONST*wavenumber*1.0e-8
         xsp.append(xs)
-    
+
     return xsp
 
 
@@ -88,13 +89,13 @@ def xs_vs_wav(wavenumber, dipolemoment, ei, rot, mu, R, VT, wfi):
     xsp = np.array(xsp)
     pool.close()
     pool.join()
-   
+
     return np.array(xsp)
 
 
 def Bv(R, wavefunction, mu):
     u""" Bv rotational constant from expectation <v|1/R^2|v>.
- 
+
     """
     ex = simps((wavefunction/R)**2, R)
     return ex*const.hbar*1.0e18/(4*np.pi*const.c*mu)

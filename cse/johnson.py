@@ -16,10 +16,10 @@ from scipy.special import sph_jn, sph_yn
 #  January 2016
 ##############################################################################
 
+# ===== Johnson === Renormalized Numerov method ============
 
-#===== Johnson === Renormalized Numerov method ============
 
-def WImat(energy, rot, V, R, mu): 
+def WImat(energy, rot, V, R, mu):
     u""" Interaction matrix.
 
     Parameters
@@ -29,10 +29,11 @@ def WImat(energy, rot, V, R, mu):
     rot : int
         rotational quantum number J
     V : numpy 3d array - shape oo, n, n = radial grid size, number of channels
-        potential energy curve matrix, diagonals are the diabatic potential energy curves,
-        off-diagonals the coupling
+        potential energy curve matrix, diagonals are the diabatic potential
+        energy curves, off-diagonals the coupling
     R : numpy 1d array
-        the internuclear distance grid for the potential curve matrix, size = oo
+        the internuclear distance grid for the potential curve matrix,
+        size = oo
     mu : float
         reduced mass in kg
 
@@ -67,12 +68,12 @@ def WImat(energy, rot, V, R, mu):
     return WI
 
 
-def RImat(WI, mx):   
-    u""" R matrix 
+def RImat(WI, mx):
+    u""" R matrix
 
     Parameters
     ----------
-    WI : numpy 3d array 
+    WI : numpy 3d array
         array of inverted interaction arrays, as returned from WImat
 
     mx: int
@@ -84,77 +85,83 @@ def RImat(WI, mx):
         R matrix of the Johnson method
 
     """
- 
+
     oo, n, m = WI.shape
     I = np.identity(n)
     RI = np.zeros_like(WI)
 
     U = 12*WI-I*10
-    for i in range (1,mx+1):     RI[i] = linalg.inv(U[i]-RI[i-1])
-    for i in range (oo-2,mx,-1): RI[i] = linalg.inv(U[i]-RI[i+1])
+    for i in range(1, mx+1):
+        RI[i] = linalg.inv(U[i]-RI[i-1])
+    for i in range(oo-2, mx, -1):
+        RI[i] = linalg.inv(U[i]-RI[i+1])
     return RI
 
 
 def fmat(j, RI, WI,  mx):
-   u""" f-matrix of the Johnson method.
+    u""" f-matrix of the Johnson method.
 
-   Parameters
-   ----------
-   j : int
-       open channel number
-   RI : numpy 3d array
-       inverted R-matrix as returned from RImat
-   WI : numpy 3d array
-       inverted interaction matrix as returned from WImat
-   mx : int
-       matching point for inward and outward solutions
+    Parameters
+    ----------
+    j : int
+        open channel number
+    RI : numpy 3d array
+        inverted R-matrix as returned from RImat
+    WI : numpy 3d array
+        inverted interaction matrix as returned from WImat
+    mx : int
+        matching point for inward and outward solutions
 
-   Returns
-   -------
-   f : numpy 2d array
-       Johnson f-matrix
+    Returns
+    -------
+    f : numpy 2d array
+        Johnson f-matrix
 
-   """
-   oo, n, m = WI.shape
-   f = np.zeros((oo,n))
+    """
+    oo, n, m = WI.shape
+    f = np.zeros((oo, n))
 
-   f[mx] = linalg.inv(WI[mx])[j]
+    f[mx] = linalg.inv(WI[mx])[j]
 
-   for i in range (mx-1, -1, -1): f[i] = f[i+1] @ RI[i]
-   for i in range (mx+1, oo):     f[i] = f[i-1] @ RI[i]
-   return f
+    for i in range(mx-1, -1, -1):
+        f[i] = f[i+1] @ RI[i]
+    for i in range(mx+1, oo):
+        f[i] = f[i-1] @ RI[i]
+    return f
 
 
 def wavefunction(WI, j, f):
-   u""" evaluate wavefunctions from f-matrix array.
+    u""" evaluate wavefunctions from f-matrix array.
 
-   Parameters
-   ----------
-   WI : numpy 3d array
-       inverted interaction matrix, as returned from WImat
-   j : int
-       open channel number
-   f : numpy 2d array
-       f-matrix as returned from fmat
+    Parameters
+    ----------
+    WI : numpy 3d array
+        inverted interaction matrix, as returned from WImat
+    j : int
+        open channel number
+    f : numpy 2d array
+        f-matrix as returned from fmat
 
-   Returns
-   -------
-   wf : numpy 3d array
-       oo x n x nopen array of wavefunctions
+    Returns
+    -------
+    wf : numpy 3d array
+        oo x n x nopen array of wavefunctions
 
-   """
-   oo, n = f.shape
-   wf = np.zeros_like(f)
+    """
+    oo, n = f.shape
+    wf = np.zeros_like(f)
 
-   for i in range(oo):
-       wf[i] = f[i] @ WI[i]
+    for i in range(oo):
+        wf[i] = f[i] @ WI[i]
 
-   return np.transpose(wf)
+    return np.transpose(wf)
 
-#==== end of Johnson stuff ====================
+# ==== end of Johnson stuff ====================
+
 
 def matching_point(en, rot, V, R, mu):
-    u""" estimate matching point for inward and outward solutions position based on the determinant of the R-matrix.
+    u""" estimate matching point for inward and outward solutions position
+    based on the determinant of the R-matrix.
 
     Parameters
     ----------
@@ -175,17 +182,20 @@ def matching_point(en, rot, V, R, mu):
         matching point grid index
 
     """
-    
+
     oo, n, m = V.shape
-    if en > V[oo-1][0][0]: return oo-1
+    if en > V[oo-1][0][0]:
+        return oo-1
     else:
         Vnn = np.transpose(V)[-1][-1]
-        mx = list(Vnn).index(Vnn[en>Vnn][-1])
+        mx = list(Vnn).index(Vnn[en > Vnn][-1])
 
         WI = WImat(en, rot, V, R, mu)
         Rm = RImat(WI, mx)
-        while linalg.det(Rm[mx]) > 1: mx -=1
+        while linalg.det(Rm[mx]) > 1:
+            mx -= 1
     return mx
+
 
 def eigen(energy, rot, mx, V, R, mu):
     u""" determine eigen energy solution based on |R^-1[mx] - R^-1[mx+1]| ~ 0.
@@ -216,20 +226,21 @@ def eigen(energy, rot, mx, V, R, mu):
     RI = RImat(WI, mx)
     return linalg.det(linalg.inv(RI[mx])-RI[mx+1])
 
+
 def normalize(wf, R):
     u""" normalize a bound state wavefunction
 
     Parameters
     ----------
     wf : numpy 3d array
-        wavefunction array 
+        wavefunction array
 
     R : numpy 1d array
         internuclear distance grid
 
     Returns
     -------
-    wf: numpy 3d array 
+    wf: numpy 3d array
         normalized wavefunction array
 
     """
@@ -240,12 +251,13 @@ def normalize(wf, R):
 
     return wf/np.sqrt(norm)
 
-def amplitude (wf, R, edash, mu):
+
+def amplitude(wf, R, edash, mu):
     # Mies    F ~ JA + NB       J ~ sin(kR)/kR
     # normalization sqrt(2 mu/pu hbar^2) = zz
     zz = np.sqrt(2*mu/const.pi)/const.hbar
 
-    oo, n, nopen  = wf.shape
+    oo, n, nopen = wf.shape
 
     # two asymptotic points on wavefunction wf[:, j]
     i1 = oo-5
@@ -257,26 +269,27 @@ def amplitude (wf, R, edash, mu):
     B = np.zeros((nopen, nopen))
     oc = 0
     for j in range(n):
-       if edash[j] < 0: continue
-       # open channel
-       ke = np.sqrt(2*mu*edash[j]*const.e)/const.hbar
-       rtk = np.sqrt(ke)
-       kex1 = ke*x1
-       kex2 = ke*x2
-      
-       j1 = sph_jn(0, kex1)[0]*x1*rtk*zz
-       y1 = sph_yn(0, kex1)[0]*x1*rtk*zz
+        if edash[j] < 0:
+            continue
+        # open channel
+        ke = np.sqrt(2*mu*edash[j]*const.e)/const.hbar
+        rtk = np.sqrt(ke)
+        kex1 = ke*x1
+        kex2 = ke*x2
 
-       j2 = sph_jn(0, kex2)[0]*x2*rtk*zz
-       y2 = sph_yn(0, kex2)[0]*x2*rtk*zz
+        j1 = sph_jn(0, kex1)[0]*x1*rtk*zz
+        y1 = sph_yn(0, kex1)[0]*x1*rtk*zz
 
-       det = j1*y2 - j2*y1
+        j2 = sph_jn(0, kex2)[0]*x2*rtk*zz
+        y2 = sph_yn(0, kex2)[0]*x2*rtk*zz
 
-       for k in range(nopen):
-           A[oc, k] = (y2*wf[i1, j, k] - y1*wf[i2, j, k])/det
-           B[oc, k] = (j1*wf[i2, j, k] - j2*wf[i1, j, k])/det
+        det = j1*y2 - j2*y1
 
-       oc += 1
+        for k in range(nopen):
+            A[oc, k] = (y2*wf[i1, j, k] - y1*wf[i2, j, k])/det
+            B[oc, k] = (j1*wf[i2, j, k] - j2*wf[i1, j, k])/det
+
+        oc += 1
 
     AI = linalg.inv(A)
     K = B @ AI
@@ -284,7 +297,7 @@ def amplitude (wf, R, edash, mu):
     return K, AI, B
 
 
-def solveCSE (en, rot, mu, R, VT):
+def solveCSE(en, rot, mu, R, VT):
     n, m, oo = VT.shape
 
     V = np.transpose(VT)
@@ -293,13 +306,13 @@ def solveCSE (en, rot, mu, R, VT):
     edash = en - np.diag(VT[:, :, -1])
     openchann = edash > 0
     nopen = edash[openchann].size
-    
-    mx = matching_point (en, rot, V, R, mu)
-    
-    if mx < oo-5: 
-        out = leastsq (eigen, (en, ), args=(rot, mx, V, R, mu), xtol=0.01)
+
+    mx = matching_point(en, rot, V, R, mu)
+
+    if mx < oo-5:
+        out = leastsq(eigen, (en, ), args=(rot, mx, V, R, mu), xtol=0.01)
         en = float(out[0])
-    
+
     # solve CSE according to Johnson renormalized Numerov method
     WI = WImat(en, rot, V, R, mu)
     RI = RImat(WI, mx)
@@ -307,12 +320,12 @@ def solveCSE (en, rot, mu, R, VT):
     if nopen > 0:
         oc = 0
         for j, ed in enumerate(edash):
-           if ed > 0:
-               f  = fmat(j, RI, WI, mx)
-               wf.append(wavefunction(WI, oc, f))
-               oc += 1
+            if ed > 0:
+                f = fmat(j, RI, WI, mx)
+                wf.append(wavefunction(WI, oc, f))
+                oc += 1
     else:
-        f  = fmat(0, RI, WI, mx)
+        f = fmat(0, RI, WI, mx)
         wf.append(wavefunction(WI, nopen, f))
 
     wf = np.array(wf)
@@ -324,7 +337,7 @@ def solveCSE (en, rot, mu, R, VT):
         K, AI, B = amplitude(wf, R, edash, mu)   # shape = nopen x nopen
 
         # K = BA-1 = U tan xi UT
-        eig, U = linalg.eig(K) 
+        eig, U = linalg.eig(K)
 
         # form A^-1 U cos xi exp(i xi) UT
         I = np.identity(nopen, dtype=complex)
