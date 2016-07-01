@@ -37,7 +37,7 @@ PyDiatomic has a wrapper classes :class:`cse.Cse()` and :class:`cse.Xs()`
 
 :class:`cse.Cse()` set ups the CSE problem 
 (interaction matrix of potential energy curves, and couplings) and solves 
-the coupled channel Schr\"odinger equation for an initial guess energy.
+the coupled channel Schroedinger equation for an initial guess energy.
 
 Input parameters may be specified in the class instance, or they will be 
 requested if required.
