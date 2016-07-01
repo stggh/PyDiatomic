@@ -19,7 +19,7 @@ PyDiatomic requires Python 3, numpy and scipy. If you don't already have Python,
 
 Download the latest version from github ::
 
-    git clone https://github.com/PyDiatomic/PyDiatomic.git
+    git clone https://github.com/stggh/PyDiatomic.git
 
 `cd`  to the PyDiatomic directory, and use ::
 
