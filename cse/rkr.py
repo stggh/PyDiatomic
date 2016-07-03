@@ -9,7 +9,6 @@
 import numpy as np
 import scipy.constants as const
 from scipy.interpolate import splrep, splev
-import matplotlib.pyplot as plt
 
 def rkr(mu, vv, Gv, Bv, De, limb='L', dv=0.1,
         Rgrid=np.arange(0.005, 10.004, 0.005)):
