@@ -11,7 +11,7 @@ Introduction
 PyDiatomic solves the time-independent coupled-channel Schroedinger equation
 using the Johnson renormalized Numerov method [1]. This is very compact and stable algorithm.
 
-The PyDiatomic code is oriented toward the calculation of diatomic molecular photodissociation cross sections. Coupling of electronic states results in broadening and line-shape asymmetry. A coupled-channel calculation is the only correct method compute the cross-section.
+The code is directed to the computation of photodissociation cross sections for diatomic molecules. The coupling of electronic states results in transition profile broadening, line-shape asymmetry, and intensity sharing. A coupled-channel calculation is the only correct method compute the photodissociation cross-section.
 
 
 
@@ -126,20 +126,16 @@ A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg
    Example calculated cross section
 
 
-See also examples:
+See also `examples/example_O2xs.py` and `example_rkr.py`:
 
 .. figure:: https://cloud.githubusercontent.com/assets/10932229/16547861/767d2770-41be-11e6-8ded-f090765cc1a8.png
    :width: 200px
    :alt: example_O2xs
 
-   example_O2xs
 
 .. figure:: https://cloud.githubusercontent.com/assets/10932229/16547862/7a37f520-41be-11e6-86d5-e5e52ef5e38f.png
    :width: 200px
    :alt: example_rkr
-
-   example_rkr
-
 
 
 Documentation
