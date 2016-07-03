@@ -95,9 +95,7 @@ cross section.
    # Y.us.limits               Y.us.rot                  Y.us.solve
    # Y.us.mu                   Y.us.rotational_constant  
 
-A simple ::math:
-
-`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg-valence coupling in O\ :sub:`2`
+A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg-valence coupling in O\ :sub:`2`
 
 .. code-block:: python
 
