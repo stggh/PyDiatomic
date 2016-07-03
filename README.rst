@@ -126,6 +126,22 @@ A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg
    Example calculated cross section
 
 
+See also examples:
+
+.. figure:: https://cloud.githubusercontent.com/assets/10932229/16547861/767d2770-41be-11e6-8ded-f090765cc1a8.png
+   :width: 200px
+   :alt: example_O2xs
+
+   example_O2xs
+
+.. figure:: https://cloud.githubusercontent.com/assets/10932229/16547862/7a37f520-41be-11e6-86d5-e5e52ef5e38f.png
+   :width: 200px
+   :alt: example_rkr
+
+   example_rkr
+
+
+
 Documentation
 -------------
 
