@@ -33,9 +33,9 @@ Or, if you wish to edit the PyAbel source code without re-installing each time :
 Example of use
 --------------
 
-PyDiatomic has a wrapper classes :class:`cse.Cse()` and :class:`cse.Xs()` 
+PyDiatomic has a wrapper classes  :class:`cse.Cse()` and  :class:`cse.Xs()` 
 
-:class:`cse.Cse()` set ups the CSE problem 
+:class:`cse.Cse()`  set ups the CSE problem 
 (interaction matrix of potential energy curves, and couplings) and solves 
 the coupled channel Schroedinger equation for an initial guess energy.
 
@@ -95,7 +95,9 @@ cross section.
    # Y.us.limits               Y.us.rot                  Y.us.solve
    # Y.us.mu                   Y.us.rotational_constant  
 
-A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg-valence coupling in O\ :sub:`2`
+A simple ::math:
+
+`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg-valence coupling in O\ :sub:`2`
 
 .. code-block:: python
 
