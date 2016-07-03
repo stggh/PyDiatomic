@@ -7,6 +7,26 @@ PyDiatomic is an open source project and we welcome improvements! Please let us 
 If you would like to make a Pull Request, the following information may be useful.
 
 
+
+Unit tests
+----------
+
+Before submitting at Pull Request, be sure to run the unit tests. The test suite can be run from within the PyAbel package with ::
+
+    nosetests  cse/tests/  --verbosity=2  --with-coverage --cover-package=cse
+
+or, from any folder with ::
+
+    python  -c "import cse.tests; cse.tests.run_cli(coverage=True)"
+
+which performs an equivalent call.
+
+Note that this requires that you have `Nose <nose.readthedocs.io>`_ and (optionally) `Coverage <coverage.readthedocs.io>`_ installed. You can install these with ::
+
+    pip install nose
+    pip install coverage
+
+
 Documentation
 -------------
 
