@@ -1,6 +1,9 @@
 PyDiatomic README
 =================
 
+.. image:: https://travis-ci.org/stggh/PyDiatomic.svg?branch=master
+    :target: https://travis-ci.org/stggh/PyDiatomic
+
 
 Introduction
 ------------
