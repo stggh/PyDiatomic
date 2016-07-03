@@ -34,14 +34,3 @@ X = cse.Xs(mu='O2', VTi=[d+'X3S-1.dat'], eni=800,
                     dipolemoment=[1, 0, 0, 0.3])
                     #, transition_energy=wavelength)  # <--- alternative direct call
 
-print("CSE: calculating cross section speeded by Python multiprocessing",
-      " Pool.map")
-print("     from {:.2f} to {:.2f} in {:.2f} nm steps ... ".
-      format(wavelength[0], wavelength[-1], wavelength[1]-wavelength[0]))
-
-t0 = time.time()
-X.calculate_xs(transition_energy=wavelength)
-print("CSE: ...  in {:.2g} seconds".format(time.time()-t0))
-
-print('CSE: E(v"={:d}) = {:.2f} cm-1, {:.3g} eV'.format(X.gs.node_count(), 
-                                                   X.gs.cm, X.gs.energy))
