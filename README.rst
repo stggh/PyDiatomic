@@ -164,7 +164,7 @@ Reference
 [2] `B.R. Lewis, S.T. Gibson, F. T. Hawes, and L. W. Torop "A new model for
 the Schumann-Runge bands of O2" Phys. Chem. Earth(C) **26** 519 (2001) <http://dx.doi.org/10.1016/S1464-1917(01)00040-X>`_
 
-[3] `A. N. Heays "Photoabsorption and photodissociation in molecular nitrogen <https://digitalcollections.anu.edu.au/handle/1885/7360>`_
+[3] `A. N. Heays "Photoabsorption and photodissociation in molecular nitrogen, PhD Thesis (2011) <https://digitalcollections.anu.edu.au/handle/1885/7360>`_
 
 
 Citation
