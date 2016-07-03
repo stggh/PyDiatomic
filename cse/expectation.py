@@ -11,7 +11,7 @@ from functools import partial
 
 from . import johnson
 
-u"""
+"""
   expectation values - cross section, oscillator strengths,
                        spectroscopic constanst ...
 
@@ -25,7 +25,7 @@ CONST = 2*(np.pi*const.e*a0)**2*1.0e4/3/const.epsilon_0
 
 
 def cross_section(wavenumber, wfu, wfi, R, dipolemoment):
-    u""" photodissociation cross section |<f|M|i>|^2.
+    """ photodissociation cross section |<f|M|i>|^2.
 
     Parameters
     ----------
@@ -68,7 +68,7 @@ def cross_section(wavenumber, wfu, wfi, R, dipolemoment):
 
 
 def xs(dipolemoment, ei, rot, mu, R, VT, wfi, wavenumber):
-    u""" solve CSE of upper coupled states for the transition energy.
+    """ solve CSE of upper coupled states for the transition energy.
 
     """
     dE = wavenumber/8065.541
@@ -79,7 +79,7 @@ def xs(dipolemoment, ei, rot, mu, R, VT, wfi, wavenumber):
 
 
 def xs_vs_wav(wavenumber, dipolemoment, ei, rot, mu, R, VT, wfi):
-    u""" mulitprocessor pool function.
+    """ mulitprocessor pool function.
 
     """
     pool = multiprocessing.Pool()
@@ -94,7 +94,7 @@ def xs_vs_wav(wavenumber, dipolemoment, ei, rot, mu, R, VT, wfi):
 
 
 def Bv(R, wavefunction, mu):
-    u""" Bv rotational constant from expectation <v|1/R^2|v>.
+    """ Bv rotational constant from expectation <v|1/R^2|v>.
 
     """
     ex = simps((wavefunction/R)**2, R)

@@ -7,7 +7,7 @@ from . import cse_setup
 
 
 class Cse():
-    u""" Class to setup and solve the TISE via the Johnson renormalized
+    """ Class to setup and solve the TISE via the Johnson renormalized
         Numerov method i.e. drive johnson.py for a single
         set of coupled states.
 
@@ -104,7 +104,7 @@ class Cse():
 
 
 class Xs():
-    u""" Class to evaluate photodissociation cross sections, i.e. solve the
+    """ Class to evaluate photodissociation cross sections, i.e. solve the
     coupled-channel problems, for initial and final coupled-channels.
 
     The following attributes may be available subject to the calculation.
@@ -153,7 +153,7 @@ class Xs():
             if eni is None:
                 eni = self.gs.energy
             self.gs.solve(eni, roti)
-            print(u'E(v"={}) = {:.2f} cm-1 '.format(self.gs.vib, self.gs.cm))
+            print('E(v"={}) = {:.2f} cm-1 '.format(self.gs.vib, self.gs.cm))
 
         if mu is not None or coupf is not None or rotf is not None:
             # recalculate final couples states

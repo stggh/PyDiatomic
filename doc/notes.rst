@@ -1,7 +1,7 @@
 Johnson Renormalization
------------------------
+=======================
 
-| [B. R. Johnson JCP **69**, 4678 (1978).]
+| [B. R. Johnson JCP **69**, 4678 (1978)]
 
 
 .. math:: \mathbf{T}_n = -\frac{2(\Delta R)^2\mu}{12\hbar^2} (E\mathbf{I}-\mathbf{V}_n)
@@ -36,7 +36,7 @@ Johnson Renormalization
                 \right)\end{aligned}
 
 
-:math:`V_{ii}` diabatic potential energy curves, :math:`V_{ij\neq i}`
+:math:`V_{ii}` diabatic potential energy curves, :math:`V_{i j\neq i}`
 
 off-diagonal coupling terms [H. Lefebvre Brion and R. W. Field table 2.2
 page 39.]
@@ -66,8 +66,7 @@ Except when :math:`\left| \mathbf{R}_n \right| \sim 0` then
 
   :math:`\mathbf{R}^{-1}_n` is not well defined.
 
-| Use
-  :math:`\mathbf{F}_n = \mathbf{U}_{n+1}\mathbf{F}_{n+1} - \mathbf{F}_{n+2}`
+| Use :math:`\mathbf{F}_n = \mathbf{U}_{n+1}\mathbf{F}_{n+1} - \mathbf{F}_{n+2}`
 
 
 
@@ -88,6 +87,58 @@ Inward Solution (:math:`\hat{\ }` - matrices)
 
 Except when :math:`\left| \mathbf{R}_n \right| \sim 0` then
   :math:`\mathbf{R}^{-1}_n` is not well defined.
-| Use
-  :math:`\mathbf{F}_n = \mathbf{U}_{n-1}\mathbf{F}_{n-1} - \mathbf{F}_{n-2}`
 
+| Use :math:`\mathbf{F}_n = \mathbf{U}_{n-1}\mathbf{F}_{n-1} - \mathbf{F}_{n-2}`
+
+
+Multiple Open Channels
+~~~~~~~~~~~~~~~~~~~~~~
+
+| :math:`n_{\rm open}` linearly independent solutions:
+|
+
+  .. math::
+
+     \mathbf{R}(R=\infty) =
+     \begin{pmatrix}
+     1       & 0  & \ldots & 0 \\
+     0       & 1  & \ldots & 0 \\
+     \vdots  & \vdots  & \ddots & \ldots & \vdots\\
+     0       & 0  & \ldots & 1\\
+     \end{pmatrix}
+     \rightarrow \text{CSE} \rightarrow
+     \boldsymbol{\chi}(R) =
+     \begin{pmatrix}
+        \chi_{00} & \chi_{01} & \chi_{02} & \ldots &
+     \chi_{0N_{\text{open}}}\\
+        \chi_{10} & \chi_{11} & \chi_{12} & \ldots \\
+        \vdots    & \vdots    & \vdots    &        & \vdots \\
+        \chi_{N_{\text{total}}0} & &  & \ldots &
+     \chi_{N_{\text{total}}N_{\text{open}
+     }} \\
+     \end{pmatrix}
+
+Normalization
+-------------
+
+| [Mies - Molecular Physics **14**, 953 (1980).]
+
+:math:`\boldsymbol{\chi} = \mathbf{JA} + \mathbf{NB}`
+
+:math:`\mathbf{F}^K = \boldsymbol{\chi} \mathbf{A}^{-1} = \mathbf{J} + \mathbf{NK}`
+
+where
+
+:math:`\mathbf{K} = \mathbf{BA}^{-1} = \mathbf{U}\tan \boldsymbol{\xi}
+\hat{\mathbf{U}}`.
+
+Physical solution
+
+:math:`\mathbf{F}^S = \mathbf{F}^k\mathbf{U}\cos\boldsymbol{\xi}
+e^{\text{i} \boldsymbol{\xi}} \hat{\mathbf{U}} = \text{i}e^{-\text{i}\mathbf{k}R} - \text{i}e^{\text{i}\mathbf{k}R}\mathbf{S}`
+
+Determine matrices , by energy normalization of each wavefunction.
+
+:math:`\chi_{ij} = \left( \frac{2\mu}{\hbar^2\pi} \right) ^{\frac{1}{2}}
+\frac{1}{\sqrt{k}} \left[ J_i a_{ij} + N_i b_{ij} \right]` for
+potential :math:`i`.

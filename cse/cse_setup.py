@@ -3,7 +3,7 @@ import numpy as np
 import scipy.constants as const
 
 def reduced_mass(amu=None):
-    u""" Reduced mass of diatomic molecule.
+    """ Reduced mass of diatomic molecule.
 
     Parameters
     ----------
@@ -17,34 +17,34 @@ def reduced_mass(amu=None):
     """
 
     amus = {\
-        u'H2': 0.50391261,
-        u'HCl': 0.97959272,
-        u'OH': 0.9480871,
-        u'N2': 7.0015372,
-        u'N14': 7.0015372,
-        u'N14N15': 7.242227222,
-        u'N15': 7.50005465,
-        u'NO': 7.46643323,
-        u'O2': 7.99745751,
-        u'O16O17': 1.368448e-26/const.u,
-        u'O17O18': 1.451734e-26/const.u,
-        u'O16O18': 1.40607e-26/const.u,
-        u'O18': 1.49417e-26/const.u,
-        u'CO': 6.85620871,
-        u'Cl2': 17.4844268,
-        u'CS2': 8.727,
-        u'Cs2': 66.452718,
-        u'ICl': 27.4146708,
-        u'I2': 63.4522378,
-        u'Br': 39.459166,
-        u'S2': 15.9860364,
-        u'S32': 15.9860364,
-        u'S32O16': 10.6613029,
-        u'S33O16': 10.77016005,
-        u'S34O16': 10.78435767,
+        'H2': 0.50391261,
+        'HCl': 0.97959272,
+        'OH': 0.9480871,
+        'N2': 7.0015372,
+        'N14': 7.0015372,
+        'N14N15': 7.242227222,
+        'N15': 7.50005465,
+        'NO': 7.46643323,
+        'O2': 7.99745751,
+        'O16O17': 1.368448e-26/const.u,
+        'O17O18': 1.451734e-26/const.u,
+        'O16O18': 1.40607e-26/const.u,
+        'O18': 1.49417e-26/const.u,
+        'CO': 6.85620871,
+        'Cl2': 17.4844268,
+        'CS2': 8.727,
+        'Cs2': 66.452718,
+        'ICl': 27.4146708,
+        'I2': 63.4522378,
+        'Br': 39.459166,
+        'S2': 15.9860364,
+        'S32': 15.9860364,
+        'S32O16': 10.6613029,
+        'S33O16': 10.77016005,
+        'S34O16': 10.78435767,
         }
     if amu is None: 
-        mus = input (u"CSE: reduced mass a.u. [O2=7.99745751]: ")
+        mus = input ("CSE: reduced mass a.u. [O2=7.99745751]: ")
         if mus in amus.keys():
             amu = amus[mus]
         else:
@@ -59,7 +59,7 @@ def reduced_mass(amu=None):
 
 
 def potential_energy_curves(pecfs=None):
-    u""" Read potential energy curve file(s) and assemble as diagonals in an nxn array for the n-filenames provided.
+    """ Read potential energy curve file(s) and assemble as diagonals in an nxn array for the n-filenames provided.
 
     Parameters
     ----------
@@ -96,8 +96,8 @@ def potential_energy_curves(pecfs=None):
     """
 
     if pecfs == None:
-        pecfns =  input (u"CSE: potential energy curves [X3S-1.dat]: ")
-        pecfs = pecfns.replace(',','').split() if len(pecfns) > 1 else [u"X3S-1.dat"]
+        pecfns =  input ("CSE: potential energy curves [X3S-1.dat]: ")
+        pecfs = pecfns.replace(',','').split() if len(pecfns) > 1 else ["X3S-1.dat"]
 
     n = np.size(pecfs)
 
@@ -140,7 +140,7 @@ def potential_energy_curves(pecfs=None):
 
 
 def coupling_function(R, VT, pecfs, coup=None):
-    u""" Fill the off-diagonal coupling elements of VT.
+    """ Fill the off-diagonal coupling elements of VT.
 
     Parameters
     ----------
@@ -162,7 +162,7 @@ def coupling_function(R, VT, pecfs, coup=None):
     for j in range(n):
         for k in range(j+1,n):
             if coup == None:
-                couplestr = input(u"CSE: coupling {:s} <-> {:s} cm-1 [0]? "\
+                couplestr = input("CSE: coupling {:s} <-> {:s} cm-1 [0]? "\
                                   .format(pecfs[j],pecfs[k]))
                 couple = float(couplestr) if len(couplestr) > 1 else 0.0
             else:
@@ -197,7 +197,7 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
         # query for dipolemoment filename/values
         for g in pec_gs:
             for u in pec_us:
-                 fn = input(u"CSE: dipolemoment filename or value {} <- {} : ".
+                 fn = input("CSE: dipolemoment filename or value {} <- {} : ".
                             format(u, g)) 
                  if is_number(fn):
                      dipole.append(np.ones_like(R)*float(fn))             

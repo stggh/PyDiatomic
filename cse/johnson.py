@@ -20,7 +20,7 @@ from scipy.special import sph_jn, sph_yn
 
 
 def WImat(energy, rot, V, R, mu):
-    u""" Interaction matrix.
+    """ Interaction matrix.
 
     Parameters
     ----------
@@ -69,7 +69,7 @@ def WImat(energy, rot, V, R, mu):
 
 
 def RImat(WI, mx):
-    u""" R matrix
+    """ R matrix
 
     Parameters
     ----------
@@ -99,7 +99,7 @@ def RImat(WI, mx):
 
 
 def fmat(j, RI, WI,  mx):
-    u""" f-matrix of the Johnson method.
+    """ f-matrix of the Johnson method.
 
     Parameters
     ----------
@@ -131,7 +131,7 @@ def fmat(j, RI, WI,  mx):
 
 
 def wavefunction(WI, j, f):
-    u""" evaluate wavefunctions from f-matrix array.
+    """ evaluate wavefunctions from f-matrix array.
 
     Parameters
     ----------
@@ -160,7 +160,7 @@ def wavefunction(WI, j, f):
 
 
 def matching_point(en, rot, V, R, mu):
-    u""" estimate matching point for inward and outward solutions position
+    """ estimate matching point for inward and outward solutions position
     based on the determinant of the R-matrix.
 
     Parameters
@@ -198,7 +198,7 @@ def matching_point(en, rot, V, R, mu):
 
 
 def eigen(energy, rot, mx, V, R, mu):
-    u""" determine eigen energy solution based.
+    """ determine eigen energy solution based.
 
     Parameters
     ----------
@@ -228,7 +228,7 @@ def eigen(energy, rot, mx, V, R, mu):
 
 
 def normalize(wf, R):
-    u""" normalize a bound state wavefunction
+    """ normalize a bound state wavefunction
 
     Parameters
     ----------
