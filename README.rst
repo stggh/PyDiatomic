@@ -120,7 +120,7 @@ A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg
 
 
 .. figure:: https://cloud.githubusercontent.com/assets/10932229/16544284/a6fe46fc-4143-11e6-8d7a-af1e4ad67db6.png 
-   :width: 200px
+   :width: 150px
    :alt: calculated cross section
    
    Example calculated cross section
@@ -129,12 +129,12 @@ A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg
 See also `examples/example_O2xs.py` and `example_rkr.py`:
 
 .. figure:: https://cloud.githubusercontent.com/assets/10932229/16547861/767d2770-41be-11e6-8ded-f090765cc1a8.png
-   :width: 200px
+   :width: 150px
    :alt: example_O2xs
 
 
 .. figure:: https://cloud.githubusercontent.com/assets/10932229/16547862/7a37f520-41be-11e6-86d5-e5e52ef5e38f.png
-   :width: 200px
+   :width: 150px
    :alt: example_rkr
 
 
