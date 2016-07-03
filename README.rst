@@ -116,7 +116,7 @@ A simple :latex:`^3\Sigma_{u}^{-} \leftrightarrow {}^3\Sigma^{-}_{u}` Rydberg-va
     plt.show()
 
 
-.. image::`https://cloud.githubusercontent.com/assets/10932229/16544284/a6fe46fc-4143-11e6-8d7a-af1e4ad67db6.png` 
+.. image:: https://cloud.githubusercontent.com/assets/10932229/16544284/a6fe46fc-4143-11e6-8d7a-af1e4ad67db6.png 
 
 
 Documentation
@@ -150,7 +150,7 @@ the Schumann-Runge bands of O2" Phys. Chem. Earth(C) **26** 519 (2001) <http://d
 
 Citation
 --------
-If you find PyDiatomic useful in you work, please consider citing the project.
+If you find PyDiatomic useful in you work please consider citing this project.
 
 
 .. image:: https://zenodo.org/badge/23090/stggh/PyDiatomic.svg
