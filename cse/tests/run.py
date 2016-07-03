@@ -6,7 +6,7 @@ _base_dir, _ = os.path.split(__file__)
 
 def run(coverage=False):
     """
-    This runs the complete set of PyAbel tests.
+    This runs the complete set of PyDiatomic tests.
     """
     import nose
     argv=['', '-s', '--where={}'.format(_base_dir), '--verbosity=2']
@@ -18,7 +18,7 @@ def run(coverage=False):
 
 def run_cli(coverage=False):
     """
-    This also runs the complete set of PyCSE tests.
+    This also runs the complete set of PyDiatomic tests.
     But uses sys.exit(status) instead of simply returning the status.
     """
     status = run(coverage=coverage)

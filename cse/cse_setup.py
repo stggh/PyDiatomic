@@ -99,12 +99,15 @@ def potential_energy_curves(pecfs=None):
         pecfns =  input ("CSE: potential energy curves [X3S-1.dat]: ")
         pecfs = pecfns.replace(',','').split() if len(pecfns) > 1 else ["X3S-1.dat"]
 
-    n = np.size(pecfs)
+    n = np.shape(pecfs)[0]
 
     Rin = []
     Vin = []
     for i,fn in enumerate(pecfs):
-        radialcoord, potential = np.loadtxt(fn,unpack=True)
+        if isinstance(fn, (np.str)):
+            radialcoord, potential = np.loadtxt(fn,unpack=True)
+        else:
+            radialcoord, potential = fn
         Rin.append(radialcoord)
         Vin.append(potential)
 
