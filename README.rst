@@ -95,22 +95,28 @@ cross section.
    # Y.us.limits               Y.us.rot                  Y.us.solve
    # Y.us.mu                   Y.us.rotational_constant  
 
-A simple :math:`^3\Sigma_{u}^{-} \leftrightarrow {}^3\Sigma^{-}_{u}` Rydberg-valence coupling in O\ :sub:`2`
+A simple :latex:`^3\Sigma_{u}^{-} \leftrightarrow {}^3\Sigma^{-}_{u}` Rydberg-valence coupling in O\ :sub:`2`
 
 .. code-block:: python
 
-   import numpy as np
-   import cse
-   import matplotlib.pyplot as plt
+    import numpy as np
+    import cse
+    import matplotlib.pyplot as plt
 
-   Z = cse.Xs('O2', VTi=['X3S-1.dat'], VTf=['B3S-1.dat', 'E3S-1.dat'],
-              coupf=[4000], dipolemoment=[1, 0],
-              transition_energy=np.arange(110, 174, 0.1), eni=800)
-   
-   plt.plot(Z.wavenumber, Z.xs)
-   plt.show()
+    Z = cse.Xs('O2', VTi=['X3S-1.dat'], VTf=['B3S-1.dat', 'E3S-1.dat'],
+               coupf=[4000], dipolemoment=[1, 0],
+               transition_energy=np.arange(110, 174, 0.1), eni=800)
 
-.. image:: file://examples/data/example_O2xs.png
+    plt.plot(Z.wavenumber, Z.xs*1.0e16)
+    plt.xlabel("Wavenumber (cm$^{-1}$)")
+    plt.ylabel("Cross section ($10^{-16}$ cm$^{2}$)")
+    plt.axis(ymin=-0.2)
+    plt.title("O$_{2}$ $^{3}\Sigma_{u}^{-}$ Rydberg-valence interaction")
+    plt.savefig("RVxs.png", dpi=75)
+    plt.show()
+
+
+.. image:: ![rvxs](https://cloud.githubusercontent.com/assets/10932229/16544284/a6fe46fc-4143-11e6-8d7a-af1e4ad67db6.png) 
 
 
 Documentation
@@ -144,7 +150,7 @@ the Schumann-Runge bands of O2" Phys. Chem. Earth(C) **26** 519 (2001) <http://d
 
 Citation
 --------
-If you find PyDiatomic useful in you work, it would bring us great joy if you would cite the project.
+If you find PyDiatomic useful in you work, please consider citing the project.
 
 
 .. image:: https://zenodo.org/badge/23090/stggh/PyDiatomic.svg
