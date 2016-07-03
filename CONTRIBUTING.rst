@@ -2,7 +2,7 @@ Contributing to PyDiatomic
 ==========================
 
 
-PyDiatomic is an open source project and we welcome improvements! Please let us know about any issues with the software, even if's just a typo. The easiest way to get started is to open a `new issue <https://github.com/PyDiatomic/PyDiatomic/issues>`_.
+PyDiatomic is an open source project and improvements are welcome! Please let us know about any issues with the software, even if is just a typo. The easiest way to get started is to open a `new issue <https://github.com/stggh/PyDiatomic/issues>`_.
 
 If you would like to make a Pull Request, the following information may be useful.
 

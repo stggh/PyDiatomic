@@ -116,7 +116,11 @@ A simple :latex:`^3\Sigma_{u}^{-} \leftrightarrow {}^3\Sigma^{-}_{u}` Rydberg-va
     plt.show()
 
 
-.. image:: https://cloud.githubusercontent.com/assets/10932229/16544284/a6fe46fc-4143-11e6-8d7a-af1e4ad67db6.png 
+.. figure:: https://cloud.githubusercontent.com/assets/10932229/16544284/a6fe46fc-4143-11e6-8d7a-af1e4ad67db6.png 
+   :width: 200px
+   :alt: calculated cross section
+   
+   calculated cross section
 
 
 Documentation
