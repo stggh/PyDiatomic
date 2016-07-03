@@ -3,7 +3,8 @@ Examples
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    example_O2xs
+   example_rkr
 
