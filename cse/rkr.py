@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 def rkr(mu, vv, Gv, Bv, De, limb='L', dv=0.1,
         Rgrid=np.arange(0.005, 10.004, 0.005)):
-    u""" Rydberg-Klien-Rees potential energy curve.
+    """ Rydberg-Klien-Rees potential energy curve.
       
     Parameters
     ---------
