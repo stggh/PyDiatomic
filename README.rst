@@ -169,7 +169,7 @@ the Schumann-Runge bands of O2" Phys. Chem. Earth(C) **26** 519 (2001) <http://d
 
 Citation
 --------
-If you find PyDiatomic useful in you work please consider citing this project.
+If you find PyDiatomic useful in your work please consider citing this project.
 
 
 .. image:: https://zenodo.org/badge/23090/stggh/PyDiatomic.svg
