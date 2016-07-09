@@ -128,7 +128,7 @@ A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg
 
 See also `examples/example_O2xs.py` and `example_rkr.py`:
 
-.. figure:: https://cloud.githubusercontent.com/assets/10932229/16547861/767d2770-41be-11e6-8ded-f090765cc1a8.png
+.. figure:: https://cloud.githubusercontent.com/assets/10932229/16705448/831f11d8-45cd-11e6-9406-832a67e39d63.png
    :width: 300px
    :alt: example_O2xs
 
