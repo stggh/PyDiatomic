@@ -76,7 +76,7 @@ ax1.annotate('${}^{3}\Pi$', (1.34, 65000), color='r')
 
 ax1.set_title("diabatic PECs", fontsize=12)
 ax1.axis(xmin=0.5, xmax=2, ymin=40000+X.gs.cm, ymax=100000+X.gs.cm)
-#ax1.set_xlabel("R ($\AA$)")
+ax1.set_xlabel("R ($\AA$)")
 #ax1.set_ylabel("V (eV)")
 ax1.axes.get_yaxis().set_visible(False)
 
