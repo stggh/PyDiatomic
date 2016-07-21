@@ -5,7 +5,6 @@ import scipy.constants as const
 from scipy import linalg
 from scipy.optimize import leastsq
 from scipy.integrate.quadrature import simps
-from numpy.linalg import inv
 from scipy.special import sph_jn, sph_yn
 
 ##############################################################################
@@ -63,7 +62,7 @@ def WImat(energy, rot, V, R, mu):
 
     # generate W^-1
     WI = np.zeros_like(V)
-    WI[:] = inv(I + (energy*I - V[:])*factor)
+    WI[:] = np.linalg.inv(I + (energy*I - V[:])*factor)
 
     return WI
 
@@ -121,7 +120,15 @@ def fmat(j, RI, WI,  mx):
     oo, n, m = WI.shape
     f = np.zeros((oo, n))
 
-    f[mx] = linalg.inv(WI[mx])[j]
+    if n == 1 or mx > oo-20:
+        # single PEC or unbound 
+        f[mx] = linalg.inv(WI[mx])[j]
+    else:
+        # (R_m - R^-1_m+1).f(R) = 0
+        U, s, Vh = linalg.svd(linalg.inv(RI[mx-1])-RI[mx])
+        for i, x in enumerate(s):
+            if x > 0: break    # any diagonal !=0 yields a solution
+        f[mx] = U[i] 
 
     for i in range(mx-1, -1, -1):
         f[i] = f[i+1] @ RI[i]
