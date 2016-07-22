@@ -159,7 +159,7 @@ Brenton Lewis (ANU), and Alan Heays (ANU and Leiden).
 Reference
 ---------
 
-[1] `B.R. Johnson "The renormalized Numerov method applied to calculating the bound states of the coupled-channel Schroedinger equation" J. Chem. Phys. **69**, 4678 (1978) <http://dx.doi.org/10.1063/1.436421>`_
+[1] `B.R. Johnson "The renormalized Numerov method applied to calculating the bound states of the coupled-channel Schroedinger equation" J. Chem. Phys. 69, 4678 (1978) <http://dx.doi.org/10.1063/1.436421>`_
 
 [2] `B.R. Lewis, S.T. Gibson, F. T. Hawes, and L. W. Torop "A new model for
 the Schumann-Runge bands of O2" Phys. Chem. Earth(C) 26 519 (2001) <http://dx.doi.org/10.1016/S1464-1917(01)00040-X>`_
