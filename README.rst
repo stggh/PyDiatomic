@@ -36,7 +36,7 @@ Or, if you wish to edit the PyAbel source code without re-installing each time :
 Example of use
 --------------
 
-PyDiatomic has a wrapper classes  :class:`cse.Cse()` and  :class:`cse.Xs()` 
+PyDiatomic has a wrapper classes :class:`cse.Cse()` and  :class:`cse.Xs()` 
 
 :class:`cse.Cse()`  set ups the CSE problem 
 (interaction matrix of potential energy curves, and couplings) and solves 
@@ -162,7 +162,7 @@ Reference
 [1] `B.R. Johnson "The renormalized Numerov method applied to calculating the bound states of the coupled-channel Schroedinger equation" J. Chem. Phys. **69**, 4678 (1978) <http://dx.doi.org/10.1063/1.436421>`_
 
 [2] `B.R. Lewis, S.T. Gibson, F. T. Hawes, and L. W. Torop "A new model for
-the Schumann-Runge bands of O2" Phys. Chem. Earth(C) **26** 519 (2001) <http://dx.doi.org/10.1016/S1464-1917(01)00040-X>`_
+the Schumann-Runge bands of O2" Phys. Chem. Earth(C) 26 519 (2001) <http://dx.doi.org/10.1016/S1464-1917(01)00040-X>`_
 
 [3] `A. N. Heays "Photoabsorption and photodissociation in molecular nitrogen, PhD Thesis (2011) <https://digitalcollections.anu.edu.au/handle/1885/7360>`_
 
