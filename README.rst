@@ -138,6 +138,26 @@ See also `examples/example_O2xs.py` and `example_rkr.py`:
    :alt: example_rkr
 
 
+Rotation
+~~~~~~~~
+
+.. code-block:: python
+
+    import cse
+    
+    X = cse.Cse('O2', VT=['X3S-1.dat'])  # include path to potential curve
+    X.solve(900, rot=0)
+    X.cm
+    # 787.3978354211097
+    X.Bv
+    # 1.4376793638070153
+    X.solve(900, 20)
+    X.cm
+    # 1390.369249612629
+    # (1390.369-787.398)/(20*21) = 1.4356
+
+
+
 Documentation
 -------------
 
