@@ -44,25 +44,22 @@ def WImat(energy, rot, V, R, mu):
     """
 
     dR2 = (R[1] - R[0])**2
-    factor = mu*1.0e-20*dR2*const.e/const.hbar/const.hbar/6.0
+    factor = mu*1.0e-20*dR2*const.e/const.hbar/const.hbar/6
 
     oo, n, m = V.shape
     I = np.identity(n)
+    barrier = np.zeros((m, n, oo))
 
     if rot:
         # centrifugal barrier -   hbar^2 J(J+1)/2 mu R^2 in eV
-        rot2ev = const.hbar**2*1.0e20/const.e/(2*mu*R[:]**2)
-        barrier = rot*(rot+1)*rot2ev
+        diag = np.diag_indices(n)
+        barrier[diag] = rot*(rot+1)*dR2/12/R[:]**2/factor
 
-        VT = np.transpose(V)
-        dia = np.diag_indices(n)
-        # add centrifugal barrier to diagonal
-        VT[dia] += barrier
-        V = np.transpose(VT)
+    barrier = np.transpose(barrier)
 
     # generate W^-1
     WI = np.zeros_like(V)
-    WI[:] = np.linalg.inv(I + (energy*I - V[:])*factor)
+    WI[:] = np.linalg.inv(I + (energy*I - V[:] - barrier[:])*factor)
 
     return WI
 
@@ -194,13 +191,21 @@ def matching_point(en, rot, V, R, mu):
     if en > V[oo-1][0][0]:
         return oo-1
     else:
-        Vnn = np.transpose(V)[-1][-1]
+        if rot:
+            # centrifugal barrier -   hbar^2 J(J+1)/2 mu R^2 in eV
+            hbar2_on_2mu = (const.hbar*1.0e10)**2/const.e/2/mu
+            barrier = rot*(rot+1)*hbar2_on_2mu/R[:]**2
+        else:
+            barrier = 0
+
+        Vnn = np.transpose(V)[-1][-1] + barrier
         mx = list(Vnn).index(Vnn[en > Vnn][-1])
 
         WI = WImat(en, rot, V, R, mu)
         Rm = RImat(WI, mx)
         while linalg.det(Rm[mx]) > 1:
             mx -= 1
+
     return mx
 
 
@@ -231,6 +236,8 @@ def eigen(energy, rot, mx, V, R, mu):
 
     WI = WImat(energy, rot, V, R, mu)
     RI = RImat(WI, mx)
+    
+    # | R_mx - R^-1_mx+1 |
     return linalg.det(linalg.inv(RI[mx])-RI[mx+1])
 
 
