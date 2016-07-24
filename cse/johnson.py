@@ -191,14 +191,7 @@ def matching_point(en, rot, V, R, mu):
     if en > V[oo-1][0][0]:
         return oo-1
     else:
-        if rot:
-            # centrifugal barrier -   hbar^2 J(J+1)/2 mu R^2 in eV
-            hbar2_on_2mu = (const.hbar*1.0e10)**2/const.e/2/mu
-            barrier = rot*(rot+1)*hbar2_on_2mu/R[:]**2
-        else:
-            barrier = 0
-
-        Vnn = np.transpose(V)[-1][-1] + barrier
+        Vnn = np.transpose(V)[-1][-1]  # -1 -1 highest PEC?
         mx = list(Vnn).index(Vnn[en > Vnn][-1])
 
         WI = WImat(en, rot, V, R, mu)
