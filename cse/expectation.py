@@ -68,11 +68,10 @@ def cross_section(wavenumber, wfu, wfi, R, dipolemoment):
     return xsp
 
 
-def xs(dipolemoment, ei, mu, R, VT, wfi, waverot):
+def xs(dipolemoment, ei, mu, R, VT, wfi, rot, wavenumber):
     """ solve CSE of upper coupled states for the transition energy.
 
     """
-    wavenumber, rot = waverot
     dE = wavenumber/8065.541
     en = ei + dE
     wfu, eu = johnson.solveCSE(en, rot, mu, R, VT)
@@ -85,9 +84,10 @@ def xs_vs_wav(wavenumber, dipolemoment, ei, rot, mu, R, VT, wfi):
 
     """
     pool = multiprocessing.Pool()
-    func = partial(xs, dipolemoment, ei, mu, R, VT, wfi)
+    func = partial(xs, dipolemoment, ei, mu, R, VT, wfi, rot)
 
-    xsp = pool.map(func, itertools.chain(itertools.product(wavenumber, rot)))
+    #xsp = pool.map(func, itertools.chain(itertools.product(wavenumber, rot)))
+    xsp = pool.map(func, wavenumber)
     xsp = np.array(xsp)
     pool.close()
     pool.join()

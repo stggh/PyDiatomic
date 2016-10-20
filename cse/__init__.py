@@ -6,5 +6,5 @@ from . import cse_setup
 from . import expectation
 from . import rkr
 from . import analytical
-from .cse import Cse, Xs
 from .rkr import rkr
+from .cse import Cse, Xs
