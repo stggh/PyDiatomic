@@ -53,7 +53,8 @@ def reduced_mass(amu=None):
         amu = amus[amu] 
     else:
         # atomic mass given
-        amu = amu
+        if amu < 1.0e-20:
+            return amu   # already in kg
 
     return amu*const.m_u
 
