@@ -20,10 +20,8 @@ from . import johnson
   February 2016
 """
 
-
 a0 = const.physical_constants["Bohr radius"][0]
 CONST = 2*(np.pi*const.e*a0)**2*1.0e4/3/const.epsilon_0
-
 
 def cross_section(wavenumber, wfu, wfi, R, dipolemoment):
     """ photodissociation cross section |<f|M|i>|^2.
@@ -61,18 +59,17 @@ def cross_section(wavenumber, wfu, wfi, R, dipolemoment):
     for j in range(nopen):
         Rx = simps(ReX[:, j], R)
         Ix = simps(ImX[:, j], R)
-        xx = Rx**2 + Ix**2
-        xs = xx*CONST*wavenumber*1.0e-8
+        xs = Rx**2 + Ix**2
         xsp.append(xs)
 
-    return xsp
+    return np.array(xsp)*CONST*wavenumber*1.0e-8
 
 
 def xs(dipolemoment, ei, mu, R, VT, wfi, rot, wavenumber):
     """ solve CSE of upper coupled states for the transition energy.
 
     """
-    dE = wavenumber/8065.541
+    dE = wavenumber/8065.541  # convert to eV
     en = ei + dE
     wfu, eu = johnson.solveCSE(en, rot, mu, R, VT)
     xsp = cross_section(wavenumber, wfu, wfi, R, dipolemoment)
@@ -88,7 +85,6 @@ def xs_vs_wav(wavenumber, dipolemoment, ei, rot, mu, R, VT, wfi):
 
     #xsp = pool.map(func, itertools.chain(itertools.product(wavenumber, rot)))
     xsp = pool.map(func, wavenumber)
-    xsp = np.array(xsp)
     pool.close()
     pool.join()
 

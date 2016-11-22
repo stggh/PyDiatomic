@@ -62,6 +62,12 @@ class Cse():
     def set_mu(self, mu):
         self.mu = cse_setup.reduced_mass(mu)
 
+    def set_Rmax(self, Rx):
+        oo, n, m = self.VT.shape
+        oo = np.abs(self.R - Rx).argmin()   # new max index
+        self.R = np.resize(self.R, oo)
+        self.VT = np.resize(self.VT, (oo, n, n))
+
     def set_coupling(self, coup):
         self.VT = cse_setup.coupling_function(self.R, self.VT, self.pecfs,
                                               coup=coup)
