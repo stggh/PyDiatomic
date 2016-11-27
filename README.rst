@@ -34,7 +34,7 @@ Or, if you wish to edit the PyAbel source code without re-installing each time :
 
 
 
-(*) due to the use of infix matrix multiplication `@`. To run with python < 3.5, replace `A @ B` with `np.dot(A, B)` in :funct:`cse.py` and :funct:`expectation.py`.
+(*) due to the use of infix matrix multiplication :py:`@`. To run with python < 3.5, replace :py:`A @ B` with :py:`np.dot(A, B)` in :py:`cse.py` and :py:`expectation.py`.
 
 
 Example of use
@@ -169,6 +169,7 @@ equation is a separate calculation.  PyDiatomic uses :py:`multiprocessing`
 to perform these calculations in parallel, resulting in a substantial
 reduction in execution time on multiprocessor systems. e.g. for 
 :code:`example_O2xs.py`
+
 
 ==============     ====     ======     ==========
 machine            GHz      CPU(s)     time (sec)
