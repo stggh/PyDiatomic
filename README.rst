@@ -165,19 +165,19 @@ Timing
 ------
 
 Each transition energy solution to the coupled-channel Schroedinger
-equation is a separate calculation.  PyDiatomic uses :funct:`multiprocessing`
+equation is a separate calculation.  PyDiatomic uses :py:`multiprocessing`
 to perform these calculations in parallel, resulting in a substantial
 reduction in execution time on multiprocessor systems. e.g. for 
-:code:`example_O2xs.py`:
+:code:`example_O2xs.py`
 
-==============      ====   ======     ==========
-machine             GHz    CPU(s)     time (sec)
-==============      ====   ======     ==========
-Xenon E5-2697       2.6    64         6
-i7-6700             3.4    8          17
-Macbook pro i5      2.4    4          63
-raspberry pi 3      1.35   4          127
-==============      ====   =====      ==========
+==============     ====     ======     ==========
+machine            GHz      CPU(s)     time (sec)
+==============     ====     ======     ==========
+Xenon E5-2697      2.6      64         6
+i7-6700            3.4      8          17
+Macbook pro i5     2.4      4          63
+raspberry pi 3     1.35     4          127
+==============     ====     =====      ==========
 
 
 Documentation
