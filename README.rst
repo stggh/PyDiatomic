@@ -18,7 +18,7 @@ The code is directed to the computation of photodissociation cross sections for 
 Installation
 ------------
 
-PyDiatomic requires Python 3, numpy and scipy. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.continuum.io/downloads>`_, which is available for free.
+PyDiatomic requires Python 3.5 (*), numpy and scipy. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.continuum.io/downloads>`_, which is available for free.
 
 Download the latest version from github ::
 
@@ -31,6 +31,10 @@ Download the latest version from github ::
 Or, if you wish to edit the PyAbel source code without re-installing each time ::
 
     python3 setup.py develop --user
+
+
+
+(*) due to the use of infix matrix multiplication `@`. To run with python < 3.5, replace `A @ B` with `np.dot(A, B)` in :funct:`cse.py` and :funct:`expectation.py`.
 
 
 Example of use
@@ -156,6 +160,24 @@ Rotation
     # 1390.369249612629
     # (1390.369-787.398)/(20*21) = 1.4356
 
+
+Timing
+------
+
+Each transition energy solution to the coupled-channel Schroedinger
+equation is a separate calculation.  PyDiatomic uses :funct:`multiprocessing`
+to perform these calculations in parallel, resulting in a substantial
+reduction in execution time on multiprocessor systems. e.g. for 
+:code:`example_O2xs.py`:
+
+==============      ====   ======     ==========
+machine             GHz    CPU(s)     time (sec)
+==============      ====   ======     ==========
+Xenon E5-2697       2.6    64         6
+i7-6700             3.4    8          17
+Macbook pro i5      2.4    4          63
+raspberry pi 3      1.35   4          127
+==============      ====   =====      ==========
 
 
 Documentation
