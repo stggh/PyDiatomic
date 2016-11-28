@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import scipy.constants as const
+from scipy.interpolate import splrep, splev
 
 def reduced_mass(amu=None):
     """ Reduced mass of diatomic molecule.
@@ -118,27 +119,25 @@ def potential_energy_curves(pecfs=None):
        Vin = np.reshape(Vin, (n, -1))
 
     # find min/max domain and range - some files do not cover R=0 to 10A
-    Rm  = max([Rin[i][0]    for i in range(n)])   # highest minimum
-    Rx  = min([Rin[i][-1]   for i in range(n)])   # lowest maximum
-    Vm  = min([Vin[i].min() for i in range(n)])   # lowest minimum
-    Voo = min([Vin[i][-1]   for i in range(n)])   # lowest dissoc
+    R0  = max([Rin[i][0]    for i in range(n)])   # highest minimum
+    Roo  = min([Rin[i][-1]   for i in range(n)])   # lowest maximum
+    Vm  = min([Vin[i].min() for i in range(n)])   # lowest potential energy
+    Voo = min([Vin[i][-1]   for i in range(n)])   # lowest dissociation limit
 
-    oo = list(Rin[0]).index(Rx)
-
-    #print("CSE: {:d} PECs read, Rmin={:5.2f} A, Rmax={:5.2f} A," 
-    #      "oo={:d} Te={:5.2f}, De={:5.2f}".format(n,Rm,Rx,oo,Vm,Voo))
-    
-    # create V matrix, as transpose 
-    VT = np.array(np.zeros((n,n,oo)))
-    for j in range(n):
-       VT[j][j] = Vin[j][:oo]
-
-    # internucler distance matrix
-    R = Rin[0][:oo]
+    # internuclear distance grid
+    dR = Rin[0][1] - Rin[0][0]
+    R = np.arange(R0, Roo+dR/2, dR)
     if R[0] < 1.0e-16:
         R[0] = 1.0e-16   # hide 1/0.0
+    oo = len(R)
 
-    limits = (oo, n, Rm, Rx, Vm, Voo)
+    # create V matrix, as transpose 
+    VT = np.array(np.zeros((n, n, oo)))
+    for j in range(n):
+       spl = splrep(Rin[j], Vin[j])
+       VT[j][j] = splev(R, spl)
+
+    limits = (oo, n, R0, Roo, Vm, Voo)
   
     return R, VT, pecfs, limits
 
@@ -194,8 +193,8 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
                 dipole.append(np.ones_like(R)*d)
             else:
                 RD, D = np.loadtxt(d, unpack=True)
-                subr = np.logical_and(RD>=R[0], RD<=R[-1])
-                dipole.append(D[subr])
+                spl = splrep(RD, D)
+                dipole.append(splev(R, spl))
    
     else:
         # query for dipolemoment filename/values
@@ -207,7 +206,7 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
                      dipole.append(np.ones_like(R)*float(fn))             
                  else:
                      RD, D = np.loadtxt(fn, unpack=True)
-                     subr = np.logical_and(RD>=R[0], RD<=R[-1])
-                     dipole.append(D[subr])
+                     spl = splrep(RD, D)
+                     dipole.append(splev(R, spl))
 
     return np.transpose(np.array(dipole))

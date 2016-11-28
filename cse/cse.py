@@ -19,8 +19,12 @@ class Cse():
         evaluated rotational constant (if single wavefunction)
     R  : float array
         internuclear distance grid
+        Note: this array is reset to `numpy.arange(Rmin, Rmax, dR+dR/2)`
+        where Rmin = highest minimum, Rmax = lowest maximum
+        of all the potential curves
     VT : numpy 3d array
         transpose of the potential curve and couplings array
+        Note: potential curves spline interpolated to grid `R`
     cm : float
         eigen energy in cm-1 (from method solve)
     energy : float
@@ -62,16 +66,9 @@ class Cse():
     def set_mu(self, mu):
         self.mu = cse_setup.reduced_mass(mu)
 
-    def set_Rmax(self, Rx):
-        oo, n, m = self.VT.shape
-        oo = np.abs(self.R - Rx).argmin()   # new max index
-        self.R = np.resize(self.R, oo)
-        self.VT = np.resize(self.VT, (oo, n, n))
-
     def set_coupling(self, coup):
         self.VT = cse_setup.coupling_function(self.R, self.VT, self.pecfs,
                                               coup=coup)
-
     def solve(self, en, rot=None):
         if en > 20:
             en /= self._evcm   # convert to eV energy units
