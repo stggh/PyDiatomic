@@ -6,7 +6,7 @@ Start by having a look at the :doc:`README <readme_link>`.
 Contents:
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    readme_link
    cse

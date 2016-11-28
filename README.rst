@@ -34,7 +34,7 @@ Or, if you wish to edit the PyAbel source code without re-installing each time :
 
 
 
-(*) due to the use of infix matrix multiplication :py:`@`. To run with python < 3.5, replace :py:`A @ B` with :py:`np.dot(A, B)` in :py:`cse.py` and :py:`expectation.py`.
+(*) due to the use of infix matrix multiplication :func:`@`. To run with python < 3.5, replace :func:`A @ B` with :func:`np.dot(A, B)` in :func:`cse.py` and :func:`expectation.py`.
 
 
 Example of use
@@ -165,11 +165,9 @@ Timing
 ------
 
 Each transition energy solution to the coupled-channel Schroedinger
-equation is a separate calculation.  PyDiatomic uses
- :module:`multiprocessing`
+equation is a separate calculation.  PyDiatomic uses :code:`multiprocessing`
 to perform these calculations in parallel, resulting in a substantial
-reduction in execution time on multiprocessor systems. e.g. for 
-:code:`example_O2xs.py`:
+reduction in execution time on multiprocessor systems. e.g. for :code:`example_O2xs.py`:
 
 
 ==============     ====     ======     ==========
@@ -179,7 +177,7 @@ Xenon E5-2697      2.6      64         6
 i7-6700            3.4      8          17
 Macbook pro i5     2.4      4          63
 raspberry pi 3     1.35     4          127
-==============     ====     =====      ==========
+==============     ====     ======     ==========
 
 
 Documentation
