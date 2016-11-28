@@ -72,7 +72,9 @@ def potential_energy_curves(pecfs=None):
     Returns
     -------
     R : numpy 1d array 
-        radial coordinates
+        radial coordinates, set to `numpy.arange(Rmin, Rmax+dR/2, dR)`
+        where Rmin = highest R[0], Rmax = lowest R[-1] of all the
+        potential curves
 
     VT : numpy 2D array size nxn
         (transposed) potential energy array for the n-filenames given: ::
@@ -87,12 +89,12 @@ def potential_energy_curves(pecfs=None):
         as inputted
 
     limits : tuple
-        (oo, n, Rm, Rx, Vm, Voo)
+        (oo, n, Rmin, Rmax, Vm, Voo)
         oo = int, common length of radial and potential arrays
         n  = int, number of potential curves
-        Rm = highest minimum
-        Rx = lowest maximum
-        Vm = lowest minimum (Te)
+        Rmin = highest minimum
+        Rmax = lowest maximum
+        Vm = lowest minimum potential energy (Te)
         Voo = lowest dissociation limit energy
     
     """
@@ -118,7 +120,8 @@ def potential_energy_curves(pecfs=None):
        Rin = np.reshape(Rin, (n, -1))
        Vin = np.reshape(Vin, (n, -1))
 
-    # find min/max domain and range - some files do not cover R=0 to 10A
+    # find min/max domain and range - some files do not cover R=0 to 10A,
+    # dR=0.005
     R0  = max([Rin[i][0]    for i in range(n)])   # highest minimum
     Roo  = min([Rin[i][-1]   for i in range(n)])   # lowest maximum
     Vm  = min([Vin[i].min() for i in range(n)])   # lowest potential energy
@@ -134,6 +137,7 @@ def potential_energy_curves(pecfs=None):
     # create V matrix, as transpose 
     VT = np.array(np.zeros((n, n, oo)))
     for j in range(n):
+       # interpolate potential curve to internuclear distance grid R
        spl = splrep(Rin[j], Vin[j])
        VT[j][j] = splev(R, spl)
 
@@ -157,8 +161,8 @@ def coupling_function(R, VT, pecfs, coup=None):
     """
     n, m, oo = VT.shape
 
-    cf = np.ones(np.size(R), dtype='float')
-    cf[R>5] = np.exp(-(R[R>5]-5)**2)
+    coupling_function = np.ones(np.size(R), dtype='float')
+    coupling_function[R>5] = np.exp(-(R[R>5]-5)**2)
 
     # cm-1 couplings between PECs   (at the moment all homogeneous)
     cnt = 0
@@ -172,7 +176,7 @@ def coupling_function(R, VT, pecfs, coup=None):
                 couple = coup[cnt]
                 cnt += 1
 
-            VT[j][k] = VT[k][j] = cf*couple/8065.541
+            VT[j][k] = VT[k][j] = coupling_function*couple/8065.541
 
     return VT
 

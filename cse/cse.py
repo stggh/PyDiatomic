@@ -19,7 +19,7 @@ class Cse():
         evaluated rotational constant (if single wavefunction)
     R  : float array
         internuclear distance grid
-        Note: this array is reset to `numpy.arange(Rmin, Rmax, dR+dR/2)`
+        If `R=None` set to `numpy.arange(Rmin, Rmax+dR/2, dR)`
         where Rmin = highest minimum, Rmax = lowest maximum
         of all the potential curves
     VT : numpy 3d array
