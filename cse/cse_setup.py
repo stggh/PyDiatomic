@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import scipy.constants as const
-from scipy.interpolate import splrep, splev
 
 def reduced_mass(amu=None):
     """ Reduced mass of diatomic molecule.
@@ -60,7 +59,7 @@ def reduced_mass(amu=None):
     return amu*const.m_u
 
 
-def potential_energy_curves(pecfs=None):
+def potential_energy_curves(pecfs=None, R=None):
     """ Read potential energy curve file(s) and assemble as diagonals in an nxn array for the n-filenames provided.
 
     Parameters
@@ -68,6 +67,9 @@ def potential_energy_curves(pecfs=None):
     pecfs : list of strings
         potential energy curve file name list ['pot1', 'pot2', 'pot3' ... ]
         Each file has 2 column format:  R(Angstroms)  V(eV)
+
+    R : numpy 1d array
+        radial grid if not None
 
     Returns
     -------
@@ -128,20 +130,23 @@ def potential_energy_curves(pecfs=None):
     Voo = min([Vin[i][-1]   for i in range(n)])   # lowest dissociation limit
 
     # internuclear distance grid
-    dR = Rin[0][1] - Rin[0][0]
-    R = np.arange(R0, Roo+dR/2, dR)
-    if R[0] < 1.0e-16:
-        R[0] = 1.0e-16   # hide 1/0.0
+    if R is None:
+        dR = Rin[0][1] - Rin[0][0]
+        R = np.arange(R0, Roo+dR/2, dR)
+        if R[0] < 1.0e-16:
+            R[0] = 1.0e-16   # hide 1/0.0
+
     oo = len(R)
 
     # create V matrix, as transpose 
     VT = np.array(np.zeros((n, n, oo)))
     for j in range(n):
-       # interpolate potential curve to internuclear distance grid R
-       spl = splrep(Rin[j], Vin[j])
-       VT[j][j] = splev(R, spl, der=0, ext=3)
+       # align start and end R-grid points
+       mn = np.abs(Rin[j][0]-R[0]).argmin()
+       mx = oo - np.abs(Rin[j][-1]-R[-1]).argmin()
+       VT[j][j] = Vin[j][mn:mx]
 
-    limits = (oo, n, R0, Roo, Vm, Voo)
+    limits = (oo, n, R[0], R[-1], Vm, Voo)
   
     return R, VT, pecfs, limits
 
@@ -193,24 +198,30 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
     dipole = []
     if dipolemoment is not None:
         for d in dipolemoment:
+            dip = np.zeros_like(R)
             if is_number(d):
-                dipole.append(np.ones_like(R)*d)
+                dipole.append(dip + d)
             else:
                 RD, D = np.loadtxt(d, unpack=True)
-                spl = splrep(RD, D)
-                dipole.append(splev(R, spl, der=0, ext=3))
+                mn = np.abs(RD[0]-R[0]).argmin()
+                mx = oo - np.abs(RD[-1]-R[-1]).argmin()
+                dip[mn:mx] = d
+                dipole.append(dip)
    
     else:
         # query for dipolemoment filename/values
         for g in pec_gs:
             for u in pec_us:
-                 fn = input("CSE: dipolemoment filename or value {} <- {} : ".
-                            format(u, g)) 
-                 if is_number(fn):
-                     dipole.append(np.ones_like(R)*float(fn))             
-                 else:
-                     RD, D = np.loadtxt(fn, unpack=True)
-                     spl = splrep(RD, D)
-                     dipole.append(splev(R, spl, der=0, ext=3))
+                fn = input("CSE: dipolemoment filename or value {} <- {} : ".
+                           format(u, g)) 
+                dip = np.zeros_like(R)
+                if is_number(fn):
+                    dipole.append(dip+float(fn))             
+                else:
+                    RD, D = np.loadtxt(fn, unpack=True)
+                    mn = np.abs(RD[0]-R[0]).argmin()
+                    mx = oo - np.abs(RD[-1]-R[-1]).argmin()
+                    dip[mn:mx] = d
+                    dipole.append(dip)
 
     return np.transpose(np.array(dipole))

@@ -132,7 +132,8 @@ class Xs():
         self.gs = Cse(mu=mu, R=Ri, VT=VTi, coup=coupi, rot=roti, en=eni)
 
         # upper state
-        self.us = Cse(mu=self.gs.mu, R=Rf, VT=VTf, coup=coupf, rot=rotu, en=0)
+        self.us = Cse(mu=self.gs.mu, R=Rf, VT=VTf, coup=coupf,
+                      rot=rotu, en=0)
 
         # electronic transition moment
         self.dipolemoment = cse_setup.load_dipolemoment(
