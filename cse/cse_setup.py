@@ -206,7 +206,7 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
                 RD, D = np.loadtxt(d, unpack=True)
                 mn = np.abs(RD[0]-R[0]).argmin()
                 mx = oo - np.abs(RD[-1]-R[-1]).argmin()
-                dip[mn:mx] = d
+                dip[mn:mx] = D
                 dipole.append(dip)
    
     else:
@@ -222,7 +222,7 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
                     RD, D = np.loadtxt(fn, unpack=True)
                     mn = np.abs(RD[0]-R[0]).argmin()
                     mx = oo - np.abs(RD[-1]-R[-1]).argmin()
-                    dip[mn:mx] = d
+                    dip[mn:mx] = D
                     dipole.append(dip)
 
     return np.transpose(np.array(dipole))
