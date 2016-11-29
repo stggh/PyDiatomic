@@ -139,7 +139,7 @@ def potential_energy_curves(pecfs=None):
     for j in range(n):
        # interpolate potential curve to internuclear distance grid R
        spl = splrep(Rin[j], Vin[j])
-       VT[j][j] = splev(R, spl)
+       VT[j][j] = splev(R, spl, der=0, ext=3)
 
     limits = (oo, n, R0, Roo, Vm, Voo)
   
@@ -198,7 +198,7 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
             else:
                 RD, D = np.loadtxt(d, unpack=True)
                 spl = splrep(RD, D)
-                dipole.append(splev(R, spl))
+                dipole.append(splev(R, spl, der=0, ext=3))
    
     else:
         # query for dipolemoment filename/values
@@ -211,6 +211,6 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
                  else:
                      RD, D = np.loadtxt(fn, unpack=True)
                      spl = splrep(RD, D)
-                     dipole.append(splev(R, spl))
+                     dipole.append(splev(R, spl, der=0, ext=3))
 
     return np.transpose(np.array(dipole))
