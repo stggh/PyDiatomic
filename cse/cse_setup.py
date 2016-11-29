@@ -195,19 +195,16 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
 
         return True
 
-    oo = len(R)
     dipole = []
     if dipolemoment is not None:
+        # number or filename
         for d in dipolemoment:
-            dip = np.zeros_like(R)
             if is_number(d):
-                dipole.append(dip + d)
+                dipole.append(np.nes_like(R)+float(d))
             else:
                 RD, D = np.loadtxt(d, unpack=True)
-                mn = np.abs(RD[0]-R[0]).argmin()
-                mx = oo - np.abs(RD[-1]-R[-1]).argmin()
-                dip[mn:mx] = D
-                dipole.append(dip)
+                subr = np.logical_and(RD>=R[0], RD<=R[-1])
+                dipole.append(D[subr])
    
     else:
         # query for dipolemoment filename/values
@@ -215,14 +212,12 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
             for u in pec_us:
                 fn = input("CSE: dipolemoment filename or value {} <- {} : ".
                            format(u, g)) 
-                dip = np.zeros_like(R)
+                # may be a number
                 if is_number(fn):
-                    dipole.append(dip+float(fn))             
+                    dipole.append(np.nes_like(R)+float(fn))             
                 else:
                     RD, D = np.loadtxt(fn, unpack=True)
-                    mn = np.abs(RD[0]-R[0]).argmin()
-                    mx = oo - np.abs(RD[-1]-R[-1]).argmin()
-                    dip[mn:mx] = D
-                    dipole.append(dip)
+                    subr = np.logical_and(RD>=R[0], RD<=R[-1])
+                    dipole.append(D[subr])
 
     return np.transpose(np.array(dipole))
