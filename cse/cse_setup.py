@@ -141,10 +141,8 @@ def potential_energy_curves(pecfs=None, R=None):
     # create V matrix, as transpose 
     VT = np.array(np.zeros((n, n, oo)))
     for j in range(n):
-       # align start and end R-grid points
-       mn = np.abs(Rin[j][0]-R[0]).argmin()
-       mx = oo - np.abs(Rin[j][-1]-R[-1]).argmin()
-       VT[j][j] = Vin[j][mn:mx]
+       subr = np.logical_and(Rin[j][0] >= R[0], Rin[j][-1] <= R[-1]) 
+       VT[j][j] = Vin[j][subr]
 
     limits = (oo, n, R[0], R[-1], Vm, Voo)
   
@@ -221,3 +219,9 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
                     dipole.append(D[subr])
 
     return np.transpose(np.array(dipole))
+
+
+#def align_R_grids(ground, upper, dipole):
+#    """ align internuclear distance grids `R` between the ground-states,
+#        upper-states, and transition dipolemoment function
+#    """
