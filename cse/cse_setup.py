@@ -195,6 +195,7 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
 
         return True
 
+    oo = len(R)
     dipole = []
     if dipolemoment is not None:
         for d in dipolemoment:
