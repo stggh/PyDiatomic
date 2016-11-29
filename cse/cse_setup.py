@@ -200,7 +200,7 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
         # number or filename
         for d in dipolemoment:
             if is_number(d):
-                dipole.append(np.ones_like(R)+float(d))
+                dipole.append(np.zeros_like(R)+float(d))
             else:
                 RD, D = np.loadtxt(d, unpack=True)
                 subr = np.logical_and(RD>=R[0], RD<=R[-1])
@@ -214,7 +214,7 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
                            format(u, g)) 
                 # may be a number
                 if is_number(fn):
-                    dipole.append(np.ones_like(R)+float(fn))             
+                    dipole.append(np.zeros_like(R)+float(fn))             
                 else:
                     RD, D = np.loadtxt(fn, unpack=True)
                     subr = np.logical_and(RD>=R[0], RD<=R[-1])
