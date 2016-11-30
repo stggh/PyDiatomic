@@ -44,6 +44,8 @@ def cross_section(wavenumber, wfu, wfi, R, dipolemoment):
 
     """
 
+    # Todo - handle coupled ground-states
+
     oo, n, nopen = wfu.shape
 
     Re = wfu.real

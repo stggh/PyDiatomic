@@ -192,9 +192,9 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
 
         return True
 
-    ngs = len(pec_gs)
-    nus = len(pec_us)
-    oo = len(R)
+    ngs = len(pec_gs)  # number of ground-state potential curves
+    nus = len(pec_us)  # upper state curves
+    oo = len(R)        # size of internuclear distance grid
 
     dipole = np.zeros((nus, ngs, oo))
     # loop through all possible ground-state -> upper-state transitions
@@ -206,14 +206,16 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
             else:
                 fn = input("CSE: dipolemoment filename or value {} <- {} : ".
                            format(pec_us[u], pec_gs[g])) 
+
             if is_number(fn):
-                # fn is a number
                 dipole[u][g] = float(fn)             
             else:
-                # fn a filename
+                # fn a filename, read and load
                 RD, D = np.loadtxt(fn, unpack=True)
-                mn = np.abs(RD[0] - R[0]).argmin()
-                mx = np.abs(RD[-1] - R[-1]).argmin() + 1
+                # this assumes R[0] <= RD[0] < RD[-1] <= R[-1]
+                # fix me!
+                mn = np.abs(R-RD[0]).argmin()
+                mx = np.abs(R-RD[-1]).argmin()
                 dipole[u][g][mn:mx] = D
 
     return np.transpose(dipole)
