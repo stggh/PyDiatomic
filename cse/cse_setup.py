@@ -122,30 +122,33 @@ def potential_energy_curves(pecfs=None, R=None):
        Rin = np.reshape(Rin, (n, -1))
        Vin = np.reshape(Vin, (n, -1))
 
-    # find min/max domain and range - some files do not cover R=0 to 10A,
-    # dR=0.005
-    R0  = max([Rin[i][0]    for i in range(n)])   # highest minimum
-    Roo  = min([Rin[i][-1]   for i in range(n)])   # lowest maximum
+    # find internuclear distance min/max domain - some files do not cover 
+    # R=0 to 10A, dR=0.005
+    Rm  = max([Rin[i][0]    for i in range(n)])   # highest minimum
+    Rx  = min([Rin[i][-1]   for i in range(n)])   # lowest maximum
     Vm  = min([Vin[i].min() for i in range(n)])   # lowest potential energy
-    Voo = min([Vin[i][-1]   for i in range(n)])   # lowest dissociation limit
+    Vx = min([Vin[i][-1]   for i in range(n)])   # lowest dissociation limit
 
-    # internuclear distance grid
+    # common internuclear distance grid, that requires no potential
+    # curve to be extrapolated
     if R is None:
-        dR = Rin[0][1] - Rin[0][0]
-        R = np.arange(R0, Roo+dR/2, dR)
-        if R[0] < 1.0e-16:
-            R[0] = 1.0e-16   # hide 1/0.0
+        dR = Rin[0][-1] - Rin[0][-2]
+        R = np.arange(Rm, Rx+dR/2, dR)
 
     oo = len(R)
 
     # create V matrix, as transpose 
     VT = np.array(np.zeros((n, n, oo)))
     for j in range(n):
-       subr = np.logical_and(Rin[j][0] >= R[0], Rin[j][-1] <= R[-1]) 
+       subr = np.logical_and(Rin[j] >= Rm, Rin[j] <= R[-1])
        VT[j][j] = Vin[j][subr]
 
-    limits = (oo, n, R[0], R[-1], Vm, Voo)
+    limits = (oo, n, Rm, Rx, Vm, Vx)
   
+    # offset R=0 so 1/R behaves
+    if R[0] < 1.0e-16:
+        R[0] = 1.0e-16   
+
     return R, VT, pecfs, limits
 
 
@@ -219,9 +222,3 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
                     dipole.append(D[subr])
 
     return np.transpose(np.array(dipole))
-
-
-#def align_R_grids(ground, upper, dipole):
-#    """ align internuclear distance grids `R` between the ground-states,
-#        upper-states, and transition dipolemoment function
-#    """
