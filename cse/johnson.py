@@ -188,12 +188,14 @@ def matching_point(en, rot, V, R, mu):
     """
 
     oo, n, m = V.shape
-    if en > V[oo-1][0][0]:
+
+    Vm = min([V[-1][j][j].min() for j in range(n)])  # lowest dissociation energy
+
+    if en > Vm:
         return oo-1
     else:
         Vnn = np.transpose(V)[-1][-1]  # -1 -1 highest PEC?
         mx = np.abs(Vnn - en).argmin()
-        #mx = list(Vnn).index(Vnn[en > Vnn][-1])
 
         WI = WImat(en, rot, V, R, mu)
         Rm = RImat(WI, mx)

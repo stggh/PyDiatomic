@@ -145,10 +145,6 @@ def potential_energy_curves(pecfs=None, R=None):
 
     limits = (oo, n, Rm, Rx, Vm, Vx)
   
-    # offset R=0 so 1/R behaves
-    if R[0] < 1.0e-16:
-        R[0] = 1.0e-16   
-
     return R, VT, pecfs, limits
 
 
@@ -196,29 +192,28 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
 
         return True
 
-    dipole = []
-    if dipolemoment is not None:
-        # number or filename
-        for d in dipolemoment:
-            if is_number(d):
-                dipole.append(np.zeros_like(R)+float(d))
-            else:
-                RD, D = np.loadtxt(d, unpack=True)
-                subr = np.logical_and(RD>=R[0], RD<=R[-1])
-                dipole.append(D[subr])
-   
-    else:
-        # query for dipolemoment filename/values
-        for g in pec_gs:
-            for u in pec_us:
-                fn = input("CSE: dipolemoment filename or value {} <- {} : ".
-                           format(u, g)) 
-                # may be a number
-                if is_number(fn):
-                    dipole.append(np.zeros_like(R)+float(fn))             
-                else:
-                    RD, D = np.loadtxt(fn, unpack=True)
-                    subr = np.logical_and(RD>=R[0], RD<=R[-1])
-                    dipole.append(D[subr])
+    ngs = len(pec_gs)
+    nus = len(pec_us)
+    oo = len(R)
 
-    return np.transpose(np.array(dipole))
+    dipole = np.zeros((nus, ngs, oo))
+    # loop through all possible ground-state -> upper-state transitions
+    for g in np.arange(ngs):
+        for u in np.arange(nus):
+            i = g*nus + u
+            if dipolemoment is not None and len(dipolemoment) > i:
+                fn = dipolemoment[i]
+            else:
+                fn = input("CSE: dipolemoment filename or value {} <- {} : ".
+                           format(pec_us[u], pec_gs[g])) 
+            if is_number(fn):
+                # fn is a number
+                dipole[u][g] = float(fn)             
+            else:
+                # fn a filename
+                RD, D = np.loadtxt(fn, unpack=True)
+                mn = np.abs(RD[0] - R[0]).argmin()
+                mx = np.abs(RD[-1] - R[-1]).argmin() + 1
+                dipole[u][g][mn:mx] = D
+
+    return np.transpose(dipole)

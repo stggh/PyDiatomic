@@ -5,7 +5,6 @@ from . import johnson
 from . import expectation
 from . import cse_setup
 
-
 class Cse():
     """ Class to setup and solve the TISE via the Johnson renormalized
         Numerov method i.e. drive johnson.py for a single
@@ -59,6 +58,10 @@ class Cse():
                     cse_setup.potential_energy_curves(VT)
 
         self.set_coupling(coup=coup)
+
+        # fudge to eliminate 1/0 error for 1/R^2
+        if self.R[0] < 1.0e-16:
+            self.R[0] = 1.0e-16
 
         if en > 0:
             self.solve(en, self.rot)

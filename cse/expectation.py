@@ -52,8 +52,8 @@ def cross_section(wavenumber, wfu, wfi, R, dipolemoment):
     ReX = np.zeros((oo, nopen))
     ImX = np.zeros((oo, nopen))
     for i in range(oo):
-        ReX[i] = (dipolemoment[i] @ Re[i])*wfi[i]
-        ImX[i] = (dipolemoment[i] @ Im[i])*wfi[i]
+        ReX[i] = (dipolemoment[i][0] @ Re[i])*wfi[i]
+        ImX[i] = (dipolemoment[i][0] @ Im[i])*wfi[i]
 
     xsp = []
     for j in range(nopen):
