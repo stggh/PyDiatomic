@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import scipy.constants as const
+from scipy.interpolate import splrep, splev
 
 def reduced_mass(amu=None):
     """ Reduced mass of diatomic molecule.
@@ -212,10 +213,8 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
             else:
                 # fn a filename, read and load
                 RD, D = np.loadtxt(fn, unpack=True)
-                # this assumes R[0] <= RD[0] < RD[-1] <= R[-1]
-                # fix me!
-                mn = np.abs(R-RD[0]).argmin()
-                mx = np.abs(R-RD[-1]).argmin()
-                dipole[u][g][mn:mx] = D
+                # cubic spline interpolation
+                spl = splrep(D, R)
+                dipole[u][g] = splev(R, spl, der=0, ext=1)
 
     return np.transpose(dipole)
