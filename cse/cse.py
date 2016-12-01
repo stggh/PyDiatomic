@@ -128,7 +128,7 @@ class Xs():
     """
 
     def __init__(self, mu=None, Ri=None, VTi=None, coupi=None, eni=0, roti=0,
-                                Rf=None, VTf=None, coupf=None, rotu=0,
+                                Rf=None, VTf=None, coupf=None, rotf=0,
                                 dipolemoment=None, transition_energy=None):
 
         # ground state
@@ -136,7 +136,7 @@ class Xs():
 
         # upper state
         self.us = Cse(mu=self.gs.mu, R=Rf, VT=VTf, coup=coupf,
-                      rot=rotu, en=0)
+                      rot=rotf, en=0)
 
         # electronic transition moment
         self.dipolemoment = cse_setup.load_dipolemoment(
@@ -169,7 +169,7 @@ class Xs():
             if coupi is not None:
                 self.us.set_coupling(coupf)
 
-    def calculate_xs(self, transition_energy, eni=None, roti=None, rotu=None):
+    def calculate_xs(self, transition_energy, eni=None, roti=None, rotf=None):
         transition_energy = np.array(transition_energy)
         emax = transition_energy.max()
         if emax < 50:
@@ -184,6 +184,9 @@ class Xs():
 
         if eni is not None or roti is not None:
             self.gs.solve(eni, roti)
+
+        if rotf is not None:
+            self.us.rot = rotf
 
         self.xs = expectation.xs_vs_wav(self.wavenumber, self.dipolemoment,
                                         self.gs.energy, self.us.rot,

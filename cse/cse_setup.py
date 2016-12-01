@@ -214,7 +214,7 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
                 # fn a filename, read and load
                 RD, D = np.loadtxt(fn, unpack=True)
                 # cubic spline interpolation
-                spl = splrep(R, D)
+                spl = splrep(RD, D)
                 dipole[u][g] = splev(R, spl, der=0, ext=1)
 
     return np.transpose(dipole)
