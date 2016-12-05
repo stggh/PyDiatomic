@@ -138,6 +138,8 @@ class Xs():
         self.us = Cse(mu=self.gs.mu, R=Rf, VT=VTf, coup=coupf,
                       rot=rotf, en=0)
 
+        self.align_grids()
+
         # electronic transition moment
         self.dipolemoment = cse_setup.load_dipolemoment(
                                 dipolemoment=dipolemoment,
@@ -194,3 +196,25 @@ class Xs():
                                         self.us.R, self.us.VT,
                                         self.gs.wavefunction)
         self.nopen = self.xs.shape[-1]
+
+
+    def align_grids(self): 
+        """ ensure the same internuclear grid for each block
+            of coupled-channels, ground-states vs upper-states.
+            NB assumes common dR for each grid.
+ 
+        """
+
+        # limits = (oo, n, Rm, Rx, Vm, Vx)
+        if self.us.limits[0] != self.gs.limits[0]:
+             Rm = max(self.us.limits[2], self.gs.limits[2]) # Rm
+             Rx = min(self.us.limits[3], self.gs.limits[3]) # Rx
+             for state in [self.gs, self.us]:
+                 _, n, _, _, Vm, Vx = state.limits
+                 subr = np.logical_and(state.R >= Rm, state.R <= Rx)
+                 state.R = state.R[subr]
+                 V = np.transpose(state.VT)
+                 V = V[subr]
+                 state.VT = np.transpose(V)
+                 oo = len(state.R)
+                 state.limits = (oo, n, Rm, Rx, Vm, Vx)
