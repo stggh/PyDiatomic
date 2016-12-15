@@ -44,10 +44,11 @@ X.total = np.zeros_like(X.wavenumber)
 for j in range(X.nopen):
    X.total[:] += X.xs[:, j]
    if X.us.pecfs[j][-7] == 'S':
-       ax0.plot(X.xs[:, j], X.wavenumber, label=X.us.pecfs[j], color='b')
+       ax0.plot(X.xs[:, j], X.wavenumber, label=r'$^{3}\Sigma_{u}^{-}$',
+                color='b')
    else:
-       ax0.plot(X.xs[:, j], X.wavenumber, label=X.us.pecfs[j], color='r',
-                                                                 ls='--')
+       ax0.plot(X.xs[:, j], X.wavenumber, label=r'$^{3}\Pi$', color='r',
+                ls='--')
 
 #ax0.plot(X.total, X.wavenumber, ls='-', color='gray', label='total', alpha=0.3)
 ax0.legend(loc=0, frameon=False, fontsize=10)
@@ -59,11 +60,14 @@ ax0.set_title("photodissociation cross section", fontsize=12)
 for j, pec in enumerate(X.gs.pecfs):
    ax1.plot(X.gs.R, X.gs.VT[j, j]*evcm, color='k', label=pec)
 
+# adiabatic potential energy curves
+#X.us.diabatic2adiabatic()
 for j, pec in enumerate(X.us.pecfs):
-   if X.us.pecfs[j][-7] == 'S':
-       ax1.plot(X.us.R, X.us.VT[j, j]*evcm, 'b', label=pec)
+   if X.us.pecfs[j][-7] == 'S':  # Sigma states
+       ax1.plot(X.us.R, X.us.VT[j, j]*evcm, 'b', label=r'$^{3}\Sigma_{u}^{-}$')
+       #ax1.plot(X.us.R, X.us.AT[j, j]*evcm, 'g', lw=2, label='adiabatic')
    else:
-       ax1.plot(X.us.R, X.us.VT[j, j]*evcm, 'r--', label=pec)
+       ax1.plot(X.us.R, X.us.VT[j, j]*evcm, 'r--', label=r'^{3}\Pi$')
 
 ax1.annotate('$X{}^{3}\Sigma_{g}^{-}$', (0.6, 55000), color='k')
 ax1.annotate('$B{}^{3}\Sigma_{u}^{-}$', (1.7, 55000), color='b')
@@ -79,5 +83,5 @@ ax1.axes.get_yaxis().set_visible(False)
 
 plt.suptitle("example_O2xs.py", fontsize=12)
 
-plt.savefig("data/example_O2xs.png", dpi=100)
+plt.savefig("output/example_O2xs.png", dpi=100)
 plt.show()

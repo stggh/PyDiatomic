@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+import scipy.linalg as scla
 
 from . import johnson
 from . import expectation
@@ -56,8 +57,7 @@ class Cse():
             # list of file names provided in VT
             self.R, self.VT, self.pecfs, self.limits =\
                     cse_setup.potential_energy_curves(VT)
-
-        self.set_coupling(coup=coup)
+            self.set_coupling(coup=coup)
 
         # fudge to eliminate 1/0 error for 1/R^2
         if self.R[0] < 1.0e-16:
@@ -108,6 +108,20 @@ class Cse():
         wf = self.wavefunction[:, 0, 0]
         self.Bv = expectation.Bv(self.R, wf, self.mu)
 
+    def diabatic2adiabatic(self):
+        """ Convert diabatic interaction matrix to adiabatic (diagonal)
+            A = UT V U     unitary transformation 
+
+        """
+        V = np.transpose(self.VT)
+        A = np.zeros_like(V)
+        diag = np.diag_indices(A.shape[1])
+        for i, Vi in enumerate(V):
+            w, U = scla.eigh(Vi)
+            A[i][diag] = w
+        
+        self.AT = np.transpose(A)
+              
 
 class Xs():
     """ Class to evaluate photodissociation cross sections, i.e. solve the
