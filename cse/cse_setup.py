@@ -135,6 +135,7 @@ def potential_energy_curves(pecfs=None, R=None):
     # curve to be extrapolated
     if R is None:
         dR = Rin[0][-1] - Rin[0][-2]
+        dR = round(dR, 1-int(np.floor(np.log10(dR)))-1)
         R = np.arange(Rm, Rx+dR/2, dR)
 
     oo = len(R)
