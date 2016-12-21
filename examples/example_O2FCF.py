@@ -23,7 +23,7 @@ for e in [50145, 50832, 51497, 52139, 52756, 53347, 53910, 54443,
           57507, 57640, 57743, 57820, 57874, 57908]:
 
     O2B.solve(e)
-    wfB = np.transpose(O2B.wavefunction)[0][0]
+    wfB = O2B.wavefunction.T[0][0]
 
     olap = (wfB * wfX)**2
     FCF = simps(olap, R)/10  
