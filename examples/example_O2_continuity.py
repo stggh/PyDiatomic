@@ -75,14 +75,14 @@ dvdE = spl.derivative()(Ev)
 
 plt.semilogy(Ev, fcf*dvdE/1.13e13, '+')
 plt.semilogy(wavenumber, O2.xs)
-plt.semilogy((57136.2, 57136.2), (1.0e-25, 2.0e-17), 'k--', lw=1)
+plt.semilogy((57136.2, 57136.2), (1.0e-25, 1.0e-18), 'k--', lw=1)
 plt.xlabel(r"wavenumber (cm$^{-1}$)")
 plt.ylabel(r"cross section (cm$^{2}$)")
 plt.title(r"O$_{2}$ $B{ }^{3}\Sigma_{u}^{-} - X{}^{3}\Sigma_{g}^{-}$")
 
-plt.annotate(r"$f_{v^{\prime}0} \times \frac{dv^{\prime}}{dE}/1.13 \times"
-             " 10^{13}$", (49000, 5.0e-18))
-plt.annotate(r"$\sigma$", (70000, 1.0e-19))
+plt.annotate(r"$f_{v^{\prime}0} \frac{dv^{\prime}}{dE}/1.13 \times"
+             " 10^{13}$", (49000, 3.0e-18), fontsize=12)
+plt.annotate(r"$\sigma$", (70000, 5.0e-19), fontsize=12)
 
 plt.savefig("O2-Schumann-Runge.png", dpi=75)
 plt.show()
