@@ -130,12 +130,15 @@ A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg
    Example calculated cross section
 
 
-See also `examples/example_O2xs.py` and `example_rkr.py`:
+See also `examples/example_O2xs.py`, `example_O2_continuity.py`, and `example_rkr.py`:
 
 .. figure:: https://cloud.githubusercontent.com/assets/10932229/16705448/831f11d8-45cd-11e6-9406-832a67e39d63.png
    :width: 300px
    :alt: example_O2xs
 
+.. figure:: https://cloud.githubusercontent.com/assets/10932229/21468965/65804fba-ca85-11e6-99b8-a57fb5cc60da.png
+   :width: 300px
+   :alt: example_O2_continuity
 
 .. figure:: https://cloud.githubusercontent.com/assets/10932229/16547862/7a37f520-41be-11e6-86d5-e5e52ef5e38f.png
    :width: 300px
