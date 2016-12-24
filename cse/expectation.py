@@ -21,9 +21,10 @@ from . import johnson
 """
 
 a0 = const.physical_constants["Bohr radius"][0]
-CONST = 2*(np.pi*const.e*a0)**2*1.0e4/3/const.epsilon_0
+CONST = 2*(np.pi*const.e*a0)**2*1.0e4/const.epsilon_0/3
+FCONST = 4*np.pi*const.m_e*const.c*100*a0*a0/const.hbar/3
 
-def cross_section(wavenumber, wfu, wfi, R, dipolemoment):
+def cross_section(wavenumber, wfu, wfi, R, dipolemoment, openchann):
     """ photodissociation cross section |<f|M|i>|^2.
 
     Parameters
@@ -44,8 +45,6 @@ def cross_section(wavenumber, wfu, wfi, R, dipolemoment):
 
     """
 
-    # Todo - handle coupled ground-states
-
     oo, n, nopen = wfu.shape
 
     Re = wfu.real
@@ -54,8 +53,8 @@ def cross_section(wavenumber, wfu, wfi, R, dipolemoment):
     ReX = np.zeros((oo, nopen))
     ImX = np.zeros((oo, nopen))
     for i in range(oo):
-        ReX[i] = (dipolemoment[i][0] @ Re[i])*wfi[i]
-        ImX[i] = (dipolemoment[i][0] @ Im[i])*wfi[i]
+        ReX[i] = (dipolemoment[i, 0] @ Re[i])*wfi[i]
+        ImX[i] = (dipolemoment[i, 0] @ Im[i])*wfi[i]
 
     xsp = []
     for j in range(nopen):
@@ -64,7 +63,12 @@ def cross_section(wavenumber, wfu, wfi, R, dipolemoment):
         xs = Rx**2 + Ix**2
         xsp.append(xs)
 
-    return np.array(xsp)*CONST*wavenumber*1.0e-8
+    if openchann:
+        # cross s`ection
+        return np.array(xsp)*wavenumber*CONST*1.0e-8
+    else:
+        # oscillator strength
+        return np.array(xsp)*wavenumber*FCONST
 
 
 def xs(dipolemoment, ei, mu, R, VT, wfi, rot, wavenumber):
@@ -73,8 +77,8 @@ def xs(dipolemoment, ei, mu, R, VT, wfi, rot, wavenumber):
     """
     dE = wavenumber/8065.541  # convert to eV
     en = ei + dE
-    wfu, eu = johnson.solveCSE(en, rot, mu, R, VT)
-    xsp = cross_section(wavenumber, wfu, wfi, R, dipolemoment)
+    wfu, eu, oc = johnson.solveCSE(en, rot, mu, R, VT)
+    xsp = cross_section(wavenumber, wfu, wfi, R, dipolemoment, oc)
     return xsp
 
 
@@ -85,7 +89,6 @@ def xs_vs_wav(wavenumber, dipolemoment, ei, rot, mu, R, VT, wfi):
     pool = multiprocessing.Pool()
     func = partial(xs, dipolemoment, ei, mu, R, VT, wfi, rot)
 
-    #xsp = pool.map(func, itertools.chain(itertools.product(wavenumber, rot)))
     xsp = pool.map(func, wavenumber)
     pool.close()
     pool.join()

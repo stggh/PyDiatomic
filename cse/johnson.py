@@ -8,8 +8,8 @@ from scipy.integrate.quadrature import simps
 from scipy.special import sph_jn, sph_yn
 
 ##############################################################################
-#  PyCSE - solve the coupled-channel time-independent Schrödinger equation
-#          using recipe of B.R. Johnson J Chem Phys 69, 4678 (1977).
+#  PyDiatomic - solve the coupled-channel time-independent Schrödinger equation
+#               using recipe of B.R. Johnson J Chem Phys 69, 4678 (1977).
 #
 #  Stephen.Gibson@anu.edu.au
 #  January 2016
@@ -364,4 +364,4 @@ def solveCSE(en, rot, mu, R, VT):
         # complex wavefunction array  oo x n x nopen
         wf = wf @ Norm
 
-    return wf, en
+    return wf, en, openchann

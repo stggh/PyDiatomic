@@ -20,69 +20,42 @@ from scipy.integrate.quadrature import simps
 
 evcm = 8065.541   # conversion factor eV -> cm-1
 
-wavenumber = np.arange(57200, 85000, 100)
+continuum = np.arange(57200, 85000, 100)
+bands = np.array([49357.4, 50044.9, 50710, 51351.5, 51968.4, 52559.6,
+                  53122.6, 53655.3, 54156.5, 54622.1, 55051, 55439.5,
+                  55784.8, 56085.6, 56340.7, 56551.1, 56720.1, 56852.7,
+                  56955.2, 57032.5, 57086.9, 57120.7]) 
 
-# initialize CSE problem - any missing essential parameters are requested
-# mu - reduced mass
-# eni - initial state guess energy
-# VTI - initial state(s)
-# VTf - final coupled states
-# coupf - homogeneous coupling
-# dipolemoment - transition moments 
+transition_energies = np.append(bands, continuum)
+
+lb = len(bands)
+v = np.arange(lb)
 
 O2 = cse.Xs(mu='O2', VTi=['potentials/X3S-1.dat'], eni=800,
                      VTf=['potentials/B3S-1.dat'], 
                      dipolemoment=['transitionmoments/dipole_b_valence.dat'])
 
-print()
-print(r"O2 Schumann-Runge continuum {:d} to {:d}, step {:d} (cm-1) ..."
-      .format(wavenumber[0], wavenumber[-1], wavenumber[1]-wavenumber[0]))
-      
 tstart = time.time()
-O2.calculate_xs(transition_energy=wavenumber)
+O2.calculate_xs(transition_energy=transition_energies)
 tend = time.time()
 print("    in {:.1f} seconds\n".format(tend-tstart))
 print(" E(v\"=0) = {:8.2f} (cm-1)\n".format(O2.gs.cm))
 
+fcf = O2.xs[:lb, 0]
 
-wfX = np.transpose(O2.gs.wavefunction)[0][0]
+spl = InterpolatedUnivariateSpline(bands, v, k=1)
+dvdE = spl.derivative()(bands)
 
-R = O2.gs.R
-v = []
-fcf = []
-Ev = []
-# transition energies in cm-1
-print("  v'   Ev'(cm-1)  Franck-Condon")
-for e in [50145, 50832, 51497, 52139, 52756, 53347, 53910, 54443,
-          54944, 55410, 55838, 56227, 56572, 56873, 57128, 57338,
-          57507, 57640, 57743, 57820, 57874, 57908]:
-
-    O2.us.solve(e)
-    wfB = np.transpose(O2.us.wavefunction)[0][0]
-
-    olap = (wfB * wfX)**2
-    FCF = simps(olap, R)/10  
-
-    v.append(O2.us.vib)
-    Ev.append(O2.us.cm - O2.gs.cm)
-    fcf.append(FCF)
-    print(" {:2d}    {:8.2f}    {:5.2e}".format(v[-1], Ev[-1], fcf[-1]))
-
-
-spl = InterpolatedUnivariateSpline(Ev, v, k=1)
-
-dvdE = spl.derivative()(Ev)
-
-plt.semilogy(Ev, fcf*dvdE/1.13e13, '+')
-plt.semilogy(wavenumber, O2.xs)
+plt.semilogy(bands, fcf * dvdE/1.13e12, '+')
+plt.semilogy(continuum, O2.xs[lb:])
 plt.semilogy((57136.2, 57136.2), (1.0e-25, 1.0e-18), 'k--', lw=1)
 plt.xlabel(r"wavenumber (cm$^{-1}$)")
 plt.ylabel(r"cross section (cm$^{2}$)")
 plt.title(r"O$_{2}$ $B{ }^{3}\Sigma_{u}^{-} - X{}^{3}\Sigma_{g}^{-}$")
 
 plt.annotate(r"$f_{v^{\prime}0} \frac{dv^{\prime}}{dE}/1.13 \times"
-             " 10^{13}$", (49000, 3.0e-18), fontsize=12)
+             " 10^{12}$", (49000, 3.0e-18), fontsize=12)
 plt.annotate(r"$\sigma$", (70000, 5.0e-19), fontsize=12)
 
-plt.savefig("O2-Schumann-Runge.png", dpi=75)
+plt.savefig("data/O2-Schumann-Runge.png", dpi=75)
 plt.show()

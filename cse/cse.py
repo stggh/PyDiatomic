@@ -79,8 +79,8 @@ class Cse():
         if rot is not None:
             self.rot = rot   # in case called separately
 
-        self.wavefunction, self.energy = johnson.solveCSE(en, self.rot,
-                                                 self.mu, self.R, self.VT)
+        self.wavefunction, self.energy, self.openchann = \
+            johnson.solveCSE(en, self.rot, self.mu, self.R, self.VT)
 
         if self.limits[1] == 1:
             if self.energy < self.VT[0][0][-1]:
