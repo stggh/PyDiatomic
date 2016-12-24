@@ -63,7 +63,7 @@ def cross_section(wavenumber, wfu, wfi, R, dipolemoment, openchann):
         xs = Rx**2 + Ix**2
         xsp.append(xs)
 
-    if openchann:
+    if np.any(openchann):
         # cross s`ection
         return np.array(xsp)*wavenumber*CONST*1.0e-8
     else:

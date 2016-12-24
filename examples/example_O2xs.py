@@ -83,5 +83,5 @@ ax1.axes.get_yaxis().set_visible(False)
 
 plt.suptitle("example_O2xs.py", fontsize=12)
 
-plt.savefig("output/example_O2xs.png", dpi=100)
+plt.savefig("output/example_O2xs.png", dpi=75)
 plt.show()
