@@ -140,7 +140,7 @@ See also `examples/example_O2xs.py`, `example_O2_continuity.py`, and `example_rk
    :width: 300px
    :alt: example_O2_continuity
 
-.. figure:: https://cloud.githubusercontent.com/assets/10932229/16547862/7a37f520-41be-11e6-86d5-e5e52ef5e38f.png
+.. figure:: https://cloud.githubusercontent.com/assets/10932229/21469152/a33fd798-ca90-11e6-8fe3-1f3c3364de26.png
    :width: 300px
    :alt: example_rkr
 
