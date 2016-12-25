@@ -123,7 +123,7 @@ A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg
     plt.show()
 
 
-.. figure:: https://cloud.githubusercontent.com/assets/10932229/16544284/a6fe46fc-4143-11e6-8d7a-af1e4ad67db6.png 
+.. figure:: https://cloud.githubusercontent.com/assets/10932229/21469172/177a519c-ca91-11e6-8251-52efb7aa1a37.png
    :width: 300px
    :alt: calculated cross section
    
