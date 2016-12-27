@@ -53,6 +53,8 @@ class Cse():
             # PEC array provided directly
             self.R = R
             self.VT = VT
+            n, m, oo = VT.shape
+            self.limits = (oo, n, R[0], R[-1], VT[0][0].min(), VT[0][0][-1])
         else:
             # list of file names provided in VT
             self.R, self.VT, self.pecfs, self.limits =\

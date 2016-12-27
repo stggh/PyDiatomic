@@ -43,7 +43,7 @@ def reduced_mass(amu=None):
         'S32O16': 10.6613029,
         'S33O16': 10.77016005,
         'S34O16': 10.78435767,
-        'U' : 1.0   # unknown/unimportant
+        'U' : 2.0   # unknown/unimportant
         }
     if amu is None: 
         mus = input ("CSE: reduced mass a.u. [O2=7.99745751]: ")
