@@ -62,7 +62,8 @@ B = lambda v, bsp: splev(v, bsp, der=0)
     
 # RKR integrals
 def fg_integral(v, gsp, bsp, func):
-   # Gaussian integration with weight function (see STG thesis)
+   # Gaussian integration with weight function (see STG thesis, p58)
+   # or Wikipedia https://en.wikipedia.org/wiki/Gaussian_quadrature
     xi = np.array([-0.9578284203, -0.7844439484, -0.4986347571, -0.1412716403,\
                     0.2364578932, 0.5804412628, 0.8413988804, 0.9819452459])
     hi = np.array([0.0767987527, 0.1760795557, 0.2691489156, 0.3525039628, \
@@ -70,10 +71,10 @@ def fg_integral(v, gsp, bsp, func):
     dv = v + 1/2 
     e = G(v, gsp)
     sumi = 0
-    for l,x in enumerate(xi):
-      vd = (v-1/2 + x*dv)/2.0
-      sumi += hi[l]*np.sqrt(1.0-x)*func(vd, bsp)/np.sqrt(e-G(vd, gsp))
-    return sumi*dv/2.0
+    for l, x in enumerate(xi):
+      vd = (v - 1/2 + x*dv)/2
+      sumi += hi[l]*np.sqrt(1 - x)*func(vd, bsp)/np.sqrt(e - G(vd, gsp))
+    return sumi*dv/2
 
 
 def turning_points(mu, vv, Gv, Bv, dv=0.1):
@@ -86,7 +87,7 @@ def turning_points(mu, vv, Gv, Bv, dv=0.1):
     # vibrational QN at which to evaluate turning points
     V = np.arange(dv-1/2, vv[-1], dv) 
     # add a point close to v=-0.5, the bottom of the well
-    V = np.append([-1/2+0.0001], V)
+    V = np.append([-1/2 + 0.0001], V)
     Rmin = []; Rmax = []; E = []
     # compute turning points using RKR method
     print(u"RKR: v   Rmin(A)  Rmax(A)  E(cm-1)")
