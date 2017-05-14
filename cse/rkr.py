@@ -71,8 +71,8 @@ def fg_integral(v, gsp, bsp, func):
     e = G(v, gsp)
     sumi = 0
     for l,x in enumerate(xi):
-      vd = (v-1/2 + x*dv)/2.0;
-      sumi += hi[l]*np.sqrt(1.0-x)*func(vd, bsp)/np.sqrt(e-G(vd, gsp));
+      vd = (v-1/2 + x*dv)/2.0
+      sumi += hi[l]*np.sqrt(1.0-x)*func(vd, bsp)/np.sqrt(e-G(vd, gsp))
     return sumi*dv/2.0
 
 
