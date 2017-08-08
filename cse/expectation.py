@@ -56,12 +56,11 @@ def cross_section(wavenumber, wfu, wfi, R, dipolemoment, openchann):
         ReX[i] = (dipolemoment[i, 0] @ Re[i])*wfi[i]
         ImX[i] = (dipolemoment[i, 0] @ Im[i])*wfi[i]
 
-    xsp = []
-    for j in range(nopen):
+    xsp = np.zeros(n)  # n > nopen = max size of xs array 
+    for j in range(nopen):  # nopen >= 1
         Rx = simps(ReX[:, j], R)
         Ix = simps(ImX[:, j], R)
-        xs = Rx**2 + Ix**2
-        xsp.append(xs)
+        xsp[j] = Rx**2 + Ix**2
 
     if np.any(openchann):
         # cross s`ection
@@ -79,7 +78,7 @@ def xs(dipolemoment, ei, mu, R, VT, wfi, rot, wavenumber):
     en = ei + dE
     wfu, eu, oc = johnson.solveCSE(en, rot, mu, R, VT)
     xsp = cross_section(wavenumber, wfu, wfi, R, dipolemoment, oc)
-    return xsp
+    return xsp  #  (wavenumber.shape, n)
 
 
 def xs_vs_wav(wavenumber, dipolemoment, ei, rot, mu, R, VT, wfi):
