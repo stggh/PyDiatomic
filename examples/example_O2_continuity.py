@@ -20,7 +20,9 @@ from scipy.integrate.quadrature import simps
 
 evcm = 8065.541   # conversion factor eV -> cm-1
 
+# transition energies
 continuum = np.arange(57200, 85000, 100)
+
 bands = np.array([49357.4, 50044.9, 50710, 51351.5, 51968.4, 52559.6,
                   53122.6, 53655.3, 54156.5, 54622.1, 55051, 55439.5,
                   55784.8, 56085.6, 56340.7, 56551.1, 56720.1, 56852.7,
@@ -41,12 +43,12 @@ tend = time.time()
 print("    in {:.1f} seconds\n".format(tend-tstart))
 print(" E(v\"=0) = {:8.2f} (cm-1)\n".format(O2.gs.cm))
 
-fcf = O2.xs[:lb, 0]
+osc = O2.xs[:lb, 0]
 
 spl = InterpolatedUnivariateSpline(bands, v, k=1)
 dvdE = spl.derivative()(bands)
 
-plt.semilogy(bands, fcf * dvdE/1.13e12, '+')
+plt.semilogy(bands, osc * dvdE/1.13e12, '+')
 plt.semilogy(continuum, O2.xs[lb:])
 plt.semilogy((57136.2, 57136.2), (1.0e-25, 1.0e-18), 'k--', lw=1)
 plt.xlabel(r"wavenumber (cm$^{-1}$)")
@@ -57,5 +59,5 @@ plt.annotate(r"$f_{v^{\prime}0} \frac{dv^{\prime}}{dE}/1.13 \times"
              " 10^{12}$", (49000, 3.0e-18), fontsize=12)
 plt.annotate(r"$\sigma$", (70000, 5.0e-19), fontsize=12)
 
-plt.savefig("output/example_O2_continuity.png", dpi=75)
+plt.savefig("output/example_O2_continuity.png", dpi=100)
 plt.show()
