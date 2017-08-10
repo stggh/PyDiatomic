@@ -17,47 +17,100 @@ from scipy.integrate.quadrature import simps
 # 22 December 2016
 ##########################################################################
 
+# experimental data ----------------
+#  ANU - total photoabsorption cross section 130 - 171 nm
+#  doi: 10.1016/0368-2048(96)02910-6
+xst = np.loadtxt("data/O2xs-ANU.dat", unpack=True)
+xst = (1.0e8/xst[0], xst[1]*1e-19)
 
-evcm = 8065.541   # conversion factor eV -> cm-1
+#  Harvard - band oscillator strengths v'=1-12
+#  doi: 10.1016/0032-0633(83)90085-5
+fexp = np.loadtxt("data/O2osc-Yoshino.dat", unpack=True)
 
-# transition energies
-continuum = np.arange(57200, 85000, 100)
-
+# energy ranges for calculation in cm-1
 bands = np.array([49357.4, 50044.9, 50710, 51351.5, 51968.4, 52559.6,
                   53122.6, 53655.3, 54156.5, 54622.1, 55051, 55439.5,
                   55784.8, 56085.6, 56340.7, 56551.1, 56720.1, 56852.7,
                   56955.2, 57032.5, 57086.9, 57120.7]) 
 
-transition_energies = np.append(bands, continuum)
+continuum = np.arange(57200, 85000, 100)
+
 
 lb = len(bands)
 v = np.arange(lb)
 
-O2 = cse.Xs(mu='O2', VTi=['potentials/X3S-1.dat'], eni=800,
+O2bands = cse.Xs(mu='O2', VTi=['potentials/X3S-1.dat'], eni=800,
                      VTf=['potentials/B3S-1.dat'], 
                      dipolemoment=['transitionmoments/dipole_b_valence.dat'])
 
+O2S = cse.Xs(mu='O2', VTi=['potentials/X3S-1.dat'], eni=800,
+                      VTf=['potentials/3sig-1repqgg.dat',
+                           'potentials/3sig-1potqgg.dat',
+                           'potentials/3sig-1pot2qgg.dat'],
+                      coupf=[4032.755, 2022.886, 0],
+                      dipolemoment=['transitionmoments/dbvqgg.dat', 
+                                    'transitionmoments/derqgg.dat',
+                                    'transitionmoments/dfrqgg.dat'])
+
+O2P = cse.Xs(mu='O2', VTi=['potentials/X3S-1.dat'], eni=800,
+                      VTf=['potentials/3pi1repkk.dat',
+                           'potentials/3pi1potkk.dat',
+                           'potentials/3pi1pot2kk.dat'],
+                      coupf=[7034.162, 3402.82, 0],
+                      dipolemoment=['transitionmoments/d3pirepkkzz.dat',
+                                    'transitionmoments/d3pipotkkzz.dat',
+                                    'transitionmoments/d3pipot2kkzz.dat'])
+
+print(" E(v\"=0) = {:8.2f} (cm-1)\n".format(O2S.gs.cm))
+
+# Schumann-Runge system ^3Pi, B ^3Sigma_u^- <- X ^3Sigma_g^- calculations
+# (1) band oscillator strengths - uncoupled
+print("calculating band oscillator strengths (v', 0), v'=0-21: ...")
 tstart = time.time()
-O2.calculate_xs(transition_energy=transition_energies)
-tend = time.time()
-print("    in {:.1f} seconds\n".format(tend-tstart))
-print(" E(v\"=0) = {:8.2f} (cm-1)\n".format(O2.gs.cm))
+O2bands.calculate_xs(transition_energy=bands)
+print("  in {:.1f} seconds\n".format(time.time()-tstart))
+print(" v'    fosc     fexpt")
+for v, fosc in enumerate(O2bands.xs):
+    if v in fexp[0]:
+        print("{:2d}   {:8.5e}   {:8.5e}".format(v, fosc[0], fyosh))
+    else:
+        print("{:2d}   {:8.5e}".format(v, fosc[0]))
 
-osc = O2.xs[:lb, 0]
+print("calculating O2 continuum photodissociation cross section: 3Sigma states...")
+tstart = time.time()
+O2S.calculate_xs(transition_energy=continuum)
+print("  in {:.1f} seconds\n".format(time.tim()-tstart))
 
+print("calculating O2 continuum photodissociation cross section: 3Pi states...")
+O2P.calculate_xs(transition_energy=continuum)
+print("    in {:.1f} seconds\n".format(time.time()-tstart))
+
+
+# evaluate derivative for fosc x dv/dE 
+fosc = O2bands.xs[:, 0]
 spl = InterpolatedUnivariateSpline(bands, v, k=1)
 dvdE = spl.derivative()(bands)
 
-plt.semilogy(bands, osc * dvdE/1.13e12, '+')
-plt.semilogy(continuum, O2.xs[lb:])
-plt.semilogy((57136.2, 57136.2), (1.0e-25, 1.0e-18), 'k--', lw=1)
+plt.plot(continuum, O2S.xs[:, 0] + 2*O2P.xs[:, 0], 'C0--',
+         label='$\sigma$ PyDiatomic')
+plt.plot(bands, fosc * dvdE/1.13e12, 'C2+', label=r'$f_{osc}$ PyDiatomic')
+plt.plot((57136.2, 57136.2), (1.0e-25, 1.0e-18), 'k--', lw=1)
+
 plt.xlabel(r"wavenumber (cm$^{-1}$)")
 plt.ylabel(r"cross section (cm$^{2}$)")
-plt.title(r"O$_{2}$ $B{ }^{3}\Sigma_{u}^{-} - X{}^{3}\Sigma_{g}^{-}$")
+plt.title(r"O$_{2}$ $^3\Pi_u, B{ }^{3}\Sigma_{u}^{-} - X{}^{3}\Sigma_{g}^{-}$")
 
+plt.plot(*xst, 'C1-', label="ANU expt.", zorder=2)
+
+plt.errorbar(bands[1:13], fexp[1]*dvdE[1:13]/1.13e12,
+             yerr=fexp[2]*dvdE[1:13]/1.13e12, color='C3', fmt='o', mfc='w', ms=4,
+             label='Yoshino', zorder=1)
+
+plt.yscale('log')
 plt.annotate(r"$f_{v^{\prime}0} \frac{dv^{\prime}}{dE}/1.13 \times"
              " 10^{12}$", (49000, 3.0e-18), fontsize=12)
 plt.annotate(r"$\sigma$", (70000, 5.0e-19), fontsize=12)
+plt.legend(loc=8)
 
 plt.savefig("output/example_O2_continuity.png", dpi=100)
 plt.show()

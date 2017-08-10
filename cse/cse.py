@@ -177,8 +177,10 @@ class Xs():
 
             if eni is None:
                 eni = self.gs.energy
+
             self.gs.solve(eni, roti)
-            print('E(v"={}) = {:.2f} cm-1 '.format(self.gs.vib, self.gs.cm))
+            #print('E(v"={}, J"={}) = {:.2f} cm-1 '.
+            #      format(self.gs.vib, roti, self.gs.cm))
 
         if mu is not None or coupf is not None or rotf is not None:
             # recalculate final couples states
