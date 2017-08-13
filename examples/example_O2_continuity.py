@@ -33,62 +33,72 @@ bands = np.array([49357.4, 50044.9, 50710, 51351.5, 51968.4, 52559.6,
                   55784.8, 56085.6, 56340.7, 56551.1, 56720.1, 56852.7,
                   56955.2, 57032.5, 57086.9, 57120.7]) 
 
-continuum = np.arange(57200, 85000, 100)
+continuum = np.arange(57300, 85000, 100)
 
 
 lb = len(bands)
-v = np.arange(lb)
+vib = np.arange(lb)
 
+# CSE model Schumann-Runge B ^3Sigma_u^- <- X ^3Sigma_g^- single channel ----
 O2bands = cse.Xs(mu='O2', VTi=['potentials/X3S-1.dat'], eni=800,
                      VTf=['potentials/B3S-1.dat'], 
                      dipolemoment=['transitionmoments/dipole_b_valence.dat'])
 
+# CSE ^3Sigma_u^- valence and Rydbergs coupled channels -------
 O2S = cse.Xs(mu='O2', VTi=['potentials/X3S-1.dat'], eni=800,
-                      VTf=['potentials/3sig-1repqgg.dat',
-                           'potentials/3sig-1potqgg.dat',
-                           'potentials/3sig-1pot2qgg.dat'],
-                      coupf=[4032.755, 2022.886, 0],
-                      dipolemoment=['transitionmoments/dbvqgg.dat', 
-                                    'transitionmoments/derqgg.dat',
-                                    'transitionmoments/dfrqgg.dat'])
+                      VTf=['potentials/3S-1v.dat',
+                           'potentials/3S-1r.dat',
+                           'potentials/3S-1r2.dat'],
+                      coupf=[4033, 2023, 0],
+                      dipolemoment=['transitionmoments/dvX.dat', 
+                                    'transitionmoments/drX.dat',
+                                    'transitionmoments/dr2X.dat'])
 
+# CSE ^3Pi_u coupled channels -------
 O2P = cse.Xs(mu='O2', VTi=['potentials/X3S-1.dat'], eni=800,
-                      VTf=['potentials/3pi1repkk.dat',
-                           'potentials/3pi1potkk.dat',
-                           'potentials/3pi1pot2kk.dat'],
-                      coupf=[7034.162, 3402.82, 0],
-                      dipolemoment=['transitionmoments/d3pirepkkzz.dat',
-                                    'transitionmoments/d3pipotkkzz.dat',
-                                    'transitionmoments/d3pipot2kkzz.dat'])
+                      VTf=['potentials/3P1v.dat',
+                           'potentials/3P1r.dat',
+                           'potentials/3P1r2.dat'],
+                      coupf=[7034, 3403, 0],
+                      dipolemoment=['transitionmoments/dvPX.dat',
+                                    'transitionmoments/drPX.dat',
+                                    'transitionmoments/dr2PX.dat'])
 
-print(" E(v\"=0) = {:8.2f} (cm-1)\n".format(O2S.gs.cm))
+# ground X3Sigma_g^- state energy
+print(" E(v\"=0, J=0) = {:8.2f} (cm-1)\n".format(O2S.gs.cm))
 
-# Schumann-Runge system ^3Pi, B ^3Sigma_u^- <- X ^3Sigma_g^- calculations
 # (1) band oscillator strengths - uncoupled
-print("calculating band oscillator strengths (v', 0), v'=0-21: ...")
+print("band oscillator strengths (v', 0), v' = 0-21: ...")
 tstart = time.time()
 O2bands.calculate_xs(transition_energy=bands)
 print("  in {:.1f} seconds\n".format(time.time()-tstart))
-print(" v'    fosc     fexpt")
+print(" v'    fosc     fexpt(Yoshino)")
 for v, fosc in enumerate(O2bands.xs):
     if v in fexp[0]:
-        print("{:2d}   {:8.5e}   {:8.5e}".format(v, fosc[0], fyosh))
+        print("{:2d}   {:8.2e}     {:8.2e}".format(v, fosc[0], fexp[1, v-1]))
     else:
-        print("{:2d}   {:8.5e}".format(v, fosc[0]))
+        print("{:2d}   {:8.2e}".format(v, fosc[0]))
 
-print("calculating O2 continuum photodissociation cross section: 3Sigma states...")
+print("\nO2 B-X continuum photodissociation cross section:")
+print("  {:5.0f} to {:5.0f} in {:.0f} cm-1 steps ...".
+      format(continuum[0], continuum[-1], continuum[1]-continuum[0]))
 tstart = time.time()
 O2S.calculate_xs(transition_energy=continuum)
-print("  in {:.1f} seconds\n".format(time.tim()-tstart))
+print("  in {:.1f} seconds\n".format(time.time()-tstart))
 
-print("calculating O2 continuum photodissociation cross section: 3Pi states...")
+print("\nO2 3Pi-X continuum photodissociation cross section:")
+print("  {:5.0f} to {:5.0f} in {:.0f} cm-1 steps ...".
+      format(continuum[0], continuum[-1], continuum[1]-continuum[0]))
+tstart = time.time()
 O2P.calculate_xs(transition_energy=continuum)
 print("    in {:.1f} seconds\n".format(time.time()-tstart))
+
+print("calculation complete - see plot")
 
 
 # evaluate derivative for fosc x dv/dE 
 fosc = O2bands.xs[:, 0]
-spl = InterpolatedUnivariateSpline(bands, v, k=1)
+spl = InterpolatedUnivariateSpline(bands, vib, k=1)
 dvdE = spl.derivative()(bands)
 
 plt.plot(continuum, O2S.xs[:, 0] + 2*O2P.xs[:, 0], 'C0--',

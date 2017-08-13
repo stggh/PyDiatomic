@@ -144,7 +144,7 @@ def potential_energy_curves(pecfs=None, R=None):
     VT = np.array(np.zeros((n, n, oo)))
     for j in range(n):
        subr = np.logical_and(Rin[j] >= Rm, Rin[j] <= R[-1])
-       VT[j][j] = Vin[j][subr]
+       VT[j, j] = Vin[j][subr]
 
     limits = (oo, n, Rm, Rx, Vm, Vx)
   
