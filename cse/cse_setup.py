@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import scipy.constants as const
+import re
 from scipy.interpolate import splrep, splev
 
 def reduced_mass(amu=None):
@@ -101,6 +102,8 @@ def potential_energy_curves(pecfs=None, R=None):
         Vm = lowest minimum potential energy (Te)
         Voo = lowest dissociation limit energy
     
+    AM : 1d array of tuples
+        Angular momenta quantum numbers (Omega, S, Lambda, Sigma) for each electronic state
     """
 
     if pecfs == None:
@@ -109,6 +112,7 @@ def potential_energy_curves(pecfs=None, R=None):
 
     n = np.shape(pecfs)[0]
 
+    AM = []
     Rin = []
     Vin = []
     for i,fn in enumerate(pecfs):
@@ -118,6 +122,17 @@ def potential_energy_curves(pecfs=None, R=None):
             radialcoord, potential = fn
         Rin.append(radialcoord)
         Vin.append(potential)
+        digits = re.findall('\d', fn)
+        if len(digits) > 0:
+            degen = digits[0]
+            S = (int(degen) - 1)/2
+            Omega = digits[-1]
+            Lambda = fn[fn.index(degen)+1]
+            Sigma = int(Omega) - 'SPDF'.index(Lambda)
+           
+            AM.append((Omega, S, Lambda, Sigma))
+        else:
+            AM.append((0, 0, 0, 0))
 
     # flatten if only 1 PEC
     if n == 1:
@@ -148,7 +163,7 @@ def potential_energy_curves(pecfs=None, R=None):
 
     limits = (oo, n, Rm, Rx, Vm, Vx)
   
-    return R, VT, pecfs, limits
+    return R, VT, pecfs, limits, AM
 
 
 def coupling_function(R, VT, pecfs, coup=None):

@@ -57,7 +57,7 @@ class Cse():
             self.limits = (oo, n, R[0], R[-1], VT[0][0].min(), VT[0][0][-1])
         else:
             # list of file names provided in VT
-            self.R, self.VT, self.pecfs, self.limits =\
+            self.R, self.VT, self.pecfs, self.limits, self.AM =\
                     cse_setup.potential_energy_curves(VT)
             self.set_coupling(coup=coup)
 
@@ -145,7 +145,8 @@ class Xs():
 
     def __init__(self, mu=None, Ri=None, VTi=None, coupi=None, eni=0, roti=0,
                                 Rf=None, VTf=None, coupf=None, rotf=0,
-                                dipolemoment=None, transition_energy=None):
+                                dipolemoment=None, transition_energy=None,
+                                honl=False):
 
         # ground state
         self.gs = Cse(mu=mu, R=Ri, VT=VTi, coup=coupi, rot=roti, en=eni)
@@ -164,6 +165,8 @@ class Xs():
 
         if transition_energy is not None:
             self.calculate_xs(transition_energy)
+
+        self.honl = honl
 
     def set_param(self, mu=None, eni=None, coupi=None, roti=None,
                                            coupf=None, rotf=None):
@@ -208,11 +211,7 @@ class Xs():
         if rotf is not None:
             self.us.rot = rotf
 
-        self.xs = expectation.xs_vs_wav(self.wavenumber, self.dipolemoment,
-                                        self.gs.energy, self.us.rot,
-                                        self.gs.mu,
-                                        self.us.R, self.us.VT,
-                                        self.gs.wavefunction)
+        self.xs = expectation.xs_vs_wav(self)
         self.nopen = self.xs.shape[-1]
 
 

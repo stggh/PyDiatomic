@@ -18,7 +18,7 @@ from scipy.special import sph_jn, sph_yn
 # ===== Johnson === Renormalized Numerov method ============
 
 
-def WImat(energy, rot, V, R, mu, Omega=0, S=0, Sigma=0):
+def WImat(energy, rot, V, R, mu):
     """ Interaction matrix.
 
     Parameters
@@ -53,8 +53,7 @@ def WImat(energy, rot, V, R, mu, Omega=0, S=0, Sigma=0):
     if rot:
         # centrifugal barrier -   hbar^2 J(J+1)/2 mu R^2 in eV
         diag = np.diag_indices(n)
-        barrier[diag] = (rot*(rot + 1)-Omega*Omega + S*(S + 1) - Sigma**2)\
-                        *dR2/12/R[:]**2/factor
+        barrier[diag] = rot*(rot + 1)*dR2/12/R[:]**2/factor
 
     barrier = np.transpose(barrier)
 
@@ -164,7 +163,7 @@ def wavefunction(WI, j, f):
 # ==== end of Johnson stuff ====================
 
 
-def matching_point(en, rot, V, R, mu, Omega=0, S=0, Sigma=0):
+def matching_point(en, rot, V, R, mu):
     """ estimate matching point for inward and outward solutions position
     based on the determinant of the R-matrix.
 
@@ -198,7 +197,7 @@ def matching_point(en, rot, V, R, mu, Omega=0, S=0, Sigma=0):
         Vnn = np.transpose(V)[-1][-1]  # -1 -1 highest PEC?
         mx = np.abs(Vnn - en).argmin()
 
-        WI = WImat(en, rot, V, R, mu, Omega, S, Sigma)
+        WI = WImat(en, rot, V, R, mu)
         Rm = RImat(WI, mx)
         while linalg.det(Rm[mx]) > 1:
             mx -= 1
@@ -206,7 +205,7 @@ def matching_point(en, rot, V, R, mu, Omega=0, S=0, Sigma=0):
     return mx
 
 
-def eigen(energy, rot, mx, V, R, mu, Omega=0, S=0, Sigma=0):
+def eigen(energy, rot, mx, V, R, mu):
     """ determine eigen energy solution based.
 
     Parameters
@@ -231,7 +230,7 @@ def eigen(energy, rot, mx, V, R, mu, Omega=0, S=0, Sigma=0):
 
     """
 
-    WI = WImat(energy, rot, V, R, mu, Omega, S, Sigma)
+    WI = WImat(energy, rot, V, R, mu)
     RI = RImat(WI, mx)
     
     # | R_mx - R^-1_mx+1 |
@@ -308,7 +307,7 @@ def amplitude(wf, R, edash, mu):
     return K, AI, B
 
 
-def solveCSE(en, rot, mu, R, VT, Omega=0, S=0, Sigma=0):
+def solveCSE(en, rot, mu, R, VT):
     n, m, oo = VT.shape
 
     V = np.transpose(VT)
@@ -321,12 +320,11 @@ def solveCSE(en, rot, mu, R, VT, Omega=0, S=0, Sigma=0):
     mx = matching_point(en, rot, V, R, mu)
 
     if mx < oo-5:
-        out = leastsq(eigen, (en, ), args=(rot, mx, V, R, mu, Omega, S, Sigma),
-                      xtol=0.01)
+        out = leastsq(eigen, (en, ), args=(rot, mx, V, R, mu), xtol=0.01)
         en = float(out[0])
 
     # solve CSE according to Johnson renormalized Numerov method
-    WI = WImat(en, rot, V, R, mu, Omega, S, Sigma)
+    WI = WImat(en, rot, V, R, mu)
     RI = RImat(WI, mx)
     wf = []
     if nopen > 0:
