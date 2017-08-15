@@ -117,23 +117,23 @@ def potential_energy_curves(pecfs=None, R=None):
     Vin = []
     for i,fn in enumerate(pecfs):
         if isinstance(fn, (np.str)):
-            radialcoord, potential = np.loadtxt(fn,unpack=True)
+            radialcoord, potential = np.loadtxt(fn, unpack=True)
+            digits = re.findall('\d', fn)
+            if len(digits) > 0:
+                degen = digits[0]
+                S = (int(degen) - 1)/2
+                Omega = digits[-1]
+                Lambda = fn[fn.index(degen)+1]
+                Sigma = int(Omega) - 'SPDF'.index(Lambda)
+                AM.append((Omega, S, Lambda, Sigma))
+            else:
+                AM.append((0, 0, 0, 0))
+
         else:
             radialcoord, potential = fn
         Rin.append(radialcoord)
         Vin.append(potential)
-        digits = re.findall('\d', fn)
-        if len(digits) > 0:
-            degen = digits[0]
-            S = (int(degen) - 1)/2
-            Omega = digits[-1]
-            Lambda = fn[fn.index(degen)+1]
-            Sigma = int(Omega) - 'SPDF'.index(Lambda)
-           
-            AM.append((Omega, S, Lambda, Sigma))
-        else:
-            AM.append((0, 0, 0, 0))
-
+        
     # flatten if only 1 PEC
     if n == 1:
        Rin = np.reshape(Rin, (n, -1))
