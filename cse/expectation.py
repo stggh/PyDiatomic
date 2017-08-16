@@ -24,6 +24,7 @@ a0 = const.physical_constants["Bohr radius"][0]
 CONST = 2*(np.pi*const.e*a0)**2*1.0e4/const.epsilon_0/3
 FCONST = 4*np.pi*const.m_e*const.c*100*a0*a0/const.hbar/3
 
+
 def cross_section(wavenumber, Xs):
     """ photodissociation cross section |<f|M|i>|^2.
 
@@ -58,7 +59,7 @@ def cross_section(wavenumber, Xs):
         ReX[i] = (Xs.dipolemoment[i, 0] @ Re[i])*wfi[i]
         ImX[i] = (Xs.dipolemoment[i, 0] @ Im[i])*wfi[i]
 
-    xsp = np.zeros(n)  # n > nopen = max size of xs array 
+    xsp = np.zeros(n)  # n > nopen = max size of xs array
     for j in range(nopen):  # nopen >= 1
         Rx = simps(ReX[:, j], Xs.us.R)
         Ix = simps(ImX[:, j], Xs.us.R)
@@ -79,10 +80,11 @@ def xs(Xs, wavenumber):
     """
     dE = wavenumber/8065.541  # convert to eV
     en = Xs.gs.energy + dE
-    Xs.us.wavefunction, Xs.us.energy, Xs.openchann = johnson.solveCSE(Xs.us, en) 
+    Xs.us.wavefunction, Xs.us.energy, Xs.openchann\
+         = johnson.solveCSE(Xs.us, en)
     xsp = cross_section(wavenumber, Xs)
     hlf = honl(Xs)
-    return xsp*hlf  #  (wavenumber.shape, n)
+    return xsp*hlf  # (wavenumber.shape, n)
 
 
 def xs_vs_wav(Xs):
@@ -108,7 +110,7 @@ def honl(Xs):
         Od = Xs.us.Omega
         Odd = Xs.gs.Omega
         hfl = (2*Jd + 1) * N(wigner_3j(Jd, 1, Jdd, -Od, Od-Odd, Odd))**2
-    return hfl 
+    return hfl
 
 
 def Bv(Cse):

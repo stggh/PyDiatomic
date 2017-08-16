@@ -6,6 +6,7 @@ from . import johnson
 from . import expectation
 from . import cse_setup
 
+
 class Cse():
     """ Class to setup and solve the TISE via the Johnson renormalized
         Numerov method i.e. drive johnson.py for a single
@@ -74,6 +75,7 @@ class Cse():
     def set_coupling(self, coup):
         self.VT = cse_setup.coupling_function(self.R, self.VT, self.pecfs,
                                               coup=coup)
+
     def solve(self, en, rot=None):
         if en > 20:
             en /= self._evcm   # convert to eV energy units
@@ -108,7 +110,7 @@ class Cse():
 
     def diabatic2adiabatic(self):
         """ Convert diabatic interaction matrix to adiabatic (diagonal)
-            A = UT V U     unitary transformation 
+            A = UT V U     unitary transformation
 
         """
         V = np.transpose(self.VT)
@@ -117,9 +119,9 @@ class Cse():
         for i, Vi in enumerate(V):
             w, U = scla.eigh(Vi)
             A[i][diag] = w
-        
+
         self.AT = np.transpose(A)
-              
+
 
 class Xs():
     """ Class to evaluate photodissociation cross sections, i.e. solve the
@@ -210,24 +212,23 @@ class Xs():
         self.xs = expectation.xs_vs_wav(self)
         self.nopen = self.xs.shape[-1]
 
-
-    def align_grids(self): 
+    def align_grids(self):
         """ ensure the same internuclear grid for each block
             of coupled-channels, ground-states vs upper-states.
             NB assumes common dR for each grid.
- 
+
         """
 
         # limits = (oo, n, Rm, Rx, Vm, Vx)
         if self.us.limits[0] != self.gs.limits[0]:
-             Rm = max(self.us.limits[2], self.gs.limits[2]) # Rm
-             Rx = min(self.us.limits[3], self.gs.limits[3]) # Rx
-             for state in [self.gs, self.us]:
-                 _, n, _, _, Vm, Vx = state.limits
-                 subr = np.logical_and(state.R >= Rm, state.R <= Rx)
-                 state.R = state.R[subr]
-                 V = np.transpose(state.VT)
-                 V = V[subr]
-                 state.VT = np.transpose(V)
-                 oo = len(state.R)
-                 state.limits = (oo, n, Rm, Rx, Vm, Vx)
+            Rm = max(self.us.limits[2], self.gs.limits[2])  # Rm
+            Rx = min(self.us.limits[3], self.gs.limits[3])  # Rx
+            for state in [self.gs, self.us]:
+                _, n, _, _, Vm, Vx = state.limits
+                subr = np.logical_and(state.R >= Rm, state.R <= Rx)
+                state.R = state.R[subr]
+                V = np.transpose(state.VT)
+                V = V[subr]
+                state.VT = np.transpose(V)
+                oo = len(state.R)
+                state.limits = (oo, n, Rm, Rx, Vm, Vx)

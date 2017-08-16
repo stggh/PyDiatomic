@@ -8,8 +8,8 @@ from scipy.interpolate import InterpolatedUnivariateSpline
 from scipy.integrate.quadrature import simps
 
 ##########################################################################
-# 
-# O2 dissociation limit continuity as per 
+#
+# O2 dissociation limit continuity as per
 #  Allison, Dalgarno, and Pasachoff  Planet Space Sci. 19, 1463-1473 (1971)
 #  Fig. 3
 #
@@ -31,7 +31,7 @@ fexp = np.loadtxt("data/O2osc-Yoshino.dat", unpack=True)
 bands = np.array([49357.4, 50044.9, 50710, 51351.5, 51968.4, 52559.6,
                   53122.6, 53655.3, 54156.5, 54622.1, 55051, 55439.5,
                   55784.8, 56085.6, 56340.7, 56551.1, 56720.1, 56852.7,
-                  56955.2, 57032.5, 57086.9, 57120.7]) 
+                  56955.2, 57032.5, 57086.9, 57120.7])
 
 continuum = np.arange(57300, 85000, 100)
 
@@ -41,7 +41,7 @@ vib = np.arange(lb)
 
 # CSE model Schumann-Runge B ^3Sigma_u^- <- X ^3Sigma_g^- single channel ----
 O2bands = cse.Xs(mu='O2', VTi=['potentials/X3S-1.dat'], eni=800,
-                     VTf=['potentials/B3S-1.dat'], 
+                          VTf=['potentials/B3S-1.dat'],
                      dipolemoment=['transitionmoments/dipole_b_valence.dat'])
 
 # CSE ^3Sigma_u^- valence and Rydbergs coupled channels -------
@@ -50,7 +50,7 @@ O2S = cse.Xs(mu='O2', VTi=['potentials/X3S-1.dat'], eni=800,
                            'potentials/3S-1r.dat',
                            'potentials/3S-1r2.dat'],
                       coupf=[4033, 2023, 0],
-                      dipolemoment=['transitionmoments/dvX.dat', 
+                      dipolemoment=['transitionmoments/dvX.dat',
                                     'transitionmoments/drX.dat',
                                     'transitionmoments/dr2X.dat'])
 
@@ -96,7 +96,7 @@ print("    in {:.1f} seconds\n".format(time.time()-tstart))
 print("calculation complete - see plot")
 
 
-# evaluate derivative for fosc x dv/dE 
+# evaluate derivative for fosc x dv/dE
 fosc = O2bands.xs[:, 0]
 spl = InterpolatedUnivariateSpline(bands, vib, k=1)
 dvdE = spl.derivative()(bands)
@@ -113,8 +113,8 @@ plt.title(r"O$_{2}$ $^3\Pi_u, B{ }^{3}\Sigma_{u}^{-} - X{}^{3}\Sigma_{g}^{-}$")
 plt.plot(*xst, 'C1-', label="ANU expt.", zorder=2)
 
 plt.errorbar(bands[1:13], fexp[1]*dvdE[1:13]/1.13e12,
-             yerr=fexp[2]*dvdE[1:13]/1.13e12, color='C3', fmt='o', mfc='w', ms=4,
-             label='Yoshino', zorder=1)
+             yerr=fexp[2]*dvdE[1:13]/1.13e12, color='C3', fmt='o', mfc='w',
+             ms=4, label='Yoshino', zorder=1)
 
 plt.yscale('log')
 plt.annotate(r"$f_{v^{\prime}0} \frac{dv^{\prime}}{dE}/1.13 \times"

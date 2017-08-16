@@ -31,8 +31,8 @@ for en in [1000, 2000, 30000]:
              label=r'$v={:d}$'.format(morse.vib))
 
 
-#plt.annotate(r"$E(v=${:d})$ = ${:.2f} eV, $B_{{v}} =$ {:.2f} cm$^{-1}$".
-#             format(morse.vib, morse.energy, morse.Bv), (2, 1))
+# plt.annotate(r"$E(v=${:d})$ = ${:.2f} eV, $B_{{v}} =$ {:.2f} cm$^{-1}$".
+#              format(morse.vib, morse.energy, morse.Bv), (2, 1))
 
 plt.axis(xmin=0.8, xmax=3.8, ymin=-2, ymax=8)
 plt.ylabel("potential energy (eV)")
@@ -41,4 +41,3 @@ plt.legend()
 
 plt.savefig("output/example_Morse.png", dpi=75)
 plt.show()
-

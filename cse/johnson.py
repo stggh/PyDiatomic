@@ -118,14 +118,15 @@ def fmat(j, RI, WI,  mx):
     f = np.zeros((oo, n))
 
     if n == 1 or mx > oo-20:
-        # single PEC or unbound 
+        # single PEC or unbound
         f[mx] = linalg.inv(WI[mx])[j]
     else:
         # (R_m - R^-1_m+1).f(R) = 0
         U, s, Vh = linalg.svd(linalg.inv(RI[mx-1])-RI[mx])
         for i, x in enumerate(s):
-            if x > 0: break    # any diagonal !=0 yields a solution
-        f[mx] = U[i] 
+            if x > 0:
+                break  # any diagonal !=0 yields a solution
+        f[mx] = U[i]
 
     for i in range(mx-1, -1, -1):
         f[i] = f[i+1] @ RI[i]
@@ -189,7 +190,8 @@ def matching_point(en, rot, V, R, mu):
 
     oo, n, m = V.shape
 
-    Vm = min([V[-1][j][j].min() for j in range(n)])  # lowest dissociation energy
+    # lowest dissociation energy
+    Vm = min([V[-1][j][j].min() for j in range(n)])
 
     if en > Vm:
         return oo-1
@@ -232,7 +234,7 @@ def eigen(energy, rot, mx, V, R, mu):
 
     WI = WImat(energy, rot, V, R, mu)
     RI = RImat(WI, mx)
-    
+
     # | R_mx - R^-1_mx+1 |
     return linalg.det(linalg.inv(RI[mx])-RI[mx+1])
 

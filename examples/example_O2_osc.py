@@ -15,7 +15,7 @@ elevels = np.array([50145, 50832, 51497, 52139, 52756, 53347, 53910, 54443,
                     57507, 57640, 57743, 57820, 57874, 57908])
 
 dE = elevels - O2.gs.cm
-O2.calculate_xs(transition_energy = dE)
+O2.calculate_xs(transition_energy=dE)
 osc = O2.xs
 
 Yv, Yosc, Yerr = np.loadtxt("data/O2osc-Yoshino.dat", unpack=True)
@@ -31,10 +31,11 @@ for v, f in enumerate(osc):
 plt.plot(osc, 'o', label=r'PyDiatomic')
 plt.errorbar(Yv, Yosc, Yerr, fmt='+', ms=5, label=r'Yoshino')
 
-plt.title(r"O$_2$ $B\, ^3\Sigma_{u}^{-} - X\, ^3\Sigma_{g}^{-}$ $(v^\prime, v^{\prime\prime}=0)$")
+plt.title(r"O$_2$ $B\, ^3\Sigma_{u}^{-} - X\, ^3\Sigma_{g}^{-}$ $(v^\prime,"
+          r" v^{\prime\prime}=0)$")
 plt.ylabel(r"oscillator strength")
 plt.xlabel(r"$v^\prime$")
-plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
 plt.legend()
 plt.yscale('log')
 
