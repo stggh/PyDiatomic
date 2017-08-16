@@ -18,7 +18,7 @@ from scipy.special import sph_jn, sph_yn
 # ===== Johnson === Renormalized Numerov method ============
 
 
-def WImat(energy, rot, V, R, mu):
+def WImat(energy, rot, V, R, mu, AM):
     """ Interaction matrix.
 
     Parameters
@@ -35,6 +35,8 @@ def WImat(energy, rot, V, R, mu):
         size = oo
     mu : float
         reduced mass in kg
+    AM : 1d numpy array of tuples
+        (Omega, S, Lambda, Sigma) for each electronic state
 
     Returns
     -------
@@ -46,6 +48,11 @@ def WImat(energy, rot, V, R, mu):
     dR2 = (R[1] - R[0])**2
     factor = mu*1.0e-20*dR2*const.e/const.hbar/const.hbar/6
 
+    Omega = AM[0]
+    S = AM[1]
+    Lambda = AM[2]
+    Sigma = AM[3]
+
     oo, n, m = V.shape
     I = np.identity(n)
     barrier = np.zeros((m, n, oo))
@@ -53,7 +60,8 @@ def WImat(energy, rot, V, R, mu):
     if rot:
         # centrifugal barrier -   hbar^2 J(J+1)/2 mu R^2 in eV
         diag = np.diag_indices(n)
-        barrier[diag] = rot*(rot + 1)*dR2/12/R[:]**2/factor
+        barrier[diag] = (rot*(rot + 1)-Omega*Omega+S*(S+I)-Sigma*Sigma)*\
+                         dR2/12/R[:]**2/factor
 
     barrier = np.transpose(barrier)
 
@@ -164,7 +172,7 @@ def wavefunction(WI, j, f):
 # ==== end of Johnson stuff ====================
 
 
-def matching_point(en, rot, V, R, mu):
+def matching_point(en, rot, V, R, mu, AM):
     """ estimate matching point for inward and outward solutions position
     based on the determinant of the R-matrix.
 
@@ -180,6 +188,8 @@ def matching_point(en, rot, V, R, mu):
         internuclear distance grid
     mu : float
         reduced mass in kg
+    AM : 1d numpuy array of tuples
+        (Omega, S, Lambda, Sigma) for each electronic state
 
     Returns
     -------
@@ -199,7 +209,7 @@ def matching_point(en, rot, V, R, mu):
         Vnn = np.transpose(V)[-1][-1]  # -1 -1 highest PEC?
         mx = np.abs(Vnn - en).argmin()
 
-        WI = WImat(en, rot, V, R, mu)
+        WI = WImat(en, rot, V, R, mu, AM)
         Rm = RImat(WI, mx)
         while linalg.det(Rm[mx]) > 1:
             mx -= 1
@@ -207,7 +217,7 @@ def matching_point(en, rot, V, R, mu):
     return mx
 
 
-def eigen(energy, rot, mx, V, R, mu):
+def eigen(energy, rot, mx, V, R, mu, AM):
     """ determine eigen energy solution based.
 
     Parameters
@@ -232,7 +242,7 @@ def eigen(energy, rot, mx, V, R, mu):
 
     """
 
-    WI = WImat(energy, rot, V, R, mu)
+    WI = WImat(energy, rot, V, R, mu, AM)
     RI = RImat(WI, mx)
 
     # | R_mx - R^-1_mx+1 |
@@ -315,6 +325,7 @@ def solveCSE(Cse, en):
     mu = Cse.mu
     R = Cse.R
     VT = Cse.VT
+    AM = list(zip(*Cse.AM))  # make scriptable
 
     n, m, oo = VT.shape
 
@@ -325,14 +336,14 @@ def solveCSE(Cse, en):
     openchann = edash > 0
     nopen = edash[openchann].size
 
-    mx = matching_point(en, rot, V, R, mu)
+    mx = matching_point(en, rot, V, R, mu, AM)
 
     if mx < oo-5:
-        out = leastsq(eigen, (en, ), args=(rot, mx, V, R, mu), xtol=0.01)
+        out = leastsq(eigen, (en, ), args=(rot, mx, V, R, mu, AM), xtol=0.01)
         en = float(out[0])
 
     # solve CSE according to Johnson renormalized Numerov method
-    WI = WImat(en, rot, V, R, mu)
+    WI = WImat(en, rot, V, R, mu, AM)
     RI = RImat(WI, mx)
     wf = []
     if nopen > 0:
