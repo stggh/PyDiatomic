@@ -79,8 +79,7 @@ def xs(Xs, wavenumber):
     """
     dE = wavenumber/8065.541  # convert to eV
     en = Xs.gs.energy + dE
-    Xs.us.wavefunction, Xs.us.energy, Xs.openchann = johnson.solveCSE(en, 
-                                      Xs.us.rot, Xs.us.mu, Xs.us.R, Xs.us.VT)
+    Xs.us.wavefunction, Xs.us.energy, Xs.openchann = johnson.solveCSE(Xs.us, en) 
     xsp = cross_section(wavenumber, Xs)
     hlf = honl(Xs)
     return xsp*hlf  #  (wavenumber.shape, n)
@@ -112,9 +111,13 @@ def honl(Xs):
     return hfl 
 
 
-def Bv(R, wavefunction, mu):
+def Bv(Cse):
     """ Bv rotational constant from expectation <v|1/R^2|v>.
 
     """
+    R = Cse.R
+    wavefunction = Cse.wavefunction[:, 0, 0]
+    mu = Cse.mu
+
     ex = simps((wavefunction/R)**2, R)
     return ex*const.hbar*1.0e18/(4*np.pi*const.c*mu)

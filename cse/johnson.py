@@ -307,7 +307,13 @@ def amplitude(wf, R, edash, mu):
     return K, AI, B
 
 
-def solveCSE(en, rot, mu, R, VT):
+def solveCSE(Cse, en):
+
+    rot = Cse.rot
+    mu = Cse.mu
+    R = Cse.R
+    VT = Cse.VT
+
     n, m, oo = VT.shape
 
     V = np.transpose(VT)

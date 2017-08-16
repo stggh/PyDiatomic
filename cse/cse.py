@@ -82,12 +82,12 @@ class Cse():
             self.rot = rot   # in case called separately
 
         self.wavefunction, self.energy, self.openchann = \
-            johnson.solveCSE(en, self.rot, self.mu, self.R, self.VT)
+            johnson.solveCSE(self, en)
 
         if self.limits[1] == 1:
             if self.energy < self.VT[0][0][-1]:
                 self.node_count()
-                self.rotational_constant()
+                self.Bv = expectation.Bv(self)
             else:
                 self.vib = -1
 
@@ -105,10 +105,6 @@ class Cse():
 
         self.vib = vib
         return vib
-
-    def rotational_constant(self):
-        wf = self.wavefunction[:, 0, 0]
-        self.Bv = expectation.Bv(self.R, wf, self.mu)
 
     def diabatic2adiabatic(self):
         """ Convert diabatic interaction matrix to adiabatic (diagonal)
