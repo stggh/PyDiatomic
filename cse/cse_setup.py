@@ -131,6 +131,7 @@ def potential_energy_curves(pecfs=None, R=None):
 
         else:
             radialcoord, potential = fn
+            AM.append((0, 0, 0, 0))
         Rin.append(radialcoord)
         Vin.append(potential)
         
