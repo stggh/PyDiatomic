@@ -157,9 +157,10 @@ def potential_energy_curves(pecfs=None, R=None):
     oo = len(R)
 
     # create V matrix, as transpose 
-    VT = np.array(np.zeros((n, n, oo)))
+    VT = np.zeros((n, n, oo))
     for j in range(n):
-       subr = np.logical_and(Rin[j] >= Rm, Rin[j] <= R[-1])
+       dRx = (Rin[j][1] - Rin[j][0])/4
+       subr = np.logical_and(Rin[j] >= Rm-dRx, Rin[j] <= R[-1]+dRx)
        VT[j, j] = Vin[j][subr]
 
     limits = (oo, n, Rm, Rx, Vm, Vx)

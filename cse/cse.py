@@ -63,8 +63,9 @@ class Cse():
             self.set_coupling(coup=coup)
 
         # fudge to eliminate 1/0 error for 1/R^2
-        if self.R[0] < 1.0e-16:
-            self.R[0] = 1.0e-16
+        zeros = np.abs(self.R) < 1.0e-16
+        if np.any(zeros):
+            self.R[zeros] = 1.0e-16
 
         if en > 0:
             self.solve(en, self.rot)

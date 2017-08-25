@@ -61,8 +61,9 @@ def WImat(energy, rot, V, R, mu, AM):
     if rot:
         # centrifugal barrier -   hbar^2 J(J+1)/2 mu R^2 in eV
         diag = np.diag_indices(n)
-        barrier[diag] = (rot*(rot + 1)*I-Omega*Omega+S*(S+I)-Sigma*Sigma)*\
-                         dR2/12/R[:]**2/factor
+        barrier[diag] = rot*(rot + 1)*dR2/12/R[:]**2/factor
+        # off-diag coupling
+        
 
     barrier = np.transpose(barrier)
 
@@ -202,7 +203,7 @@ def matching_point(en, rot, V, R, mu, AM):
     oo, n, m = V.shape
 
     # lowest dissociation energy
-    Vm = min([V[-1][j][j].min() for j in range(n)])
+    Vm = np.min([V[-1, j, j].min() for j in range(n)])
 
     if en > Vm:
         return oo-1
