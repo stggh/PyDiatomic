@@ -60,14 +60,15 @@ def WImat(energy, rot, V, R, mu, AM):
             Omega, S, Sigma, Lambda = AM[j]
             am = Omega**2-S*(S+1)+Sigma**2
             if Jp1 > am:
-                barrier[j, j, :] = (Jp1 - (Omega**2-S*(S+1)+Sigma**2))\
+                barrier[j, j, :] = (Jp1 + (Omega**2-S*(S+1)+Sigma**2))\
                                     *dR2/12/R[:]**2/factor
             for k in np.arange(n):
                 Omegak, Sk, Sigmak, Lambdak = AM[k]
                 if Omega != Omegak:
                     if Jp1 > Omega*Omegak:
-                        barrier[j, k, :] = barrier[k, j, :] =\
+                        barrier[j, k, :] = barrier[k, j, :] = -V[:, j, k] +\
                                        np.sqrt(Jp1 - Omega*Omegak)\
+                                       *V[:, j, k]\
                                        *dR2/12/R[:]**2/factor
                                        
                                    
@@ -332,15 +333,9 @@ def solveCSE(Cse, en):
     rot = Cse.rot
     mu = Cse.mu
     R = Cse.R
+    AM = Cse.AM
     VT = Cse.VT
     n, m, oo = VT.shape
-
-    if n > 1:
-        # make AM scriptable - [(Omega, S, Lambda, Sigma)_0, ..., ()_n]
-        AM = list(zip(*Cse.AM))  
-    else:
-        AM = Cse.AM
-
 
     V = np.transpose(VT)
 
