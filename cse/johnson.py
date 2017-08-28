@@ -48,23 +48,29 @@ def WImat(energy, rot, V, R, mu, AM):
     dR2 = (R[1] - R[0])**2
     factor = mu*1.0e-20*dR2*const.e/const.hbar/const.hbar/6
 
-    # Omega_0, Omega_1, ..., Omega_n
-    Omega = np.array(AM[0])
-    S = np.array(AM[1])
-    Lambda = np.array(AM[2])
-    Sigma = np.array(AM[3])
-
     oo, n, m = V.shape
     I = np.identity(n)
     barrier = np.zeros((m, n, oo))
 
+    # Fix me! - needs a tidy-up
     if rot:
+        Jp1 = rot*(rot+1)
         # centrifugal barrier -   hbar^2 J(J+1)/2 mu R^2 in eV
-        diag = np.diag_indices(n)
-        barrier[diag] = rot*(rot + 1)*dR2/12/R[:]**2/factor
-        # off-diag coupling
-        
-
+        for j in np.arange(n):
+            Omega, S, Sigma, Lambda = AM[j]
+            am = Omega**2-S*(S+1)+Sigma**2
+            if Jp1 > am:
+                barrier[j, j, :] = (Jp1 - (Omega**2-S*(S+1)+Sigma**2))\
+                                    *dR2/12/R[:]**2/factor
+            for k in np.arange(n):
+                Omegak, Sk, Sigmak, Lambdak = AM[k]
+                if Omega != Omegak:
+                    if Jp1 > Omega*Omegak:
+                        barrier[j, k, :] = barrier[k, j, :] =\
+                                       np.sqrt(Jp1 - Omega*Omegak)\
+                                       *dR2/12/R[:]**2/factor
+                                       
+                                   
     barrier = np.transpose(barrier)
 
     # generate W^-1
@@ -327,10 +333,14 @@ def solveCSE(Cse, en):
     mu = Cse.mu
     R = Cse.R
     VT = Cse.VT
-    # make AM scriptable - [(Omega, S, Lambda, Sigma)_0, ..., ()_n]
-    AM = list(zip(*Cse.AM))  
-
     n, m, oo = VT.shape
+
+    if n > 1:
+        # make AM scriptable - [(Omega, S, Lambda, Sigma)_0, ..., ()_n]
+        AM = list(zip(*Cse.AM))  
+    else:
+        AM = Cse.AM
+
 
     V = np.transpose(VT)
 
