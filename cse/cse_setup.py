@@ -119,6 +119,7 @@ def potential_energy_curves(pecfs=None, R=None):
         if isinstance(fn, (np.str)):
             radialcoord, potential = np.loadtxt(fn, unpack=True)
             digits = re.findall('\d', fn)
+            print("-----", digits)
             if len(digits) > 0:
                 degen = int(digits[0])
                 S = (degen - 1)//2
@@ -196,7 +197,9 @@ def coupling_function(R, VT, AM, mu, pecfs, coup=None):
     cnt = 0
     for j in range(n):
         Omega, S, Sigma, Lambda = AM[j]
-        VT[j, j] -= (Omega**2 - S*(S+1) + Sigma**2)*centrifugal_factor/R[:]**2
+        am = Omega**2 - S*(S+1) + Sigma**2
+        if am > 0:
+            VT[j, j] -= am*centrifugal_factor/R[:]**2
         for k in range(j+1,n):
             if coup == None:
                 couplestr = input("CSE: coupling {:s} <-> {:s} cm-1 [0]? "\
