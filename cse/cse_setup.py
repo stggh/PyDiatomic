@@ -119,7 +119,6 @@ def potential_energy_curves(pecfs=None, R=None):
         if isinstance(fn, (np.str)):
             radialcoord, potential = np.loadtxt(fn, unpack=True)
             digits = re.findall('\d', fn)
-            print("-----", digits)
             if len(digits) > 0:
                 degen = int(digits[0])
                 S = (degen - 1)//2
