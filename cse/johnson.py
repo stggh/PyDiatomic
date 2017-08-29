@@ -47,36 +47,33 @@ def WImat(energy, rot, V, R, mu, AM):
 
     dR2 = (R[1] - R[0])**2
     factor = mu*1.0e-20*dR2*const.e/const.hbar/const.hbar/6
+    centrifugal_factor = (const.hbar*1.0e20/mu/2/const.e)*const.hbar
 
     oo, n, m = V.shape
     I = np.identity(n)
-    barrier = np.zeros((m, n, oo))
+    barrier = V.copy().T
 
     # Fix me! - needs a tidy-up
     if rot:
         Jp1 = rot*(rot+1)
         # centrifugal barrier -   hbar^2 J(J+1)/2 mu R^2 in eV
-        for j in np.arange(n):
+        for j in range(n):
+            barrier[j, j, :] += Jp1*centrifugal_factor/R[:]**2
             Omega, S, Sigma, Lambda = AM[j]
-            am = Omega**2-S*(S+1)+Sigma**2
-            if Jp1 > am:
-                barrier[j, j, :] = (Jp1 + (Omega**2-S*(S+1)+Sigma**2))\
-                                    *dR2/12/R[:]**2/factor
-            for k in np.arange(n):
+            for k in range(j+1, n):
                 Omegak, Sk, Sigmak, Lambdak = AM[k]
                 if Omega != Omegak:
+                    # L-uncoupling, homogeneous coupling already set
                     if Jp1 > Omega*Omegak:
-                        barrier[j, k, :] = barrier[k, j, :] = -V[:, j, k] +\
-                                       np.sqrt(Jp1 - Omega*Omegak)\
-                                       *V[:, j, k]\
-                                       *dR2/12/R[:]**2/factor
-                                       
+                        barrier[j, k, :] = barrier[k, j, :] =\
+                              V[:, j, k]*np.sqrt(Jp1 - Omega*Omegak)*\
+                              centrifugal_factor/R[:]**2
                                    
-    barrier = np.transpose(barrier)
+    barrier = barrier.T
 
     # generate W^-1
     WI = np.zeros_like(V)
-    WI[:] = np.linalg.inv(I + (energy*I - V[:] - barrier[:])*factor)
+    WI[:] = np.linalg.inv(I + (energy*I - barrier[:])*factor)
 
     return WI
 

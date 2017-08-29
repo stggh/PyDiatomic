@@ -74,8 +74,8 @@ class Cse():
         self.mu = cse_setup.reduced_mass(mu)
 
     def set_coupling(self, coup):
-        self.VT = cse_setup.coupling_function(self.R, self.VT, self.pecfs,
-                                              coup=coup)
+        self.VT = cse_setup.coupling_function(self.R, self.VT, self.AM,
+                                              self.mu, self.pecfs, coup=coup)
 
     def solve(self, en, rot=None):
         if en > 20:
