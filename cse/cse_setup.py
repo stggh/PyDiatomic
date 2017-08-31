@@ -168,7 +168,7 @@ def potential_energy_curves(pecfs=None, R=None):
     return R, VT, pecfs, limits, AM
 
 
-def coupling_function(R, VT, AM, mu, pecfs, coup=None):
+def coupling_function(R, VT, mu, pecfs, coup=None):
     """ Fill the off-diagonal coupling elements of VT.
 
     Parameters
@@ -195,10 +195,6 @@ def coupling_function(R, VT, AM, mu, pecfs, coup=None):
     # cm-1 couplings between PECs   (at the moment all homogeneous)
     cnt = 0
     for j in range(n):
-        Omega, S, Sigma, Lambda = AM[j]
-        am = Omega**2 - S*(S+1) + Sigma**2
-        if am > 0:
-            VT[j, j] -= am*centrifugal_factor/R[:]**2
         for k in range(j+1,n):
             if coup == None:
                 couplestr = input("CSE: coupling {:s} <-> {:s} cm-1 [0]? "\

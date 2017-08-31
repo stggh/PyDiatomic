@@ -46,7 +46,11 @@ def WImat(energy, rot, V, R, mu, AM):
     """
 
     dR2 = (R[1] - R[0])**2
+
+    # 2mu/hbar^2 x \DeltaR^2/12 x e
     factor = mu*1.0e-20*dR2*const.e/const.hbar/const.hbar/6
+
+    # hbar^2/2mu x e x 10^20
     centrifugal_factor = (const.hbar*1.0e20/mu/2/const.e)*const.hbar
 
     oo, n, m = V.shape
@@ -56,12 +60,16 @@ def WImat(energy, rot, V, R, mu, AM):
     # Fix me! - needs a tidy-up
     if rot:
         Jp1 = rot*(rot+1)
-        # centrifugal barrier -   hbar^2 J(J+1)/2 mu R^2 in eV
         for j in range(n):
-            barrier[j, j, :] += Jp1*centrifugal_factor/R[:]**2
-            Omega, S, Sigma, Lambda = AM[j]
+            Omega, S, Lambda, Sigma = AM[j]
+            am = Omega**2 - S*(S+1) + Sigma**2
+            # diagonal - add centrifugal barrier to potential curve
+            if Jp1 > am:
+                barrier[j, j, :] += (Jp1 - am)*centrifugal_factor/R[:]**2
+
             for k in range(j+1, n):
                 Omegak, Sk, Sigmak, Lambdak = AM[k]
+                # off-diagonal
                 if Omega != Omegak:
                     # L-uncoupling, homogeneous coupling already set
                     if Jp1 > Omega*Omegak:
