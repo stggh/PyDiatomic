@@ -73,7 +73,7 @@ def WImat(energy, rot, V, R, mu, AM):
                 if Omega != Omegak:
                     # L-uncoupling, homogeneous coupling already set
                     if Jp1 > Omega*Omegak:
-                        barrier[j, k, :] = barrier[k, j, :] =\
+                        barrier[j, k, :] = barrier[k, j, :] = 8064.541*\
                               V[:, j, k]*np.sqrt(Jp1 - Omega*Omegak)*\
                               centrifugal_factor/R[:]**2
                                    
