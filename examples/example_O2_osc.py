@@ -10,12 +10,12 @@ O2 = cse.Xs('O2', VTi=['potentials/X3S-1.dat'], eni=800,
                   dipolemoment=['transitionmoments/dipole_b_valence.dat'])
 R = O2.gs.R
 
-elevels = np.array([50145, 50832, 51497, 52139, 52756, 53347, 53910, 54443,
-                    54944, 55410, 55838, 56227, 56572, 56873, 57128, 57338,
-                    57507, 57640, 57743, 57820, 57874, 57908])
+# B-X transition energy guesses
+bands = [49357, 50045, 50710, 51352, 51968, 52560, 53123, 53655,
+         54157, 54622, 55051, 55439, 55785, 56086, 56341, 56551,
+         56720, 56853, 56955, 57032, 57087, 57121]
 
-dE = elevels - O2.gs.cm
-O2.calculate_xs(transition_energy=dE)
+O2.calculate_xs(transition_energy=bands)
 osc = O2.xs
 
 Yv, Yosc, Yerr = np.loadtxt("data/O2osc-Yoshino.dat", unpack=True)
