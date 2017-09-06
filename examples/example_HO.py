@@ -47,5 +47,5 @@ ax.set_title(r"Harmonic oscillator potential:"
 ax.set_ylabel(r"potential energy (cm$^{-1}$) / wavefunction $\times 400$")
 ax.set_xlabel(r"$x$")
 
-plt.savefig("output/example_HO.png", dpi=150)
+plt.savefig("output/example_HO.png", dpi=75)
 plt.show()
