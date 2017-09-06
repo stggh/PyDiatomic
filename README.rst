@@ -136,7 +136,7 @@ See also `examples/example_O2xs.py`, `example_O2_continuity.py`, and `example_rk
    :width: 300px
    :alt: example_O2xs
 
-.. figure:: https://cloud.githubusercontent.com/assets/10932229/21468965/65804fba-ca85-11e6-99b8-a57fb5cc60da.png
+.. figure:: https://user-images.githubusercontent.com/10932229/30096079-b869e486-9319-11e7-8adb-3ae64bff88d4.png
    :width: 300px
    :alt: example_O2_continuity
 
