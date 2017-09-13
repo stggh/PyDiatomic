@@ -118,7 +118,7 @@ def potential_energy_curves(pecfs=None, R=None):
     for i,fn in enumerate(pecfs):
         if isinstance(fn, (np.str)):
             radialcoord, potential = np.loadtxt(fn, unpack=True)
-            fn = fn.split('/')[-1]
+            fn = fn.split('/')[-1].upper()
             digits = re.findall('\d', fn)
             if len(digits) > 0:
                 degen = int(digits[0])
