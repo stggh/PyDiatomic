@@ -53,16 +53,18 @@ def cross_section(wavenumber, Xs):
     Re = wfu.real
     Im = wfu.imag
 
-    ReX = np.zeros((oo, nopen))
-    ImX = np.zeros((oo, nopen))
+    ReX = np.zeros((oo, nopen, 1))
+    ImX = np.zeros((oo, nopen, 1))
     for i in range(oo):
-        ReX[i] = (Xs.dipolemoment[i, 0] @ Re[i])*wfi[i]
-        ImX[i] = (Xs.dipolemoment[i, 0] @ Im[i])*wfi[i]
+        ReX[i] = (Xs.dipolemoment[i] @ Re[i]).T @ wfi[i]
+        ImX[i] = (Xs.dipolemoment[i] @ Im[i]).T @ wfi[i]
+        # ReX[i] = (Xs.dipolemoment[i] @ Re[i])*wfi[i]
+        # ImX[i] = (Xs.dipolemoment[i] @ Im[i])*wfi[i]
 
     xsp = np.zeros(n)  # n > nopen = max size of xs array
     for j in range(nopen):  # nopen >= 1
-        Rx = simps(ReX[:, j], Xs.us.R)
-        Ix = simps(ImX[:, j], Xs.us.R)
+        Rx = simps(ReX[:, j, 0], Xs.us.R)
+        Ix = simps(ImX[:, j, 0], Xs.us.R)
         xsp[j] = Rx**2 + Ix**2
 
     if np.any(Xs.openchann):
