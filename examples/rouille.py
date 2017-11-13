@@ -1,15 +1,27 @@
+#########################################################################
+#
+# exact O2 X-state fine-structure levels
+#    G. Rouille, G. Millot, R. Saint-Loup, and H. Berger
+#    J. Mol. Spectrosc. 154, 372-382 (1992)
+#
+# Stephen.Gibson@anu.edu.au - 14 November 2017
+#########################################################################
+
 import numpy as np
 
+
 def A_(J, B, D, H, lamb, lambdap, lambdapp, mu, mup, mupp, muppp):
-    return (2*J + 1)*(B - 2*D*(J*J + J+1) +\
-           H*(3*J**4 + 6*J**3 + 12*J*J +10*J + 4) -mu/2 - \
-           mup*(J*J + J + 4)/2 -mupp*(J**4 + 2*J**3 + 13*J*J + 12*J + 8)/2 +\
-           3*muppp/2) - (lamb + lambdap*(7*J*J + 7*J + 4)/3 +\
+    return (2*J + 1)*(B - 2*D*(J*J + J+1) +
+           H*(3*J**4 + 6*J**3 + 12*J*J + 10*J + 4) - mu/2 -
+           mup*(J*J + J + 4)/2 - mupp*(J**4 + 2*J**3 + 13*J*J + 12*J + 8)/2 +
+           3*muppp/2) - (lamb + lambdap*(7*J*J + 7*J + 4)/3 +
            lambdapp*(11*J**4 + 22*J**3 + 39*J*J + 28*J + 8)/3)/(2*J + 1)
 
+
 def D_(J, lamb, lambdap, lambdapp):
-    return (lamb + lambdap*(J*J + J + 1) +\
+    return (lamb + lambdap*(J*J + J + 1) +
             lambdapp*(J**4 + 2*J**3 + 7*J*J + 6*J + 2))*2/(2*J + 1)
+
 
 def F13split(J, B, D, H, lamb, lambdap, lambdapp, mu, mup, mupp, muppp):
     a = A_(J, B, D, H, lamb, lambdap, lambdapp, mu, mup, mupp, muppp)
@@ -17,11 +29,13 @@ def F13split(J, B, D, H, lamb, lambdap, lambdapp, mu, mup, mupp, muppp):
 
     return np.sqrt(a*a + J*(J+1)*d*d)
 
+
 def F2level(J, B, D, H, lamb, lambdap, lambdapp, mu, mup, mupp, muppp):
     x = J*(J+1)
 
     return B*x - D*x*x + H*x*x*x + 2*lamb/3 + 2*lambdap*x/3 +\
-           2*lambdapp*x*x/3 - mu - mup*x -mupp*x*x + muppp
+           2*lambdapp*x*x/3 - mu - mup*x - mupp*x*x + muppp
+
 
 def F13av(J, B, D, H, lamb, lambdap, lambdapp, mu, mup, mupp, muppp):
     return B*(J*J + J+1) - D*(J**4 + 2*J**3 + 7*J*J + 6*J + 2) +\
@@ -29,8 +43,9 @@ def F13av(J, B, D, H, lamb, lambdap, lambdapp, mu, mup, mupp, muppp):
            lamb/3 - lambdap*(J*J + J+4)/3 -\
            lambdapp*(J**4 + 2*J**3 + 13*J*J + 12*J + 8)/3 - 1.5*mu -\
            mup*(7*J*J + 7*J + 4)/2 -\
-           mupp*(11*J**4 + 22*J**3 + 39*J*J +28*J + 8)/2 +\
+           mupp*(11*J**4 + 22*J**3 + 39*J*J + 28*J + 8)/2 +\
            muppp*(2*J*J + 2*J + 5)/2
+
 
 def rouille_(v, N, J):
     offset = 1.3316
@@ -63,10 +78,10 @@ def rouille_(v, N, J):
                  mu[v], mup[v], mupp[v], muppp[v])
     F13 = F13av(J, B[v], D[v], H[v], lamb[v], lambdap[v], lambdapp[v], mu[v],
                 mup[v], mupp[v], muppp[v])
-    if J==0 and N==1:
-       return V[v] - 1.08574398
-    else: 
-       return V[v] + F13 + x*(f-2) - offset
+    if J == 0 and N == 1:
+        return V[v] - 1.08574398
+    else:
+        return V[v] + F13 + x*(f-2) - offset
 
 if __name__ == "__main__":
     F = np.zeros(4)
