@@ -47,7 +47,7 @@ def F13av(J, B, D, H, lamb, lambdap, lambdapp, mu, mup, mupp, muppp):
            muppp*(2*J*J + 2*J + 5)/2
 
 
-def rouille_(v, N, J):
+def rouille(v, N, J):
     offset = 1.3316
     V = np.array([0, 1556.38991, 1532.86724, 1509.5275])
     B = np.array([1.437676476, 1.42186454, 1.4061199, 1.390425])
@@ -88,9 +88,9 @@ if __name__ == "__main__":
     print(" N      F1          F2         F3")
     for v in range(1):
         for N in range(1, 100, 2):
-            F[2] = rouille_(v, N, N)
+            F[2] = rouille(v, N, N)
             for J in range(N-1, N+2, 2):
                 f = N - J + 2
-                F[f] = rouille_(v, N, J)
+                F[f] = rouille(v, N, J)
             print("{:2d} {:10.5f} {:10.5f} {:10.5f}"
                   .format(N, F[1], F[2], F[3]))
