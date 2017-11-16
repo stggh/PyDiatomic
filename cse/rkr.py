@@ -133,7 +133,7 @@ def formPEC(R, Rmin, Rmax, E, De, limb):
     if limb == 'L':
         outer_limb_LeRoy(R, PEC, RTP, PTP, De)
     else:
-        outer_limb_Morse(R, PEC, RTP, PTP, De)
+        outer_limb_Morse(R, PEC, RTP, PTP, De, Re)
 
     PTP /= evcm
     PEC /= evcm  # convert to eV
@@ -155,7 +155,7 @@ def inner_limb_Morse(R, P, RTP, PTP, Re, De):
           format(R[0], r, De, Re, beta))
 
 
-def outer_limb_Morse(R, P, RTP, PTP, De):
+def outer_limb_Morse(R, P, RTP, PTP, De, Re):
     l1 = np.log(1 - np.sqrt(PTP[-1]/De))
     l2 = np.log(1 - np.sqrt(PTP[-2]/De))
     re = (l2*RTP[-1]-l1*RTP[-2])/(l2-l1)
