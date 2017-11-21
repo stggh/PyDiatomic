@@ -71,7 +71,7 @@ class Cse():
             self.solve(en, self.rot)
 
     def set_mu(self, mu):
-        self.mu = cse_setup.reduced_mass(mu)
+        self.mu, self.molecule = cse_setup.reduced_mass(mu)
 
     def set_coupling(self, coup):
         self.VT = cse_setup.coupling_function(self.R, self.VT, self.mu,
@@ -122,6 +122,29 @@ class Cse():
             A[i][diag] = w
 
         self.AT = np.transpose(A)
+
+    def __repr__(self):
+        n = self.limits[1]
+        about = '\n' + "Molecule: {}".format(self.molecule)
+        about += "  mass: {:g} kg\n".format(self.mu)
+        about += "Electronic state{:s}:"\
+                 .format('s' if n > 1 else '')
+        for fn in self.pecfs:
+            about += " {:s}".format(fn)
+        about += '\n'
+        if n > 1:
+            about += "Coupling at R = {:g} Angstroms (cm-1):"\
+                     .format(self.R[240])
+            for i in range(n):
+                for j in range(i+1, n):
+                    about += " {:g}".format(self.VT[i, j, 240]*8065.541)
+        try:
+            about += "Eigenvalue: {:g} cm-1,  v = {:d}, Bv = {:8.5f} cm-1"\
+                     .format(self.cm, self.vib, self.Bv)
+        except AttributeError:
+            pass
+        
+        return about
 
 
 class Xs():
@@ -233,3 +256,6 @@ class Xs():
                 state.VT = np.transpose(V)
                 oo = len(state.R)
                 state.limits = (oo, n, Rm, Rx, Vm, Vx)
+
+    def __repr__(self):
+        return  self.gs.__repr__() + '\n' + self.us.__repr__()

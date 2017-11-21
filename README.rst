@@ -127,22 +127,55 @@ A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg
    :width: 300px
    :alt: calculated cross section
    
-   Example calculated cross section
 
-
-See also `examples/example_O2xs.py`, `example_O2_continuity.py`, `example_HO.py`, and `example_rkr.py`:
+`example_O2xs.py`:
 
 .. figure:: https://cloud.githubusercontent.com/assets/10932229/21469131/6318abfa-ca8f-11e6-8967-c3e6a16054fc.png
    :width: 300px
    :alt: example_O2xs
 
+
+`example_O2_continuity.py`:
+
 .. figure:: https://user-images.githubusercontent.com/10932229/30096079-b869e486-9319-11e7-8adb-3ae64bff88d4.png
    :width: 300px
    :alt: example_O2_continuity
 
+
+`example_O2X_fine_structure.py`:
+
+.. code-block:: python
+    PyDiatomic O2 X-state fine-structure levels
+      energy diffences (cm-1): Rouille - PyDiatomic
+     N        F1          F2          F3
+     1      -0.000       0.000       0.000
+     3      -0.005       0.000       0.009
+     5      -0.009       0.000       0.013
+     7      -0.013       0.000       0.017
+     9      -0.017       0.000       0.022
+    11      -0.021       0.000       0.026
+    13      -0.025       0.000       0.030
+    15      -0.029      -0.000       0.034
+    17      -0.033      -0.000       0.039
+    19      -0.037      -0.000       0.043
+    21      -0.041      -0.000       0.047
+
+
+`example_O2_SRB4.py`:
+
+.. figure:: https://user-images.githubusercontent.com/10932229/33054465-7094c0f0-cecd-11e7-99c1-4f14c4ffad48.png
+   :width: 300px
+   :alt: example_O2_SRB4
+
+
+`example_HO.py`:
+
 .. figure:: https://user-images.githubusercontent.com/10932229/30100890-b3195eee-932d-11e7-9480-fec2af23f6ff.png
    :width: 300px
    :alt: example_HO
+
+
+`example_rkr.py`:
 
 .. figure:: https://cloud.githubusercontent.com/assets/10932229/21469152/a33fd798-ca90-11e6-8fe3-1f3c3364de26.png
    :width: 300px
@@ -202,18 +235,21 @@ in the calculation of diatomic photodissociation spectra.
 
 More sophisticated C and Fortran implementations have been in use for a number 
 of years, see references below. These were developed by Stephen Gibson (ANU),
-Brenton Lewis (ANU), and Alan Heays (ANU and Leiden). 
+Brenton Lewis (ANU), and Alan Heays (ANU, Leiden, and ASU). 
 
 
-Reference
----------
+References
+----------
 
 [1] `B.R. Johnson "The renormalized Numerov method applied to calculating the bound states of the coupled-channel Schroedinger equation" J. Chem. Phys. 69, 4678 (1978) <http://dx.doi.org/10.1063/1.436421>`_
 
 [2] `B.R. Lewis, S.T. Gibson, F. T. Hawes, and L. W. Torop "A new model for
 the Schumann-Runge bands of O2" Phys. Chem. Earth(C) 26 519 (2001) <http://dx.doi.org/10.1016/S1464-1917(01)00040-X>`_
 
-[3] `A. N. Heays "Photoabsorption and photodissociation in molecular nitrogen, PhD Thesis (2011) <https://digitalcollections.anu.edu.au/handle/1885/7360>`_
+[3] `B.R. Lewis, S.T. Gibson, and P.M. Dooley "Fine-structure dependence of predissociation linewidth in the Schumann-Runge bands of molecular oxygen"
+" J. Chem. Phys. 100 7012 (1994) <https://doi.org/10.1063/1.466902>`_
+
+[4] `A. N. Heays "Photoabsorption and photodissociation in molecular nitrogen, PhD Thesis (2011) <https://digitalcollections.anu.edu.au/handle/1885/7360>`_
 
 
 Citation

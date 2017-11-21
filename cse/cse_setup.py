@@ -46,20 +46,28 @@ def reduced_mass(amu=None):
         'S34O16': 10.78435767,
         'U' : 2.0   # unknown/unimportant
         }
+    molecule = 'unknown'
     if amu is None: 
         mus = input ("CSE: reduced mass a.u. [O2=7.99745751]: ")
         if mus in amus.keys():
+            molecule = mus
             amu = amus[mus]
         else:
             amu = float(mus) if len(mus) > 0 else 7.99745751
+            molecule = 'O2'
     elif amu in amus.keys():
+        molecule = amu
         amu = amus[amu] 
     else:
         # atomic mass given
         if amu < 1.0e-20:
-            return amu   # already in kg
+            amu /= const.u
+        for k, v in amus.items():
+            if np.abs(amu-v) < 0.1:
+                molecule = k
+                break
 
-    return amu*const.m_u
+    return amu*const.u, molecule
 
 
 def potential_energy_curves(pecfs=None, R=None):
