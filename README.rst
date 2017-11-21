@@ -145,6 +145,7 @@ A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg
 `example_O2X_fine_structure.py`:
 
 .. code-block:: python
+
     PyDiatomic O2 X-state fine-structure levels
       energy diffences (cm-1): Rouille - PyDiatomic
      N        F1          F2          F3
@@ -159,6 +160,7 @@ A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg
     17      -0.033      -0.000       0.039
     19      -0.037      -0.000       0.043
     21      -0.041      -0.000       0.047
+
 
 
 `example_O2_SRB4.py`:
