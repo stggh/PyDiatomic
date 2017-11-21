@@ -5,7 +5,7 @@ import scipy.constants as const
 from scipy import linalg
 from scipy.optimize import leastsq
 from scipy.integrate.quadrature import simps
-from scipy.special import sph_jn, sph_yn
+from scipy.special import spherical_jn, spherical_yn
 
 ##############################################################################
 #  PyDiatomic - solve the coupled-channel time-independent Schrödinger equation
@@ -313,11 +313,11 @@ def amplitude(wf, R, edash, mu):
         kex1 = ke*x1
         kex2 = ke*x2
 
-        j1 = sph_jn(0, kex1)[0]*x1*rtk*zz
-        y1 = sph_yn(0, kex1)[0]*x1*rtk*zz
+        j1 = spherical_jn(0, kex1)[0]*x1*rtk*zz
+        y1 = spherical_yn(0, kex1)[0]*x1*rtk*zz
 
-        j2 = sph_jn(0, kex2)[0]*x2*rtk*zz
-        y2 = sph_yn(0, kex2)[0]*x2*rtk*zz
+        j2 = spherical_jn(0, kex2)[0]*x2*rtk*zz
+        y2 = spherical_yn(0, kex2)[0]*x2*rtk*zz
 
         det = j1*y2 - j2*y1
 
