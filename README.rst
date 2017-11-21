@@ -130,7 +130,7 @@ A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg
 
 `example_O2xs.py`:
 
-.. figure:: https://cloud.githubusercontent.com/assets/10932229/33101884-53a8ab68-cf6e-11e7-86f2-876d28809328.png
+.. figure:: https://user-images.githubusercontent.com/10932229/33101884-53a8ab68-cf6e-11e7-86f2-876d28809328.png
    :width: 300px
    :alt: example_O2xs
 
