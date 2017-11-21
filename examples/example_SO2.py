@@ -76,13 +76,13 @@ if __name__ == "__main__":
                            .format(lamab[i]), fontsize=12)
             plt.tick_params(axis='y', left='off', right='off', labelleft='off')
             plt.tick_params(axis='x', labelbottom='off')
-            plt.plot(q3, SO2.VT[0, 0], 'r--', label='Diabats')
-            plt.plot(q3, SO2.VT[1, 1], 'r--')
-            plt.plot(q3, SO2.VT[2, 2], 'r--')
+            plt.plot(q3, SO2.VT[0, 0], 'C0--', label='Diabats')
+            plt.plot(q3, SO2.VT[1, 1], 'C0--')
+            plt.plot(q3, SO2.VT[2, 2], 'C0--')
 
-            plt.plot(q3, SO2.AT[0, 0], 'b-', label='Adiabats')
-            plt.plot(q3, SO2.AT[1, 1], 'b-')
-            plt.plot(q3, SO2.AT[2, 2], 'b-')
+            plt.plot(q3, SO2.AT[0, 0], 'C1-', label='Adiabats')
+            plt.plot(q3, SO2.AT[1, 1], 'C1-')
+            plt.plot(q3, SO2.AT[2, 2], 'C1-')
             plt.title(r"$D_{{ab}}$ = {:.0f}{}".format(Dab[j],
                       "             " if i == 2 else ''), fontsize=12)
             if i == nl-1:  # bottom row
@@ -92,7 +92,7 @@ if __name__ == "__main__":
             ax.set_aspect(1.0/1500)
 
     leg = plt.legend(labelspacing=0.1, bbox_to_anchor=(1.05, 3.8), fontsize=12)
-    col = ['r', 'b']
+    col = ['C0', 'C1']
     for i, text in enumerate(leg.get_texts()):
         plt.setp(text, color=col[i])
 

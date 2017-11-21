@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 #################################################################
 # Rydberg-Klein-Rees evaluation of a potential energy curve
 # from spectroscopic constants
@@ -15,8 +10,9 @@ from __future__ import unicode_literals
 #################################################################
 
 
-import cse
 import numpy as np
+import cse
+
 import scipy.constants as const
 from scipy.interpolate import splrep, splev
 import matplotlib.pyplot as plt
@@ -44,8 +40,8 @@ limb = input("RKR: Outer-limb LeRoy(L) or Morse(M) [L]: ")
 if limb == '':
     limb = 'L'
 
-R, PEC, RTP, PTP = cse.rkr(mu, vv, Gv, Bv, De, limb, dv=0.1,
-                           Rgrid=np.arange(0.005, 10.004, 0.005))
+R, PEC, RTP, PTP = cse.tools.RKR.rkr(mu, vv, Gv, Bv, De, limb, dv=0.1,
+                                     Rgrid=np.arange(0.005, 10.004, 0.005))
 
 data = np.column_stack((R.T, PEC.T))
 np.savetxt("data/RKR.dat", data)

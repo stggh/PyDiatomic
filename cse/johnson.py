@@ -313,11 +313,11 @@ def amplitude(wf, R, edash, mu):
         kex1 = ke*x1
         kex2 = ke*x2
 
-        j1 = spherical_jn(0, kex1)[0]*x1*rtk*zz
-        y1 = spherical_yn(0, kex1)[0]*x1*rtk*zz
+        j1 = spherical_jn(0, kex1)*x1*rtk*zz
+        y1 = spherical_yn(0, kex1)*x1*rtk*zz
 
-        j2 = spherical_jn(0, kex2)[0]*x2*rtk*zz
-        y2 = spherical_yn(0, kex2)[0]*x2*rtk*zz
+        j2 = spherical_jn(0, kex2)*x2*rtk*zz
+        y2 = spherical_yn(0, kex2)*x2*rtk*zz
 
         det = j1*y2 - j2*y1
 

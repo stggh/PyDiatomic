@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 R = np.arange(0.5, 3.5, 0.005)
 
 # simulates O2 X-state
-VM = cse.analytical.Morse(r=R, re=1.21, De=5.21, Te=0.0, beta=2.65)
+VM = cse.tools.analytical.Morse(r=R, re=1.21, De=5.21, Te=0.0, beta=2.65)
 
 # PyDiatomic Cse class
 morse = cse.Cse(mu='O2', VT=[(R, VM)])

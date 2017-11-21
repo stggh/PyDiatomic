@@ -33,8 +33,8 @@ print("Bv={:8.5f}, slope={:9.7f}+-{:8.7f}, intercept={:9.7f}+-{:8.7f}"
       .format(B0, slope, sd_slope, intercept, sd_intercept))
 
 
-plt.plot(JJ, EJ, 'ob')
-plt.plot(JJ, intercept+slope*JJ, 'r-')
+plt.plot(JJ, EJ, 'oC0')
+plt.plot(JJ, intercept+slope*JJ, 'C1-')
 plt.xlabel("$J(J+1)$")
 plt.ylabel("energy (cm$^{-1}$)")
 plt.annotate("{:8.3f} + {:8.3f}J(J+1)".format(intercept, slope),

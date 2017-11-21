@@ -33,8 +33,8 @@ t0 = time.time()
 X.calculate_xs(transition_energy=wavelength)
 print("CSE: ...  in {:.2g} seconds".format(time.time()-t0))
 
-print('CSE: E(v"={:d}) = {:.2f} cm-1, {:.3g} eV'.format(X.gs.node_count(),
-                                                   X.gs.cm, X.gs.energy))
+print('CSE: E(v"={:d}) = {:.2f} cm-1, {:.3g} eV'.format(X.gs.vib, X.gs.cm,
+                                                        X.gs.energy))
 
 # graphics ---------------------------------------
 ax0 = plt.subplot2grid((2, 4), (0, 0), colspan=2, rowspan=2)
