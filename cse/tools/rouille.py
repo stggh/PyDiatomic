@@ -46,6 +46,26 @@ def F13av(J, B, D, H, lamb, lambdap, lambdapp, mu, mup, mupp, muppp):
 
 
 def rouille(v, N, J):
+    """ O2 X-state fine-structure energies Rouille et al. 
+        J. Mol. Spectrosc. 154, 372-382 (1992).
+
+    Parameters
+    ----------
+    v : int
+        vibrational quantum number
+    N : int
+        rotational quantum number excluding spin
+    J : int
+        total rotational quantum number
+
+    Note: J = N - F + 2, where F = Hund's case(b) fine-structure level
+    
+    Returns
+    -------
+    energy : float
+        energy in cm-1 of level, refenced to non-existent level N=0, J=0
+    """
+ 
     V = [0.0, 1556.36103, 3089.17317, 4598.76637, 6085.10234,
          7548.36948, 8988.7386]
     B = [1.43767953, 1.42186007, 1.40612292, 1.39042964,
