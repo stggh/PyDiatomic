@@ -42,7 +42,7 @@ def honl(Jd, Jdd, Od, Odd):
     Honl-London factor : float
     """
      
-    return (2*Jdd + 1)*wigner.Wigner3j(Jd, 1, Jdd, -Od, 0, Odd)**2
+    return (2*Jdd + 1)*Wigner3j(Jd, 1, Jdd, -Od, 0, Odd)**2
 
 
 def Wigner3j(j1, j2, j3, m1, m2, m3):
