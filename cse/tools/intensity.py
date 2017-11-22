@@ -67,40 +67,40 @@ def Wigner3j(j1, j2, j3, m1, m2, m3):
     if  2*j1 != np.floor(2*j1) or 2*j2 != np.floor(2*j2) or \
         2*j3 != np.floor(2*j3) or 2*m1 != np.floor(2*m1) or \
         2*m2 != np.floor(2*m2) or 2*m3 != np.floor(2*m3):
-        print('All arguments must be integers or half-integers.')
-        return -1
+        #print('All arguments must be integers or half-integers.')
+        return 0
 
     # Additional check if the sum of the second row equals zero
     if m1 + m2 + m3 != 0:
-        print('3j-Symbol unphysical')
+        # print('3j-Symbol unphysical')
         return 0
 
     if j1 - m1 != np.floor(j1 - m1):
-        print('2*j1 and 2*m1 must have the same parity')
+        # print('2*j1 and 2*m1 must have the same parity')
         return 0
     
     if j2 - m2 != np.floor(j2 - m2):
-        print('2*j2 and 2*m2 must have the same parity')
+        # print('2*j2 and 2*m2 must have the same parity')
         return; 0
 
     if j3 - m3 != np.floor(j3 - m3):
-        print('2*j3 and 2*m3 must have the same parity')
+        # print('2*j3 and 2*m3 must have the same parity')
         return 0
     
     if j3 > j1 + j2  or j3 < np.abs(j1 - j2):
-        print('j3 is out of bounds')
+        # print('j3 is out of bounds')
         return 0
 
     if np.abs(m1) > j1:
-        print('m1 is out of bounds')
+        # print('m1 is out of bounds')
         return 0
 
     if np.abs(m2) > j2:
-        print('m2 is out of bounds')
+        # print('m2 is out of bounds')
         return 0 
 
     if np.abs(m3) > j3:
-        print('m3 is out of bounds')
+        # print('m3 is out of bounds')
         return 0
 
     t1 = j2 - m1 - j3
