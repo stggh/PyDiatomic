@@ -4,6 +4,5 @@ from . import cse
 from .tools import analytical
 from .tools.rouille import rouille
 from .tools.RKR import rkr
-# take out due to sympy dependence
-#from .tools.intensity import Boltzmann, honl
+from .tools.intensity import Boltzmann, honl, Wigner3j
 from .cse import Cse, Xs

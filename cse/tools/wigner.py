@@ -1,49 +1,4 @@
 import numpy as np
-import scipy.constants as const
-from scipy.misc import factorial
-
-
-def Boltzmann(en, J, T):
-    """ Boltzmann factor  (2J+1) exp(-E/kT).
-
-    Parameters
-    ----------
-    en : float
-        energy in cm-1 of level
-    J : int
-        rotational quantum number
-    T : float
-        temperature
-    
-    Returns
-    -------
-    Boltzmann factor : float
-    """
-
-    return (2*J + 1)*np.exp(-en*const.h*const.c*100/const.k/T)
-
-
-def honl(Jd, Jdd, Od, Odd):
-    """ Honl-London factor.
-
-    Parameters
-    ----------
-    Jd : int
-        upperstate total angular momentum quantum number
-    Jdd : int
-        lowerstate total angular momentum quantum number
-    Od : int
-        upperstate Omega, projection of Jd
-    Odd : int
-        lowerstate Omega, projection of Jdd
-
-    Returns
-    -------
-    Honl-London factor : float
-    """
-     
-    return (2*Jdd + 1)*wigner.Wigner3j(Jd, 1, Jdd, -Od, 0, Odd)**2
-
 
 def Wigner3j(j1, j2, j3, m1, m2, m3):
 #======================================================================
@@ -116,12 +71,12 @@ def Wigner3j(j1, j2, j3, m1, m2, m3):
     wigner = 0
 
     for t in tvec:
-        wigner += (-1)**t / (factorial(t) * factorial(t-t1) * 
-                             factorial(t-t2) * factorial(t3-t) * 
-                             factorial(t4-t) * factorial(t5-t))
+        wigner += (-1)**t / (np.factorial(t) * np.factorial(t-t1) * 
+                             np.factorial(t-t2) * np.factorial(t3-t) * 
+                             np.factorial(t4-t) * np.factorial(t5-t))
 
-    return wigner * (-1)**(j1-j2-m3) * np.sqrt(factorial(j1+j2-j3) * 
-           factorial(j1-j2+j3) * factorial(-j1+j2+j3) / 
-           factorial(j1+j2+j3+1) * factorial(j1+m1) * 
-           factorial(j1-m1) * factorial(j2+m2) * factorial(j2-m2) *
-           factorial(j3+m3) * factorial(j3-m3) )
+    return wigner * (-1)**(j1-j2-m3) * np.sqrt(np.factorial(j1+j2-j3) * 
+           np.factorial(j1-j2+j3) * np.factorial(-j1+j2+j3) / 
+           np.factorial(j1+j2+j3+1) * np.factorial(j1+m1) * 
+           np.factorial(j1-m1) * np.factorial(j2+m2) * np.factorial(j2-m2) *
+           np.factorial(j3+m3) * np.factorial(j3-m3) )
