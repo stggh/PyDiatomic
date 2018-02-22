@@ -41,8 +41,8 @@ O2bands = cse.Xs(mu='O2', VTi=['potentials/X3S-1.dat'], eni=800,
                      dipolemoment=['transitionmoments/dipole_b_valence.dat'])
 
 # transition energies may also be determined from the next 2 lines 
-# O2bands.us.levels()
-# bands = O2bands.us.energies - O2bands.gs.cm
+#  O2bands.us.levels()
+#  bands = sorted([i[0] for i in O2bands.us.calc.values()]) - O2bands.gs.cm  # transition energies (cm-1)
 
 lb = len(bands)
 vib = np.arange(lb)
