@@ -16,8 +16,9 @@ bands = [49357, 50045, 50710, 51352, 51968, 52560, 53123, 53655,
          56720, 56853, 56955, 57032, 57087, 57121]
 
 # alternatively evaluate transition energies via calculation
-#  O2.us.levels(vmax=21) #  B-state energy levels (cm-1)
-#  bands = sorted([i[0] for i in O2.us.calc.values()]) - O2.gs.cm  # transition energies (cm-1)
+# O2.us.levels(vmax=21) #  B-state energy levels (cm-1)
+# print(O2.us)  # view levels
+# bands = np.array(sorted([i[0] for i in O2.us.calc.values()])) - O2.gs.cm  # transition energies (cm-1)
 
 O2.calculate_xs(transition_energy=bands)
 osc = O2.xs

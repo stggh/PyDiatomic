@@ -33,7 +33,7 @@ class Cse():
     energy : float
         eigenvalue energy in eV
     calc : dict
-        single state calculation results  {vib: (energy, Bv)} in cm-1
+        single state calculation results  {vib: (energy, Bv, Jrot)} in cm-1
         (see also class representation)
     limits : tuple
         array sizes: (oo, n, Rmin, Rmax, Vmin, Te)
@@ -74,7 +74,7 @@ class Cse():
         if np.any(zeros):
             self.R[zeros] = 1.0e-16
 
-        self.calc = {}  # store results
+        self.calc = {}  # store results for single bound channel
         if en > 0:
             self.solve(en, self.rot)
 
@@ -101,10 +101,9 @@ class Cse():
             if self.energy < self.VT[0][0][-1]:
                 self.node_count()
                 self.Bv = expectation.Bv(self)
-                self.calc[self.vib] = (self.cm, self.Bv)
+                self.calc[self.vib] = (self.cm, self.Bv, self.rot)  # keep
             else:
                 self.vib = -1
-
 
     def node_count(self):
         V = self.VT[0][0][:np.shape(self.wavefunction)[0]]
@@ -118,7 +117,6 @@ class Cse():
 
         self.vib = vib
         return vib
-
 
     def levels(self, vmax=None, ntrial=5, exact=True):
         """ Evaluate the vibrational energies of a potential energy curve.
@@ -139,11 +137,8 @@ class Cse():
 
         Returns
         -------
-        energies : numpy 1D array
-           eigenvalues (cm-1) for v = 0, ..., vmax
-
-        Bvs : numpy 1D array
-           rotational constants (cm-1)
+        calc : dict of solutions
+            attribute .calc = {vib: (energy, Bv, rot)}
 
         """
         V = np.transpose(self.VT[0][0])
@@ -152,7 +147,7 @@ class Cse():
                               V[-1]*self._evcm-10, ntrial):
             self.solve(en)
             if vmax is not None and self.vib > vmax and len(self.calc) > 3:
-               break  # don't waste time
+                break  # don't waste time
 
         maxv = max(list(self.calc.keys()))
         if vmax is None:
@@ -171,12 +166,14 @@ class Cse():
         splB = interpolate.interp1d(vib, Bv, kind='cubic')
 
         for vi in v:
-            self.calc[vi] = (float(spl(vi)), float(splB(vi)))
+            self.calc[vi] = (float(spl(vi)), float(splB(vi)), self.rot)
 
         if exact:
+            if vmax > 10:
+               print('solutions for v = 0, ..., {:d}'.format(vmax),
+                     ' may take some time to evaluate ...')
             for en, Bv in list(self.calc.items()):
                 self.solve(en)
-
 
     def diabatic2adiabatic(self):
         """ Convert diabatic interaction matrix to adiabatic (diagonal)
@@ -210,11 +207,11 @@ class Cse():
 
         if len(self.calc) > 0:
             about += "eigenvalues (that have been evaluated for this state):\n"
-            about += " v    energy(cm-1)    Bv(cm-1)\n"
+            about += " v  rot   energy(cm-1)    Bv(cm-1)\n"
             vib = sorted(list(self.calc.keys()))
-            for v in vib: 
-                about += "{:2d}    {:10.3f}     {:8.5f}\n"\
-                         .format(v, self.calc[v][0], self.calc[v][1])
+            for v in vib:
+                about += "{:2d}  {:2d}  {:10.3f}     {:8.5f}\n".format(v,
+                          self.calc[v][2], self.calc[v][0], self.calc[v][1])
 
         return about
 
