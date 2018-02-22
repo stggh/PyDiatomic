@@ -18,10 +18,6 @@ class Cse():
 
     Attributes
     ----------
-    Bv : float
-        evaluated rotational constant (if single wavefunction)
-    Bvs : float array
-        rotational constans v = 0, ..., vmax (from self.levels(vmax))
     R  : float array
         internuclear distance grid
         If `R=None` set to `numpy.arange(Rmin, Rmax+dR/2, dR)`
@@ -30,12 +26,15 @@ class Cse():
     VT : numpy 3d array
         transpose of the potential curve and couplings array
         Note: potential curves spline interpolated to grid `R`
+    Bv : float
+        evaluated rotational constant (if single wavefunction)
     cm : float
         eigen energy in cm-1 (from method solve)
     energy : float
         eigenvalue energy in eV
-    energies : numpy float array
-        eigenvalues v = 0, ..., vmax (from self.levels())
+    calc : dict
+        single state calculation results  {vib: (energy, Bv)} in cm-1
+        (see also class representation)
     limits : tuple
         array sizes: (oo, n, Rmin, Rmax, Vmin, Te)
     mu : float
@@ -75,6 +74,7 @@ class Cse():
         if np.any(zeros):
             self.R[zeros] = 1.0e-16
 
+        self.calc = {}  # store results
         if en > 0:
             self.solve(en, self.rot)
 
@@ -95,14 +95,16 @@ class Cse():
         self.wavefunction, self.energy, self.openchann = \
             johnson.solveCSE(self, en)
 
+        self.cm = self.energy*self._evcm
+
         if self.limits[1] == 1:
             if self.energy < self.VT[0][0][-1]:
                 self.node_count()
                 self.Bv = expectation.Bv(self)
+                self.calc[self.vib] = (self.cm, self.Bv)
             else:
                 self.vib = -1
 
-        self.cm = self.energy*self._evcm
 
     def node_count(self):
         V = self.VT[0][0][:np.shape(self.wavefunction)[0]]
@@ -116,6 +118,7 @@ class Cse():
 
         self.vib = vib
         return vib
+
 
     def levels(self, vmax=None, ntrial=5, exact=True):
         """ Evaluate the vibrational energies of a potential energy curve.
@@ -144,34 +147,36 @@ class Cse():
 
         """
         V = np.transpose(self.VT[0][0])
-        Te = V.min()
-        Too = V[-1]
-        trial = np.linspace(Te*self._evcm+100, Too*self._evcm-10, ntrial)
 
-        actual = []
-        vib = []
-        Bv = []
-        for en in trial:
+        for en in np.linspace(V.min()*self._evcm+100,
+                              V[-1]*self._evcm-10, ntrial):
             self.solve(en)
-            actual.append(self.cm)
-            vib.append(self.vib)
-            Bv.append(self.Bv)
+            if vmax is not None and self.vib > vmax and len(self.calc) > 3:
+               break  # don't waste time
 
+        maxv = max(list(self.calc.keys()))
         if vmax is None:
-            vmax = vib[-1]
+            vmax = maxv
+        else:
+            vmax = min(maxv, vmax)  # no extrapolation
+
+        # interpolate calculation
         v = np.arange(vmax+1)
 
-        spl = interpolate.interp1d(vib, actual, kind='cubic')
-        self.energies = spl(v)
+        vib = sorted(self.calc.keys())
+        actual = [self.calc[vi][0] for vi in vib]
+        Bv = [self.calc[vi][1] for vi in vib]
 
+        spl = interpolate.interp1d(vib, actual, kind='cubic')
         splB = interpolate.interp1d(vib, Bv, kind='cubic')
-        self.Bvs = splB(v)
+
+        for vi in v:
+            self.calc[vi] = (float(spl(vi)), float(splB(vi)))
 
         if exact:
-            for level, en in enumerate(self.energies):
+            for en, Bv in list(self.calc.items()):
                 self.solve(en)
-                self.energies[level] = self.cm
-                self.Bvs[level] = self.Bv
+
 
     def diabatic2adiabatic(self):
         """ Convert diabatic interaction matrix to adiabatic (diagonal)
@@ -203,23 +208,13 @@ class Cse():
                 for j in range(i+1, n):
                     about += " {:g}".format(self.VT[i, j, 240]*8065.541)
 
-        done = False
-        try:
-            e0 = self.energies[0]
-            about += "Eigenvalues:  v    energy(cm-1)    Bv(cm-1)\n"
-            for v, en in enumerate(self.energies):
-                about += "             {:2d}    {:10.3f}     {:8.5f}\n"\
-                         .format(v, en, self.Bvs[v])
-            done = True
-        except AttributeError:
-            pass
-
-        if not done:
-            try:
-                about += "Eigenvalue: {:g} cm-1,  v = {:d}, Bv = {:8.5f} cm-1"\
-                         .format(self.cm, self.vib, self.Bv)
-            except AttributeError:
-                pass
+        if len(self.calc) > 0:
+            about += "eigenvalues (that have been evaluated for this state):\n"
+            about += " v    energy(cm-1)    Bv(cm-1)\n"
+            vib = sorted(list(self.calc.keys()))
+            for v in vib: 
+                about += "{:2d}    {:10.3f}     {:8.5f}\n"\
+                         .format(v, self.calc[v][0], self.calc[v][1])
 
         return about
 

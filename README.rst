@@ -57,33 +57,52 @@ requested if required.
    # CSE: potential energy curves [X3S-1.dat]:
    X.solve(800)    # solves TISE for energy ~ 800 cm-1
    # attributes
-   # X.Bv                   X.mu                   X.set_mu
-   # X.R                    X.node_count           X.solve
-   # X.VT                   X.pecfs                X.vib
-   # X.cm                   X.rot                  X.wavefunction
-   # X.energy               X.rotational_constant  
-   # X.limits               X.set_coupling       
+   #     AM                   limits               rot                  
+   #     Bv                   molecule             set_coupling()       
+   #     calc                 mu                   set_mu()             
+   #     cm                   node_count()         solve()              
+   #     diabatic2adiabatic() openchann            vib                  
+   #     energy               pecfs                VT                   
+   #     levels()             R                    wavefunction         
    X.cm
    # 787.3978354211097
    X.vib
    # 0
+   X.calc
+   # {0: (787.3981436364634, 1.4376793143458806)}   {vib: (eigenvalue, Bv}
+   X  # class representation
+   # Molecule: O2  mass: 1.32801e-26 kg
+   # Electronic state: X3S-1.dat
+   # eigenvalues (that have been evaluated for this state):
+   # v    energy(cm-1)    Bv(cm-1)
+   # 0       787.398      1.43768
+
 
 .. code-block:: python
 
    import cse
    X = cse.Cse('O2', VT=['X3S-1.dat'])
    X.levels(vmax=5)  # evaluates energy levels for v=0, .., vmax
-                     # attributes .energies, .Bvs
+                     # attribute .calc
    X  # class representation
    # Molecule: O2  mass: 1.32801e-26 kg
    # Electronic state: X3S-1.dat
-   # Eigenvalues:  v    energy(cm-1)    Bv(cm-1)
-   #               0       787.398      1.43768
-   #               1      2343.763      1.42186
-   #               2      3876.577      1.40612
-   #               3      5386.169      1.39043
-   #               4      6872.504      1.37478
-   #               5      8335.767      1.35921
+   # evaluated eigenvalues:
+   # v    energy(cm-1)    Bv(cm-1)
+   # 0       787.398      1.43768
+   # 1      2337.360      1.42051
+   # 2      3867.008      1.40407
+   # 3      5375.938      1.38823
+   # 4      6863.744      1.37288
+   # 5      8335.901      1.35919
+   # 7     11196.366      1.32867
+   # 11     16131.082      1.22378
+   # 15     21719.531      1.20443
+   # 17     24119.541      1.17186
+   # 24     31559.738      0.99627
+   # 25     32754.587      1.03787
+   # 35     40566.037      0.74300
+
 
 :class:`cse.Xs()` evaluates two couple channel problems, for an intitial 
 and final set of coupled channels, to calculate the photodissociation 
