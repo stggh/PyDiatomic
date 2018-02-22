@@ -68,6 +68,22 @@ requested if required.
    X.vib
    # 0
 
+.. code-block:: python
+
+   import cse
+   X = cse.Cse('O2', VT=['X3S-1.dat'])
+   X.levels(vmax=5)  # evaluates energy levels for v=0, .., vmax
+                     # attributes .energies, .Bvs
+   X  # class representation
+   # Molecule: O2  mass: 1.32801e-26 kg
+   # Electronic state: X3S-1.dat
+   # Eigenvalues:  v    energy(cm-1)    Bv(cm-1)
+   #               0       787.398      1.43768
+   #               1      2343.763      1.42186
+   #               2      3876.577      1.40612
+   #               3      5386.169      1.39043
+   #               4      6872.504      1.37478
+   #               5      8335.767      1.35921
 
 :class:`cse.Xs()` evaluates two couple channel problems, for an intitial 
 and final set of coupled channels, to calculate the photodissociation 
