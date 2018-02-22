@@ -15,6 +15,10 @@ bands = [49357, 50045, 50710, 51352, 51968, 52560, 53123, 53655,
          54157, 54622, 55051, 55439, 55785, 56086, 56341, 56551,
          56720, 56853, 56955, 57032, 57087, 57121]
 
+# alternatively evaluate transition energies via calculation
+#  O2.us.levels(vmax=21) #  B-state energy levels (cm-1)
+#  bands = O2.us.energies - O2.gs.cm  # transition energies (cm-1)
+
 O2.calculate_xs(transition_energy=bands)
 osc = O2.xs
 

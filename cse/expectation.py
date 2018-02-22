@@ -58,8 +58,6 @@ def cross_section(wavenumber, Xs):
     for i in range(oo):
         ReX[i] = (Xs.dipolemoment[i] @ Re[i]).T @ wfi[i]
         ImX[i] = (Xs.dipolemoment[i] @ Im[i]).T @ wfi[i]
-        # ReX[i] = (Xs.dipolemoment[i] @ Re[i])*wfi[i]
-        # ImX[i] = (Xs.dipolemoment[i] @ Im[i])*wfi[i]
 
     xsp = np.zeros(n)  # n > nopen = max size of xs array
     for j in range(nopen):  # nopen >= 1

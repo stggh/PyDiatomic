@@ -35,14 +35,17 @@ bands = np.array([49357.4, 50044.9, 50710, 51351.5, 51968.4, 52559.6,
 
 continuum = np.arange(57300, 85000, 100)
 
-
-lb = len(bands)
-vib = np.arange(lb)
-
 # CSE model Schumann-Runge B ^3Sigma_u^- <- X ^3Sigma_g^- single channel ----
 O2bands = cse.Xs(mu='O2', VTi=['potentials/X3S-1.dat'], eni=800,
                           VTf=['potentials/B3S-1.dat'],
                      dipolemoment=['transitionmoments/dipole_b_valence.dat'])
+
+# transition energies may also be determined from the next 2 lines 
+# O2bands.us.levels()
+# bands = O2bands.us.energies - O2bands.gs.cm
+
+lb = len(bands)
+vib = np.arange(lb)
 
 # CSE ^3Sigma_u^- valence and Rydbergs coupled channels -------
 O2S = cse.Xs(mu='O2', VTi=['potentials/X3S-1.dat'], eni=800,

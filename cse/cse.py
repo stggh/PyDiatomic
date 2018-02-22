@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import scipy.linalg as scla
+from scipy import interpolate
 
 from . import johnson
 from . import expectation
@@ -13,11 +14,14 @@ class Cse():
         set of coupled states.
 
     The following attributes may be available subject to the calculation.
+    "print(classvariable)" for its representation.
 
     Attributes
     ----------
     Bv : float
         evaluated rotational constant (if single wavefunction)
+    Bvs : float array
+        rotational constans v = 0, ..., vmax (from self.levels(vmax))
     R  : float array
         internuclear distance grid
         If `R=None` set to `numpy.arange(Rmin, Rmax+dR/2, dR)`
@@ -29,11 +33,15 @@ class Cse():
     cm : float
         eigen energy in cm-1 (from method solve)
     energy : float
-        eigen energy in eV
+        eigenvalue energy in eV
+    energies : numpy float array
+        eigenvalues v = 0, ..., vmax (from self.levels())
     limits : tuple
         array sizes: (oo, n, Rmin, Rmax, Vmin, Te)
     mu : float
         reduced mass in kg
+    rot : int
+        total angular momentum quantum number
     vib : int
         vibrational quantum number (if available)
     wavefunction : numpy array
@@ -109,6 +117,62 @@ class Cse():
         self.vib = vib
         return vib
 
+    def levels(self, vmax=None, ntrial=5, exact=True):
+        """ Evaluate the vibrational energies of a potential energy curve.
+
+        method spline interpolate v = 0, ..., vmax from the eigenvalue
+        solutions for the initial guess energies (Vdissoc - Vmin)/ntrial
+
+        Parameters
+        ----------
+        vmax : int
+            maximum vibrational quantum number at which to evaluate the spline
+
+        ntrial : int
+            number of trial initial energies
+
+        exact : boolean
+            solve TISE for v = 0, ..., vmax, using the interpolated guesses
+
+        Returns
+        -------
+        energies : numpy 1D array
+           eigenvalues (cm-1) for v = 0, ..., vmax
+
+        Bvs : numpy 1D array
+           rotational constants (cm-1)
+
+        """
+        V = np.transpose(self.VT[0][0])
+        Te = V.min()
+        Too = V[-1]
+        trial = np.linspace(Te*self._evcm+100, Too*self._evcm-10, ntrial)
+
+        actual = []
+        vib = []
+        Bv = []
+        for en in trial:
+            self.solve(en)
+            actual.append(self.cm)
+            vib.append(self.vib)
+            Bv.append(self.Bv)
+
+        if vmax is None:
+            vmax = vib[-1]
+        v = np.arange(vmax+1)
+
+        spl = interpolate.interp1d(vib, actual, kind='cubic')
+        self.energies = spl(v)
+
+        splB = interpolate.interp1d(vib, Bv, kind='cubic')
+        self.Bvs = splB(v)
+
+        if exact:
+            for level, en in enumerate(self.energies):
+                self.solve(en)
+                self.energies[level] = self.cm
+                self.Bvs[level] = self.Bv
+
     def diabatic2adiabatic(self):
         """ Convert diabatic interaction matrix to adiabatic (diagonal)
             A = UT V U     unitary transformation
@@ -138,12 +202,25 @@ class Cse():
             for i in range(n):
                 for j in range(i+1, n):
                     about += " {:g}".format(self.VT[i, j, 240]*8065.541)
+
+        done = False
         try:
-            about += "Eigenvalue: {:g} cm-1,  v = {:d}, Bv = {:8.5f} cm-1"\
-                     .format(self.cm, self.vib, self.Bv)
+            e0 = self.energies[0]
+            about += "Eigenvalues:  v    energy(cm-1)    Bv(cm-1)\n"
+            for v, en in enumerate(self.energies):
+                about += "             {:2d}    {:10.3f}     {:8.5f}\n"\
+                         .format(v, en, self.Bvs[v])
+            done = True
         except AttributeError:
             pass
-        
+
+        if not done:
+            try:
+                about += "Eigenvalue: {:g} cm-1,  v = {:d}, Bv = {:8.5f} cm-1"\
+                         .format(self.cm, self.vib, self.Bv)
+            except AttributeError:
+                pass
+
         return about
 
 
@@ -159,6 +236,7 @@ class Xs():
         wavenumber range of calculation
     xs : numpy float array
         photodissociation cross section for each open channel
+
 
     :note: coupled-channel attributes for initial (gs) and final (us)
            coupled-states, attributes as listed for :class:`Cse()`.
@@ -258,4 +336,4 @@ class Xs():
                 state.limits = (oo, n, Rm, Rx, Vm, Vx)
 
     def __repr__(self):
-        return  self.gs.__repr__() + '\n' + self.us.__repr__()
+        return self.gs.__repr__() + '\n' + self.us.__repr__()
