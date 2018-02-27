@@ -2,6 +2,7 @@
 import numpy as np
 import scipy.linalg as scla
 from scipy import interpolate
+from collections import OrderedDict
 
 from . import johnson
 from . import expectation
@@ -74,7 +75,7 @@ class Cse():
         if np.any(zeros):
             self.R[zeros] = 1.0e-16
 
-        self.calc = {}  # store results for single bound channel
+        self.calc = OrderedDict()  # store results for single bound channel
         if en > 0:
             self.solve(en, self.rot)
 
@@ -170,10 +171,13 @@ class Cse():
 
         if exact:
             if vmax > 10:
-               print('solutions for v = 0, ..., {:d}'.format(vmax),
+               print('{:s} solutions for v = 0, ..., {:d}'.format(self.pecfs[0], vmax),
                      ' may take some time to evaluate ...')
-            for en, Bv in list(self.calc.items()):
+            for v, (en, Bv, rot) in list(self.calc.items()):
                 self.solve(en)
+
+        # sort in order of energy
+        self.calc = OrderedDict(sorted(self.calc.items(), key=lambda t: t[1]))
 
     def diabatic2adiabatic(self):
         """ Convert diabatic interaction matrix to adiabatic (diagonal)
@@ -210,7 +214,7 @@ class Cse():
             about += " v  rot   energy(cm-1)    Bv(cm-1)\n"
             vib = sorted(list(self.calc.keys()))
             for v in vib:
-                about += "{:2d}  {:2d}  {:10.3f}     {:8.5f}\n".format(v,
+                about += "{:2d}  {:2d}   {:10.3f}     {:8.5f}\n".format(v,
                           self.calc[v][2], self.calc[v][0], self.calc[v][1])
 
         return about
