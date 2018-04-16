@@ -82,7 +82,7 @@ def xs(Xs, wavenumber):
     en = Xs.gs.energy + dE
     Xs.us.wavefunction, Xs.us.energy, Xs.openchann\
          = johnson.solveCSE(Xs.us, en)
-    xsp = cross_section(wavenumber, Xs)
+    xsp = cross_section(np.abs(wavenumber), Xs)
     hlf = honl(Xs)
     return xsp*hlf  # (wavenumber.shape, n)
 

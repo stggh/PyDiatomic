@@ -33,7 +33,7 @@ class Cse():
         eigen energy in cm-1 (from method solve)
     energy : float
         eigenvalue energy in eV
-    calc : dict
+    results : dict
         single state calculation results  {vib: (energy, Bv, Jrot)} in cm-1
         (see also class representation)
     limits : tuple
@@ -51,10 +51,10 @@ class Cse():
 
     """
 
-    _evcm = 8065.541
 
     def __init__(self, mu=None, R=None, VT=None, coup=None, rot=0, en=0):
 
+        self._evcm = 8065.541
         self.set_mu(mu=mu)
         self.rot = rot
 
@@ -75,7 +75,7 @@ class Cse():
         if np.any(zeros):
             self.R[zeros] = 1.0e-16
 
-        self.calc = OrderedDict()  # store results for single bound channel
+        self.results = OrderedDict()  # store results for single bound channel
         if en > 0:
             self.solve(en, self.rot)
 
@@ -102,7 +102,7 @@ class Cse():
             if self.energy < self.VT[0][0][-1]:
                 self.node_count()
                 self.Bv = expectation.Bv(self)
-                self.calc[self.vib] = (self.cm, self.Bv, self.rot)  # keep
+                self.results[self.vib] = (self.cm, self.Bv, self.rot)  # keep
             else:
                 self.vib = -1
 
@@ -138,8 +138,8 @@ class Cse():
 
         Returns
         -------
-        calc : dict of solutions
-            attribute .calc = {vib: (energy, Bv, rot)}
+        results : dict of solutions
+            attribute .results = {vib: (energy, Bv, rot)}
 
         """
         V = np.transpose(self.VT[0][0])
@@ -147,10 +147,10 @@ class Cse():
         for en in np.linspace(V.min()*self._evcm+100,
                               V[-1]*self._evcm-10, ntrial):
             self.solve(en)
-            if vmax is not None and self.vib > vmax and len(self.calc) > 3:
+            if vmax is not None and self.vib > vmax and len(self.results) > 3:
                 break  # don't waste time
 
-        maxv = max(list(self.calc.keys()))
+        maxv = max(list(self.results.keys()))
         if vmax is None:
             vmax = maxv
         else:
@@ -159,25 +159,26 @@ class Cse():
         # interpolate calculation
         v = np.arange(vmax+1)
 
-        vib = sorted(self.calc.keys())
-        actual = [self.calc[vi][0] for vi in vib]
-        Bv = [self.calc[vi][1] for vi in vib]
+        vib = sorted(self.results.keys())
+        actual = [self.results[vi][0] for vi in vib]
+        Bv = [self.results[vi][1] for vi in vib]
 
         spl = interpolate.interp1d(vib, actual, kind='cubic')
         splB = interpolate.interp1d(vib, Bv, kind='cubic')
 
         for vi in v:
-            self.calc[vi] = (float(spl(vi)), float(splB(vi)), self.rot)
+            self.results[vi] = (float(spl(vi)), float(splB(vi)), self.rot)
 
         if exact:
             if vmax > 10:
                print('{:s} solutions for v = 0, ..., {:d}'.format(self.pecfs[0], vmax),
                      ' may take some time to evaluate ...')
-            for v, (en, Bv, rot) in list(self.calc.items()):
+            for v, (en, Bv, rot) in list(self.results.items()):
                 self.solve(en)
 
         # sort in order of energy
-        self.calc = OrderedDict(sorted(self.calc.items(), key=lambda t: t[1]))
+        self.results = OrderedDict(sorted(self.results.items(),
+                                   key=lambda t: t[1]))
 
     def diabatic2adiabatic(self):
         """ Convert diabatic interaction matrix to adiabatic (diagonal)
@@ -209,13 +210,14 @@ class Cse():
                 for j in range(i+1, n):
                     about += " {:g}".format(self.VT[i, j, 240]*8065.541)
 
-        if len(self.calc) > 0:
+        if len(self.results) > 0:
             about += "eigenvalues (that have been evaluated for this state):\n"
             about += " v  rot   energy(cm-1)    Bv(cm-1)\n"
-            vib = sorted(list(self.calc.keys()))
+            vib = sorted(list(self.results.keys()))
             for v in vib:
                 about += "{:2d}  {:2d}   {:10.3f}     {:8.5f}\n".format(v,
-                          self.calc[v][2], self.calc[v][0], self.calc[v][1])
+                          self.results[v][2], self.results[v][0],
+                          self.results[v][1])
 
         return about
 
@@ -243,6 +245,8 @@ class Xs():
                                 Rf=None, VTf=None, coupf=None, rotf=0,
                                 dipolemoment=None, transition_energy=None,
                                 honl=False):
+
+        self._evcm = 8065.541
 
         # ground state
         self.gs = Cse(mu=mu, R=Ri, VT=VTi, coup=coupi, rot=roti, en=eni)
@@ -290,7 +294,7 @@ class Xs():
 
     def calculate_xs(self, transition_energy, eni=None, roti=None, rotf=None):
         transition_energy = np.array(transition_energy)
-        emax = transition_energy.max()
+        emax = np.abs(transition_energy).max()
         if emax < 50:
             # energy unit is eV
             self.wavenumber = transition_energy*self._evcm
