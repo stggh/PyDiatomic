@@ -12,23 +12,17 @@ import matplotlib.pyplot as plt
 #
 ###################################################################
 
+def G(v, we, wexe):
+    return we*(v+1/2) - wexe*(v+1/2)**2
+
+def B(v, Be, alphae):
+    return Be - alphae*(v+1/2)
+
 # RKR potential energy curves
 # X1S0 ground state -----------
-we = 1854.71
-wexe = 13.34
-
-Be = 1.8189
-alphae = 0.0176
-
-Gv = []
-Bv = []
 vv = np.arange(10)
-for v in vv:
-    Gv.append(we*(v+1/2) - wexe*(v+1/2)**2)
-    Bv.append(Be - alphae*(v+1/2))
-
-Gv = np.asarray(Gv)
-Bv = np.asarray(Bv)
+Gv = G(vv, we=1854.71, wexe=13.34)
+Bv = B(vv, Be=1.8189, alphae=0.0176)
 
 # C2 reduced mass
 mu = 6
@@ -48,22 +42,8 @@ RX, X1S0, RTP, PTP = cse.tools.RKR.rkr(mu, vv, Gv, Bv, De, limb, dv=0.1,
 # D1S0 upper state -----------
 
 Te = 43239.4/8065.541
-
-we = 1829.57
-wexe = 13.94
-
-Be = 1.8332
-alphae = 0.0196
-
-Gv = []
-Bv = []
-vv = np.arange(10)
-for v in vv:
-    Gv.append(we*(v+1/2) - wexe*(v+1/2)**2)
-    Bv.append(Be - alphae*(v+1/2))
-
-Gv = np.asarray(Gv)
-Bv = np.asarray(Bv)
+Gv = G(vv, we=1829.57, wexe=13.94)
+Bv = B(vv, Be=1.8332, alphae=0.0196)
 
 # uppder state RKR
 print("\nD1S0 - upper state RKR -------------------")
@@ -87,12 +67,12 @@ print('E(v\'={:d}) = {:8.5f} cm-1\n'.format(C2.us.vib, C2.us.cm))
 
 # ground state eigenvalues - calculate every vibrational level = slow
 # C2.gs.levels(4)
-# enX = C2.gs.calc[0][0]
+# enX = C2.gs.results[0][0]
 
 # upper state eigenvalues - all levels = slow
 # C2.us.levels(4)
-# vibD = C2.us.calc.keys()
-# enD = np.asarray(list(zip(*C2.us.calc.values()))[0])
+# vibD = C2.us.results.keys()
+# enD = np.asarray(list(zip(*C2.us.results.values()))[0])
 
 # or roughly known
 enD = np.array([44200, 45960, 47730, 49500, 51300, 55820, 63300, 80880])
