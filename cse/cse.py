@@ -200,9 +200,10 @@ class Cse():
         about += "  mass: {:g} kg\n".format(self.mu)
         about += "Electronic state{:s}:"\
                  .format('s' if n > 1 else '')
-        for fn in self.pecfs:
-            about += " {:s}".format(fn)
-        about += '\n'
+        if isinstance(self.pecfs[0], str):
+            for fn in self.pecfs:
+                about += " {:s}".format(fn)
+            about += '\n'
         if n > 1:
             about += "Coupling at R = {:g} Angstroms (cm-1):"\
                      .format(self.R[240])
