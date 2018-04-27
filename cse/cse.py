@@ -98,7 +98,7 @@ class Cse():
 
         self.cm = self.energy*self._evcm
 
-        if self.limits[1] == 1:
+        if self.limits[1] == 1:  # single channel save more detail
             if self.energy < self.VT[0][0][-1]:
                 self.node_count()
                 self.Bv = expectation.Bv(self)
@@ -312,8 +312,11 @@ class Xs():
         if rotf is not None:
             self.us.rot = rotf
 
-        self.xs = expectation.xs_vs_wav(self)
-        self.nopen = self.xs.shape[-1]
+        xswav = expectation.xs_vs_wav(self)
+        self.xs, self.wavenumber = zip(*xswav) 
+        self.xs = np.array(self.xs)
+        self.wavenumber = np.array(self.wavenumber)
+        self.nopen = self.xs.shape[-1] - 1
 
     def align_grids(self):
         """ ensure the same internuclear grid for each block

@@ -60,10 +60,10 @@ C2 = cse.Xs('C2', VTi=[(RX, X1S0)], eni=900, VTf=[(RD, D1S0)],
             dipolemoment=[1])
 
 C2.gs.solve(1000)
-print('E(v"={:d}) = {:8.5f} cm-1'.format(C2.gs.vib, C2.gs.cm))
+print('X(v"={:d}) = {:8.5f} cm-1'.format(C2.gs.vib, C2.gs.cm))
 
 C2.us.solve(43500)
-print('E(v\'={:d}) = {:8.5f} cm-1\n'.format(C2.us.vib, C2.us.cm))
+print('D(v\'={:d}) = {:8.5f} cm-1\n'.format(C2.us.vib, C2.us.cm))
 
 # ground state eigenvalues - calculate every vibrational level = slow
 # C2.gs.levels(4)
@@ -86,7 +86,7 @@ for vdd in range(2):
     enDX = enD - enX
     C2.calculate_xs(transition_energy=enDX, eni=enX)
 
-    fcf = C2.xs[:, 0]*1.0e6/enDX/3
+    fcf = C2.xs[:, 0]*1.0e6/C2.wavenumber/3
 
-    for vib, (en, osc) in enumerate(zip(enDX, fcf)):
-        print('   {:2d}   {:8.3f}   {:7.2e}'.format(vib, en, osc))
+    for vib, (en, osc) in enumerate(zip(C2.wavenumber, fcf)):
+        print('     {:2d}   {:8.3f}   {:7.2e}'.format(vib, en, osc))

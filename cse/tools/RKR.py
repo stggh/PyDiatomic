@@ -101,7 +101,7 @@ def turning_points(mu, vv, Gv, Bv, dv=0.1, verbose=True):
     E = []
     # compute turning points using RKR method
     if verbose:
-        print(u"RKR: v   Rmin(A)  Rmax(A)  E(cm-1)")
+        print(u"RKR: v   Rmin(A)  Rmax(A)      E(cm-1)")
     for vib in V:
         E.append(G(vib, gsp))    # energy of vibrational level
         ff = fg_integral(vib, gsp, bsp, lambda x, y: 1)
@@ -112,7 +112,7 @@ def turning_points(mu, vv, Gv, Bv, dv=0.1, verbose=True):
         if verbose:
             frac, integ = np.modf(vib)
             if frac > 0 and frac < dv:
-                print(u"     {:d}   {:6.4f}    {:6.4f}    {:6.2f}".
+                print(u"     {:d}   {:6.4f}   {:6.4f}    {:10.2f}".
                       format(int(vib), Rmin[-1], Rmax[-1], np.float(E[-1])))
 
     return Rmin, Rmax, E
@@ -186,6 +186,6 @@ def outer_limb_LeRoy(R, P, RTP, PTP, De, verbose=True):
             continue
         P[i] = De - Cn/r**n
     if verbose:
-        print(u"RKR:  Outer limb  De - Cn/R^n")
+        print(u"RKR: Outer limb  De - Cn/R^n")
         print(u"RKR:  {:g}-{:g}A   {:g}(De)  {:g}(n)  {:g}(Cn)".
               format(RTP[-1], R[-1], De, n, Cn))

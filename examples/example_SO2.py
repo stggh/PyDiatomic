@@ -5,7 +5,7 @@
 # based on Park, Jiang, and Field JCP 144, 144313 (2016)
 #
 # Stephen.Gibson@anu.edu.au
-# 16 December 2016
+
 ##########################################################
 
 import numpy as np
@@ -74,8 +74,8 @@ if __name__ == "__main__":
             if j % nD == 0:  # start of a new row
                 plt.ylabel(r"$\lambda_{{ab}}=$ {:.0f}"
                            .format(lamab[i]), fontsize=12)
-            plt.tick_params(axis='y', left='off', right='off', labelleft='off')
-            plt.tick_params(axis='x', labelbottom='off')
+            plt.tick_params(axis='y', left=False, right=False, labelleft=False)
+            plt.tick_params(axis='x', labelbottom=False)
             plt.plot(q3, SO2.VT[0, 0], 'C0--', label='Diabats')
             plt.plot(q3, SO2.VT[1, 1], 'C0--')
             plt.plot(q3, SO2.VT[2, 2], 'C0--')
@@ -87,7 +87,7 @@ if __name__ == "__main__":
                       "             " if i == 2 else ''), fontsize=12)
             if i == nl-1:  # bottom row
                 plt.xlabel(r"$q_3$", fontsize=15)
-                plt.tick_params(axis='x', labelbottom='on')
+                plt.tick_params(axis='x', labelbottom=True)
             plt.axis(xmin=-7.9, xmax=7.9, ymin=-5000, ymax=20000)
             ax.set_aspect(1.0/1500)
 

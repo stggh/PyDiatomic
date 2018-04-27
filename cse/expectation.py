@@ -65,7 +65,7 @@ def cross_section(wavenumber, Xs):
         Ix = simps(ImX[:, j, 0], Xs.us.R)
         xsp[j] = Rx**2 + Ix**2
 
-    if np.any(Xs.openchann):
+    if np.any(Xs.us.openchann):
         # cross section
         Xs.xs = np.array(xsp)*wavenumber*CONST*1.0e-8
     else:
@@ -80,11 +80,13 @@ def xs(Xs, wavenumber):
     """
     dE = wavenumber/8065.541  # convert to eV
     en = Xs.gs.energy + dE
-    Xs.us.wavefunction, Xs.us.energy, Xs.openchann\
-         = johnson.solveCSE(Xs.us, en)
-    xsp = cross_section(np.abs(wavenumber), Xs)
+    Xs.us.solve(en)
+    if Xs.us.openchann.size == 1 and Xs.us.openchann == 0:
+        # bound upperstates => reset transition energy
+        wavenumber = Xs.us.cm - Xs.gs.cm
+    xsp = cross_section(wavenumber, Xs)
     hlf = honl(Xs)
-    return xsp*hlf  # (wavenumber.shape, n)
+    return (xsp*hlf, wavenumber) #, wavenumber)
 
 
 def xs_vs_wav(Xs):
@@ -98,7 +100,7 @@ def xs_vs_wav(Xs):
     pool.close()
     pool.join()
 
-    return np.array(xsp)
+    return xsp
 
 
 def honl(Xs):
