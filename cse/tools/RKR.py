@@ -102,6 +102,8 @@ def turning_points(mu, vv, Gv, Bv, dv=0.1, verbose=True):
     # compute turning points using RKR method
     if verbose:
         print(u"RKR: v   Rmin(A)  Rmax(A)      E(cm-1)")
+        vi = 0
+
     for vib in V:
         E.append(G(vib, gsp))    # energy of vibrational level
         ff = fg_integral(vib, gsp, bsp, lambda x, y: 1)
@@ -110,10 +112,10 @@ def turning_points(mu, vv, Gv, Bv, dv=0.1, verbose=True):
         Rmin.append((fg - ff)*DD)  # turning points
         Rmax.append((fg + ff)*DD)
         if verbose:
-            frac, integ = np.modf(vib)
-            if frac > 0 and frac < dv:
+            if np.isclose(vib, vi):
                 print(u"     {:d}   {:6.4f}   {:6.4f}    {:10.2f}".
-                      format(int(vib), Rmin[-1], Rmax[-1], np.float(E[-1])))
+                      format(vi, Rmin[-1], Rmax[-1], np.float(E[-1])))
+                vi += 1
 
     return Rmin, Rmax, E
 
