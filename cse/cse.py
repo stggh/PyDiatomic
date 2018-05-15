@@ -63,6 +63,7 @@ class Cse():
             self.R = R
             self.VT = VT
             n, m, oo = VT.shape
+            self.pecfs = [' ']
             self.limits = (oo, n, R[0], R[-1], VT[0][0].min(), VT[0][0][-1])
         else:
             # list of file names provided in VT
@@ -170,9 +171,9 @@ class Cse():
             self.results[vi] = (float(spl(vi)), float(splB(vi)), self.rot)
 
         if exact:
-            print('----', vmax)
             if vmax > 10:
-               print('{:s} solutions for v = 0, ..., {:d}'.format(self.pecfs[0], vmax),
+               print('{:s} solutions for v = 0, ..., {:d}'\
+                     .format(self.pecfs[0], vmax),
                      ' may take some time to evaluate ...')
             for v, (en, Bv, rot) in list(self.results.items()):
                 self.solve(en)

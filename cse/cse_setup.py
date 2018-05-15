@@ -140,8 +140,10 @@ def potential_energy_curves(pecfs=None, R=None):
                 AM.append((0, 0, 0, 0))
 
         else:
-            radialcoord, potential = fn
+            radialcoord, potential = fn  # VT=[(R, V), ...] as tuples
             AM.append((0, 0, 0, 0))
+            pecfs = ['']
+            
         Rin.append(radialcoord)
         Vin.append(potential)
         

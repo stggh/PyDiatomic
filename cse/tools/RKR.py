@@ -93,15 +93,15 @@ def turning_points(mu, vv, Gv, Bv, dv=0.1, verbose=True):
     bsp = splrep(vv, Bv, s=0)
 
     # vibrational QN at which to evaluate turning points
-    V = np.arange(dv-1/2, vv[-1], dv)
-    # add a point close to v=-0.5, the bottom of the well
-    V = np.append([-1/2 + 0.0001], V)
+    V = np.arange(-1/2, vv[-1]+dv/2, dv)
+    # offset the point at v=-0.5, the bottom of the well
+    V[0] = -1/2 + 0.0001
     Rmin = []
     Rmax = []
     E = []
     # compute turning points using RKR method
     if verbose:
-        print(u"RKR: v   Rmin(A)  Rmax(A)      E(cm-1)")
+        print(u"RKR:  v    Rmin(A)   Rmax(A)     E(cm-1)")
         vi = 0
 
     for vib in V:
@@ -113,7 +113,7 @@ def turning_points(mu, vv, Gv, Bv, dv=0.1, verbose=True):
         Rmax.append((fg + ff)*DD)
         if verbose:
             if np.isclose(vib, vi):
-                print(u"     {:d}   {:6.4f}   {:6.4f}    {:10.2f}".
+                print(u"     {:2d}   {:7.4f}   {:7.4f}    {:9.2f}".
                       format(vi, Rmin[-1], Rmax[-1], np.float(E[-1])))
                 vi += 1
 
