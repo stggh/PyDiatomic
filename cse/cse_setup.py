@@ -212,6 +212,12 @@ def coupling_function(R, VT, mu, pecfs, coup=None):
                 couplestr = input("CSE: coupling {:s} <-> {:s} cm-1 [0]? "\
                                   .format(pecfs[j],pecfs[k]))
                 couple = float(couplestr) if len(couplestr) > 1 else 0.0
+
+            elif isinstance(coup[cnt], tuple):
+                # fix me! - should interpolate coupling function
+                Rdummy, couple = coup[cnt]
+                coupling_function = 1   # tmp fix to allow general expression
+                cnt += 1
             else:
                 couple = coup[cnt]
                 cnt += 1
