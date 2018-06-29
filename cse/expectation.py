@@ -21,8 +21,9 @@ from . import johnson
 """
 
 a0 = const.physical_constants["Bohr radius"][0]
-CONST = 2*(np.pi*const.e*a0)**2*1.0e4/const.epsilon_0/3
-FCONST = 4*np.pi*const.m_e*const.c*100*a0*a0/const.hbar/3
+π = np.pi
+CONST = 2*(π*const.e*a0)**2*1.0e4/const.epsilon_0/3
+FCONST = 4*π*const.m_e*const.c*100*a0*a0/const.hbar/3
 
 
 def cross_section(wavenumber, Xs):
@@ -121,7 +122,7 @@ def Bv(Cse):
     """
     R = Cse.R
     wavefunction = Cse.wavefunction[:, 0, 0]
-    mu = Cse.mu
+    μ = Cse.μ
 
     ex = simps((wavefunction/R)**2, R)
-    return ex*const.hbar*1.0e18/(4*np.pi*const.c*mu)
+    return ex*const.hbar*1.0e18/(4*π*const.c*μ)

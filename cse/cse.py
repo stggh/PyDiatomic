@@ -38,7 +38,7 @@ class Cse():
         (see also class representation)
     limits : tuple
         array sizes: (oo, n, Rmin, Rmax, Vmin, Te)
-    mu : float
+    μ : float
         reduced mass in kg
     rot : int
         total angular momentum quantum number
@@ -52,10 +52,10 @@ class Cse():
     """
 
 
-    def __init__(self, mu=None, R=None, VT=None, coup=None, rot=0, en=0):
+    def __init__(self, μ=None, R=None, VT=None, coup=None, rot=0, en=0):
 
         self._evcm = 8065.541
-        self.set_mu(mu=mu)
+        self.set_μ(μ=μ)
         self.rot = rot
 
         if R is not None:
@@ -80,11 +80,11 @@ class Cse():
         if en > 0:
             self.solve(en, self.rot)
 
-    def set_mu(self, mu):
-        self.mu, self.molecule = cse_setup.reduced_mass(mu)
+    def set_μ(self, μ):
+        self.μ, self.molecule = cse_setup.reduced_mass(μ)
 
     def set_coupling(self, coup):
-        self.VT = cse_setup.coupling_function(self.R, self.VT, self.mu,
+        self.VT = cse_setup.coupling_function(self.R, self.VT, self.μ,
                                               self.pecfs, coup=coup)
 
     def solve(self, en, rot=None):
@@ -198,7 +198,7 @@ class Cse():
     def __repr__(self):
         n = self.limits[1]
         about = '\n' + f'Molecule: {self.molecule}'
-        about += f'  mass: {self.mu:g} kg\n'
+        about += f'  mass: {self.μ:g} kg\n'
         about += f"Electronic state{'s' if n > 1 else '':s}:"
         if isinstance(self.pecfs[0], str):
             for fn in self.pecfs:
@@ -240,7 +240,7 @@ class Xs():
 
     """
 
-    def __init__(self, mu=None, Ri=None, VTi=None, coupi=None, eni=0, roti=0,
+    def __init__(self, μ=None, Ri=None, VTi=None, coupi=None, eni=0, roti=0,
                                 Rf=None, VTf=None, coupf=None, rotf=0,
                                 dipolemoment=None, transition_energy=None,
                                 honl=False):
@@ -248,10 +248,10 @@ class Xs():
         self._evcm = 8065.541
 
         # ground state
-        self.gs = Cse(mu=mu, R=Ri, VT=VTi, coup=coupi, rot=roti, en=eni)
+        self.gs = Cse(μ=μ, R=Ri, VT=VTi, coup=coupi, rot=roti, en=eni)
 
         # upper state
-        self.us = Cse(mu=self.gs.mu, R=Rf, VT=VTf, coup=coupf,
+        self.us = Cse(μ=self.gs.μ, R=Rf, VT=VTf, coup=coupf,
                       rot=rotf, en=0)
 
         self.align_grids()
@@ -267,13 +267,13 @@ class Xs():
 
         self.honl = honl
 
-    def set_param(self, mu=None, eni=None, coupi=None, roti=None,
+    def set_param(self, μ=None, eni=None, coupi=None, roti=None,
                                            coupf=None, rotf=None):
 
-        if mu is not None or coupi is not None or roti is not None:
+        if μ is not None or coupi is not None or roti is not None:
             # recalculate initial (coupled) state(s)
-            if mu is not None:
-                self.gs.set_mu(mu)
+            if μ is not None:
+                self.gs.set_μ(μ)
             if coupi is not None:
                 self.gs.set_coupling(coupi)
 
@@ -282,10 +282,10 @@ class Xs():
 
             self.gs.solve(eni, roti)
 
-        if mu is not None or coupf is not None or rotf is not None:
+        if μ is not None or coupf is not None or rotf is not None:
             # recalculate final couples states
-            if mu is not None:
-                self.us.set_mu(mu)
+            if μ is not None:
+                self.us.set_μ(μ)
             if coupi is not None:
                 self.us.set_coupling(coupf)
 

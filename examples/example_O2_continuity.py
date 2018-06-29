@@ -36,7 +36,7 @@ bands = np.array([49357.4, 50044.9, 50710, 51351.5, 51968.4, 52559.6,
 continuum = np.arange(57300, 85000, 100)
 
 # CSE model Schumann-Runge B ^3Sigma_u^- <- X ^3Sigma_g^- single channel ----
-O2bands = cse.Xs(mu='O2', VTi=['potentials/X3S-1.dat'], eni=800,
+O2bands = cse.Xs('O2', VTi=['potentials/X3S-1.dat'], eni=800,
                           VTf=['potentials/B3S-1.dat'],
                      dipolemoment=['transitionmoments/dipole_b_valence.dat'])
 
@@ -48,7 +48,7 @@ lb = len(bands)
 vib = np.arange(lb)
 
 # CSE ^3Sigma_u^- valence and Rydbergs coupled channels -------
-O2S = cse.Xs(mu='O2', VTi=['potentials/X3S-1.dat'], eni=800,
+O2S = cse.Xs('O2', VTi=['potentials/X3S-1.dat'], eni=800,
                       VTf=['potentials/3S-1v.dat',
                            'potentials/3S-1r.dat',
                            'potentials/3S-1r2.dat'],
@@ -58,7 +58,7 @@ O2S = cse.Xs(mu='O2', VTi=['potentials/X3S-1.dat'], eni=800,
                                     'transitionmoments/dr2X.dat'])
 
 # CSE ^3Pi_u coupled channels -------
-O2P = cse.Xs(mu='O2', VTi=['potentials/X3S-1.dat'], eni=800,
+O2P = cse.Xs('O2', VTi=['potentials/X3S-1.dat'], eni=800,
                       VTf=['potentials/3P1v.dat',
                            'potentials/3P1r.dat',
                            'potentials/3P1r2.dat'],

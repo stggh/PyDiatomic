@@ -28,8 +28,8 @@ except FileNotFoundError:
     print(f"RKR: file '{fn:s}' not found")
 
 # reduced mass - see Huber+Herzberg - default is O2
-mu = input("RKR: Molecule reduced mass [7.99745751]: ")
-mu = 7.99745751 if mu == '' else float(mu)
+μ = input("RKR: Molecule reduced mass [7.99745751]: ")
+μ = 7.99745751 if μ == '' else float(μ)
 
 # De - dissociation energy
 De = input("RKR: De [42021.47 cm-1]: ")
@@ -40,7 +40,7 @@ limb = input("RKR: Outer-limb LeRoy(L) or Morse(M) [L]: ")
 if limb == '':
     limb = 'L'
 
-R, PEC, RTP, PTP = cse.tools.RKR.rkr(mu, vv, Gv, Bv, De, limb, dv=0.1,
+R, PEC, RTP, PTP = cse.tools.RKR.rkr(μ, vv, Gv, Bv, De, limb, dv=0.1,
                                      Rgrid=np.arange(0.005, 10.004, 0.005))
 
 data = np.column_stack((R.T, PEC.T))

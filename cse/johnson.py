@@ -18,7 +18,7 @@ from scipy.special import spherical_jn, spherical_yn
 # ===== Johnson === Renormalized Numerov method ============
 
 
-def WImat(energy, rot, V, R, mu, AM):
+def WImat(energy, rot, V, R, μ, AM):
     """ Interaction matrix.
 
     Parameters
@@ -33,10 +33,10 @@ def WImat(energy, rot, V, R, mu, AM):
     R : numpy 1d array
         the internuclear distance grid for the potential curve matrix,
         size = oo
-    mu : float
+    μ : float
         reduced mass in kg
     AM : 1d numpy array of tuples
-        (Omega, S, Lambda, Sigma) for each electronic state
+        (Ω, S, Λ, Σ) for each electronic state
 
     Returns
     -------
@@ -47,11 +47,11 @@ def WImat(energy, rot, V, R, mu, AM):
 
     dR2 = (R[1] - R[0])**2
 
-    # 2mu/hbar^2 x \DeltaR^2/12 x e
-    factor = mu*1.0e-20*dR2*const.e/const.hbar/const.hbar/6
+    # 2μ/hbar^2 x \DeltaR^2/12 x e
+    factor = μ*1.0e-20*dR2*const.e/const.hbar/const.hbar/6
 
-    # hbar^2/2mu x e x 10^20
-    centrifugal_factor = (const.hbar*1.0e20/mu/2/const.e)*const.hbar
+    # hbar^2/2μ x e x 10^20
+    centrifugal_factor = (const.hbar*1.0e20/μ/2/const.e)*const.hbar
 
     oo, n, m = V.shape
     I = np.identity(n)
@@ -61,20 +61,20 @@ def WImat(energy, rot, V, R, mu, AM):
     if rot:
         Jp1 = rot*(rot+1)
         for j in range(n):
-            Omega, S, Lambda, Sigma = AM[j]
-            am = Omega**2 - S*(S+1) + Sigma**2
+            Ω, S, Λ, Σ = AM[j]
+            am = Ω**2 - S*(S+1) + Σ**2
             # diagonal - add centrifugal barrier to potential curve
             if Jp1 > am:
                 barrier[j, j, :] += (Jp1 - am)*centrifugal_factor/R[:]**2
 
             for k in range(j+1, n):
-                Omegak, Sk, Sigmak, Lambdak = AM[k]
+                Ωk, Sk, Σk, Λk = AM[k]
                 # off-diagonal
-                if Omega != Omegak:
+                if Ω != Ωk:
                     # L-uncoupling, homogeneous coupling already set
-                    if Jp1 > Omega*Omegak:
+                    if Jp1 > Ω*Ωk:
                         barrier[j, k, :] = barrier[k, j, :] = 8064.541*\
-                              V[:, j, k]*np.sqrt(Jp1 - Omega*Omegak)*\
+                              V[:, j, k]*np.sqrt(Jp1 - Ω*Ωk)*\
                               centrifugal_factor/R[:]**2
                                    
     barrier = barrier.T
@@ -186,7 +186,7 @@ def wavefunction(WI, j, f):
 # ==== end of Johnson stuff ====================
 
 
-def matching_point(en, rot, V, R, mu, AM):
+def matching_point(en, rot, V, R, μ, AM):
     """ estimate matching point for inward and outward solutions position
     based on the determinant of the R-matrix.
 
@@ -200,10 +200,10 @@ def matching_point(en, rot, V, R, mu, AM):
         potential curve and couplings matrix
     R : numpy 1d array
         internuclear distance grid
-    mu : float
+    μ : float
         reduced mass in kg
     AM : 1d numpuy array of tuples
-        (Omega, S, Lambda, Sigma) for each electronic state
+        (Ω, S, Λ, Σ) for each electronic state
 
     Returns
     -------
@@ -223,7 +223,7 @@ def matching_point(en, rot, V, R, mu, AM):
         Vnn = np.transpose(V)[-1][-1]  # -1 -1 highest PEC?
         mx = np.abs(Vnn - en).argmin()
 
-        WI = WImat(en, rot, V, R, mu, AM)
+        WI = WImat(en, rot, V, R, μ, AM)
         Rm = RImat(WI, mx)
         while linalg.det(Rm[mx]) > 1:
             mx -= 1
@@ -231,7 +231,7 @@ def matching_point(en, rot, V, R, mu, AM):
     return mx
 
 
-def eigen(energy, rot, mx, V, R, mu, AM):
+def eigen(energy, rot, mx, V, R, μ, AM):
     """ determine eigen energy solution based.
 
     Parameters
@@ -246,7 +246,7 @@ def eigen(energy, rot, mx, V, R, mu, AM):
         potential energy curve and coupling matrix
     R : numpy 1d array
         internuclear distance grid
-    mu : float
+    μ : float
         reduced mass in kg
 
     Returns
@@ -256,7 +256,7 @@ def eigen(energy, rot, mx, V, R, mu, AM):
 
     """
 
-    WI = WImat(energy, rot, V, R, mu, AM)
+    WI = WImat(energy, rot, V, R, μ, AM)
     RI = RImat(WI, mx)
 
     # | R_mx - R^-1_mx+1 |
@@ -288,10 +288,11 @@ def normalize(wf, R):
     return wf/np.sqrt(norm)
 
 
-def amplitude(wf, R, edash, mu):
+def amplitude(wf, R, edash, μ):
     # Mies    F ~ JA + NB       J ~ sin(kR)/kR
-    # normalization sqrt(2 mu/pu hbar^2) = zz
-    zz = np.sqrt(2*mu/const.pi)/const.hbar
+    # normalization sqrt(2 μ/π hbar^2) = zz
+    π = const.pi
+    zz = np.sqrt(2*μ/π)/const.hbar
 
     oo, n, nopen = wf.shape
 
@@ -308,7 +309,7 @@ def amplitude(wf, R, edash, mu):
         if edash[j] < 0:
             continue
         # open channel
-        ke = np.sqrt(2*mu*edash[j]*const.e)/const.hbar
+        ke = np.sqrt(2*μ*edash[j]*const.e)/const.hbar
         rtk = np.sqrt(ke)
         kex1 = ke*x1
         kex2 = ke*x2
@@ -336,7 +337,7 @@ def amplitude(wf, R, edash, mu):
 def solveCSE(Cse, en):
 
     rot = Cse.rot
-    mu = Cse.mu
+    μ = Cse.μ
     R = Cse.R
     AM = Cse.AM
     VT = Cse.VT
@@ -349,14 +350,14 @@ def solveCSE(Cse, en):
     openchann = edash > 0
     nopen = edash[openchann].size
 
-    mx = matching_point(en, rot, V, R, mu, AM)
+    mx = matching_point(en, rot, V, R, μ, AM)
 
     if mx < oo-5:
-        out = leastsq(eigen, (en, ), args=(rot, mx, V, R, mu, AM), xtol=0.01)
+        out = leastsq(eigen, (en, ), args=(rot, mx, V, R, μ, AM), xtol=0.01)
         en = float(out[0])
 
     # solve CSE according to Johnson renormalized Numerov method
-    WI = WImat(en, rot, V, R, mu, AM)
+    WI = WImat(en, rot, V, R, μ, AM)
     RI = RImat(WI, mx)
     wf = []
     if nopen > 0:
@@ -376,7 +377,7 @@ def solveCSE(Cse, en):
     if nopen == 0:
         wf = normalize(wf, R)
     else:
-        K, AI, B = amplitude(wf, R, edash, mu)   # shape = nopen x nopen
+        K, AI, B = amplitude(wf, R, edash, μ)   # shape = nopen x nopen
 
         # K = BA-1 = U tan xi UT
         eig, U = linalg.eig(K)

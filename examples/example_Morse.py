@@ -20,7 +20,7 @@ R = np.arange(0.5, 3.5, 0.005)
 VM = cse.tools.analytical.Morse(r=R, re=1.21, De=5.21, Te=0.0, beta=2.65)
 
 # PyDiatomic Cse class
-morse = cse.Cse(mu='O2', VT=[(R, VM)])
+morse = cse.Cse(μ='O2', VT=[(R, VM)])
 
 plt.plot(R, VM, label="Morse PEC")
 

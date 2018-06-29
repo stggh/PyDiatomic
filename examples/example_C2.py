@@ -27,7 +27,7 @@ Gv = G(vv, we=1854.71, wexe=13.34)
 Bv = B(vv, Be=1.8189, alphae=0.0176)
 
 # C2 reduced mass
-mu = 6
+μ = 6
 
 # De - dissociation energy
 De = 6.21*8065.541
@@ -37,7 +37,7 @@ limb = 'L'
 
 # ground state RKR
 print("X1S0 - ground state RKR ------------")
-RX, X1S0, RTP, PTP = cse.tools.RKR.rkr(mu, vv, Gv, Bv, De, limb, dv=0.1,
+RX, X1S0, RTP, PTP = cse.tools.RKR.rkr(μ, vv, Gv, Bv, De, limb, dv=0.1,
                                        Rgrid=np.arange(0.5, 10.001, 0.001))
 ax0.plot(RX, X1S0, label=r'$X ^1\Sigma_g^+$')
 ax0.plot(RTP[::10], PTP[::10], 'oC9')
@@ -52,7 +52,7 @@ Bv = B(vv, Be=1.8332, alphae=0.0196)
 
 # uppder state RKR
 print("\nD1S0 - upper state RKR -------------------")
-RD, D1S0, RTP, PTP = cse.tools.RKR.rkr(mu, vv, Gv, Bv, De, limb, dv=0.1,
+RD, D1S0, RTP, PTP = cse.tools.RKR.rkr(μ, vv, Gv, Bv, De, limb, dv=0.1,
                                        Rgrid=np.arange(0.5, 10.001, 0.001))
 
 # Te displacement

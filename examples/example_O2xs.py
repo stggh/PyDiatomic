@@ -10,14 +10,14 @@ evcm = 8065.541   # conversion factor eV -> cm-1
 wavelength = np.arange(110, 174.1, 0.1)  # nm
 
 # initialize CSE problem - any missing essential parameters are requested
-# mu - reduced mass
+# μ - reduced mass
 # eni - initial state guess energy
 # VTI - initial state(s)
 # VTf - final coupled states
 # coupf - homogeneous coupling
 # dipolemoment - transition moments
 
-X = cse.Xs(mu='O2', VTi=['potentials/X3S-1.dat'], eni=800,
+X = cse.Xs(μ='O2', VTi=['potentials/X3S-1.dat'], eni=800,
                     VTf=['potentials/B3S-1.dat', 'potentials/3P1.dat',
                          'potentials/E3S-1.dat', 'potentials/3PR1.dat'],
                     coupf=[40, 4000, 0, 0, 7000, 0],

@@ -14,7 +14,7 @@ def reduced_mass(amu=None):
 
     Returns
     -------
-    mu : reduced mass in kg
+    μ : reduced mass in kg
 
     """
 
@@ -112,7 +112,7 @@ def potential_energy_curves(pecfs=None, R=None):
         Voo = lowest dissociation limit energy
     
     AM : 1d array of tuples
-        Angular momenta quantum numbers (Omega, S, Lambda, Sigma) for each electronic state
+        Angular momenta quantum numbers (Ω, S, Λ, Σ) for each electronic state
     """
 
     if pecfs == None:
@@ -132,10 +132,10 @@ def potential_energy_curves(pecfs=None, R=None):
             if len(digits) > 0:
                 degen = int(digits[0])
                 S = (degen - 1)//2
-                Omega = int(digits[1])
-                Lambda = 'SPDF'.index(fn[fn.index(digits[0])+1])
-                Sigma = Omega - Lambda
-                AM.append((Omega, S, Lambda, Sigma))
+                Ω = int(digits[1])
+                Λ = 'SPDF'.index(fn[fn.index(digits[0])+1])
+                Σ = Ω - Λ
+                AM.append((Ω, S, Λ, Σ))
             else:
                 AM.append((0, 0, 0, 0))
 
@@ -181,7 +181,7 @@ def potential_energy_curves(pecfs=None, R=None):
     return R, VT, pecfs, limits, AM
 
 
-def coupling_function(R, VT, mu, pecfs, coup=None):
+def coupling_function(R, VT, μ, pecfs, coup=None):
     """ Fill the off-diagonal coupling elements of VT.
 
     Parameters
@@ -189,8 +189,8 @@ def coupling_function(R, VT, mu, pecfs, coup=None):
     R : numpy 1d array of floats
     VT : numpy 2D array size nxn of floats
     AM : numpy 1d array of tuples
-        (Omega, S, Sigma, Lambda) for each electronic state
-    mu : float
+        (Ω, S, Σ, Λ) for each electronic state
+    μ : float
         reduced mass
     pecfs: list
         list or potential curve names, to enquire the coupling
@@ -198,8 +198,8 @@ def coupling_function(R, VT, mu, pecfs, coup=None):
         list potential curve couplings (in cm-1) 
     
     """
-    # hbar^2/2 mu in eV (once /R^2)
-    centrifugal_factor = (const.hbar*1.0e20/mu/2/const.e)*const.hbar
+    # hbar^2/2 μ in eV (once /R^2)
+    centrifugal_factor = (const.hbar*1.0e20/μ/2/const.e)*const.hbar
     n, m, oo = VT.shape
 
     coupling_function = np.ones(np.size(R), dtype='float')
