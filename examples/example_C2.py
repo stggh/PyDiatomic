@@ -76,7 +76,7 @@ print("\nCSE FCF calculation -------------------")
 C2 = cse.Xs('C2', VTi=[(RX, X1S0)], VTf=[(RD, D1S0)], dipolemoment=[1])
 
 C2.gs.solve(1000)
-print('X(v"={:d}) = {:10.5f} cm-1'.format(C2.gs.vib, C2.gs.cm))
+print(f'X(v"={C2.gs.vib:d}) = {C2.gs.cm:10.5f} cm-1')
 ax0.plot(C2.gs.R, C2.gs.wavefunction.T[0, 0]/2+C2.gs.energy)
 
 # ground state eigenvalues - calculate every vibrational level = slow
@@ -90,7 +90,7 @@ ax0.plot(C2.gs.R, C2.gs.wavefunction.T[0, 0]/2+C2.gs.energy)
 # enD = np.asarray(list(zip(*C2.us.results.values()))[0])
 
 C2.us.solve(43500)
-print('D(v\'={:d}) = {:10.5f} cm-1\n'.format(0, C2.us.cm))
+print(f'D(v\'={C2.us.vib:d}) = {C2.us.cm:10.5f} cm-1\n')
 C2.us.solve(49500)
 ax0.plot(C2.us.R, C2.us.wavefunction.T[0, 0]/2+C2.us.energy)
 
@@ -102,7 +102,7 @@ print('v"    v\'    E\'-E"      FCF')
 for vdd in range(2):
     C2.gs.solve(1890*(vdd+1/2))
     enX = C2.gs.cm
-    print('{:1d}'.format(C2.gs.vib), end=None)
+    print(f'{C2.gs.vib:1d}', end=None)
 
     enDX = enD - enX
     C2.calculate_xs(transition_energy=enDX, eni=enX)
@@ -110,10 +110,10 @@ for vdd in range(2):
     fcf = C2.xs[:, 0]*1.0e6/C2.wavenumber/3
 
     for vib, (en, osc) in enumerate(zip(C2.wavenumber, fcf)):
-        print('     {:2d}   {:8.3f}   {:7.2e}'.format(vib, en, osc))
-        p1 = ax1.semilogy(vib, osc, 'oC{}'.format(vdd))
+        print(f'     {vib:2d}   {en:8.3f}   {osc:7.2e}')
+        p1 = ax1.semilogy(vib, osc, f'oC{vdd}')
 
-    p2 = ax1.plot(Sorkhabi_FCF[vdd], '+C{}'.format(9-vdd), ms=10)
+    p2 = ax1.plot(Sorkhabi_FCF[vdd], f'+C{9-vdd}', ms=10)
 
 plt.savefig('output/example_C2.png', dpi=100)
 plt.show()

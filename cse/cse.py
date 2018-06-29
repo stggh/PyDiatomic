@@ -172,8 +172,7 @@ class Cse():
 
         if exact:
             if vmax > 10:
-               print('{:s} solutions for v = 0, ..., {:d}'\
-                     .format(self.pecfs[0], vmax),
+               print(f'{self.pecfs[0]:s} solutions for v = 0, ..., {vmax:d}'
                      ' may take some time to evaluate ...')
             for v, (en, Bv, rot) in list(self.results.items()):
                 self.solve(en)
@@ -198,30 +197,27 @@ class Cse():
 
     def __repr__(self):
         n = self.limits[1]
-        about = '\n' + "Molecule: {}".format(self.molecule)
-        about += "  mass: {:g} kg\n".format(self.mu)
-        about += "Electronic state{:s}:"\
-                 .format('s' if n > 1 else '')
+        about = '\n' + f'Molecule: {self.molecule}'
+        about += f'  mass: {self.mu:g} kg\n'
+        about += f"Electronic state{'s' if n > 1 else '':s}:"
         if isinstance(self.pecfs[0], str):
             for fn in self.pecfs:
-                about += " {:s}".format(fn)
+                about += f' {fn:s}'
             about += '\n'
         if n > 1:
-            about += "Coupling at R = {:g} Angstroms (cm-1):"\
-                     .format(self.R[240])
+            about += f'Coupling at R = {self.R[240]:g} Angstroms (cm-1):'
             for i in range(n):
                 for j in range(i+1, n):
-                    about += " {:g}".format(self.VT[i, j, 240]*8065.541)
+                    about += f' {self.VT[i, j, 240]*8065.541:g}'
 
         if len(self.results) > 0:
             about += "eigenvalues (that have been evaluated for this state):\n"
             about += " v  rot   energy(cm-1)    Bv(cm-1)\n"
             vib = sorted(list(self.results.keys()))
             for v in vib:
-                about += "{:2d}  {:2d}   {:10.3f}     {:8.5f}\n".format(v,
-                          self.results[v][2], self.results[v][0],
-                          self.results[v][1])
-
+                about += f'{v:2d}  {self.results[v][2]:2d}   '
+                about += f'{self.results[v][0]:10.3f}     '
+                about += f'{self.results[v][1]:8.5f}\n'
         return about
 
 
@@ -285,8 +281,6 @@ class Xs():
                 eni = self.gs.energy
 
             self.gs.solve(eni, roti)
-            # print('E(v"={}, J"={}) = {:.2f} cm-1 '.
-            #       format(self.gs.vib, roti, self.gs.cm))
 
         if mu is not None or coupf is not None or rotf is not None:
             # recalculate final couples states

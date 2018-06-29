@@ -23,20 +23,20 @@ for v, f in enumerate(osc):
     f = f[0]*1.0e6/bands[v]/3
     fcf.append(f)
     if v in Kvd:
-        print("{:2d}   {:10.3e}   {:10.3e}".format(v, f, Kfcf[v-Kv0]))
+        print(f'{v:2d}   {f:10.3e}   {Kfcf[v-Kv0]:10.3e}')
     else:
-        print("{:2d}   {:10.3e}   {:>5s}".format(v, f, '-'))
+        print(f'{v:2d}   {f:10.3e}   {"-":>5s}')
 
 plt.plot(fcf, 'o', label=r'PyDiatomic')
 plt.plot(Kvd, Kfcf, 'C1+', ms=8, label=r'Krupenie')
 
-plt.title(r"O$_2$ $B\, ^3\Sigma_{u}^{-} - X\, ^3\Sigma_{g}^{-}$ $(v^\prime,"
-          r" v^{\prime\prime}=0)$")
-plt.ylabel(r"Franck-Condon factor")
-plt.xlabel(r"$v^\prime$")
+plt.title(r'O$_2$ $B\, ^3\Sigma_{u}^{-} - X\, ^3\Sigma_{g}^{-}$ $(v^\prime,'
+          r' v^{\prime\prime}=0)$')
+plt.ylabel(r'Franck-Condon factor')
+plt.xlabel(r'$v^\prime$')
 plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
 plt.legend()
 plt.yscale('log')
 
-plt.savefig("O2_fcf.png", dpi=100)
+plt.savefig('output/O2_fcf.png', dpi=100)
 plt.show()

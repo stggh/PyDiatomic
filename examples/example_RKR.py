@@ -25,7 +25,7 @@ fn = 'data/GB.dat' if fn == '' else fn
 try:
     vv, Gv, Bv = np.loadtxt(fn, unpack=True)
 except FileNotFoundError:
-    print("RKR: file '{:s}' not found".format(fn))
+    print(f"RKR: file '{fn:s}' not found")
 
 # reduced mass - see Huber+Herzberg - default is O2
 mu = input("RKR: Molecule reduced mass [7.99745751]: ")

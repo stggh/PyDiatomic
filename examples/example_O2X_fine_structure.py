@@ -35,5 +35,5 @@ for N in range(1, 22, 2):
         O2e.solve(en=F[fi]+E0, rot=J)
         f[fi] = O2e.cm
 
-    print("{:2d}  {:10.3f}  {:10.3f}  {:10.3f}"
-          .format(N, F[1]+E0-f[1], F[2]+E0-f[2], F[3]+E0-f[3]))
+    print(f'{N:2d}  {F[1]+E0-f[1]:10.3f}  {F[2]+E0-f[2]:10.3f}  '
+          f'{F[3]+E0-f[3]:10.3f}')

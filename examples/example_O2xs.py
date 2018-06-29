@@ -23,18 +23,16 @@ X = cse.Xs(mu='O2', VTi=['potentials/X3S-1.dat'], eni=800,
                     coupf=[40, 4000, 0, 0, 7000, 0],
                     dipolemoment=[1, 0, 0, 0.3])
 
-print("CSE: calculating cross section speeded by Python multiprocessing",
-      " Pool.map")
-print("     from {:d} to {:d} in {:.2f} nm steps ... ".
-      format(int(wavelength[0]), int(wavelength[-1]),
-                 wavelength[1]-wavelength[0]))
+print('CSE: calculating cross section speeded by Python multiprocessing'
+      ' Pool.map')
+print(f'     from {wavelength[0]:.0f} to {wavelength[-1]:.0f} in '
+      f'{wavelength[1]-wavelength[0]:.2f} nm steps ... ')
 
 t0 = time.time()
 X.calculate_xs(transition_energy=wavelength)
-print("CSE: ...  in {:.2g} seconds".format(time.time()-t0))
+print(f'CSE: ...  in {time.time()-t0:.2g} seconds')
 
-print('CSE: E(v"={:d}) = {:.2f} cm-1, {:.3g} eV'.format(X.gs.vib, X.gs.cm,
-                                                        X.gs.energy))
+print(f'CSE: E(v"={X.gs.vib:d}) = {X.gs.cm:.2f} cm-1, {X.gs.energy:.3g} eV')
 
 # graphics ---------------------------------------
 ax0 = plt.subplot2grid((2, 4), (0, 0), colspan=2, rowspan=2)
@@ -82,7 +80,7 @@ ax1.set_xlabel("R ($\AA$)")
 # ax1.set_ylabel("V (eV)")
 ax1.axes.get_yaxis().set_visible(False)
 
-plt.suptitle("example_O2xs.py", fontsize=12)
+plt.suptitle('example_O2xs.py', fontsize=12)
 
-plt.savefig("output/example_O2xs.png", dpi=75)
+plt.savefig('output/example_O2xs.png', dpi=75)
 plt.show()

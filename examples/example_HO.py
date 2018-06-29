@@ -33,19 +33,19 @@ fig, ax = plt.subplots()
 print(" v    E(v) in cm-1")
 for en in [0.01, 0.02, 0.04, 0.06, 0.08]:  # guess energies in eV
     X.solve(en)
-    print("{:2d}  {:8.2f}".format(X.vib, X.cm))
+    print(f'{X.vib:2d}  {X.cm:8.2f}')
     ax.plot(R, X.wavefunction[:, 0, 0]*400 + X.cm,
-            label=r'$v={:d}$'.format(X.vib))
+            label=fr'$v={X.vib:d}$')
     ax.plot(R, phi(X.vib, R, 10)*400 + X.cm, 'k--')
 
 ax.plot(np.NaN, np.NaN, 'k--', label=r'analytical')
 ax.plot(R, V*8065.541)
 ax.axis(xmin=-1.5, xmax=1.5, ymin=-800, ymax=1600)
 ax.legend()
-ax.set_title(r"Harmonic oscillator potential:"
-             r" $\psi_v(x) = N_v H_v(x) e^{-x^2/2}$")
-ax.set_ylabel(r"potential energy (cm$^{-1}$) / wavefunction $\times 400$")
-ax.set_xlabel(r"$x$")
+ax.set_title(r'Harmonic oscillator potential:'
+             r' $\psi_v(x) = N_v H_v(x) e^{-x^2/2}$')
+ax.set_ylabel(r'potential energy (cm$^{-1}$) / wavefunction $\times 400$')
+ax.set_xlabel(r'$x$')
 
-plt.savefig("output/example_HO.png", dpi=75)
+plt.savefig('output/example_HO.png', dpi=75)
 plt.show()

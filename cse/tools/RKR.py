@@ -113,8 +113,8 @@ def turning_points(mu, vv, Gv, Bv, dv=0.1, verbose=True):
         Rmax.append((fg + ff)*DD)
         if verbose:
             if np.isclose(vib, vi):
-                print(u"     {:2d}   {:7.4f}   {:7.4f}    {:9.2f}".
-                      format(vi, Rmin[-1], Rmax[-1], np.float(E[-1])))
+                print(f'     {vi:2d}   {Rmin[-1]:7.4f}   {Rmax[-1]:7.4f}'
+                      f'    {np.float(E[-1]):9.2f}')
                 vi += 1
 
     return Rmin, Rmax, E
@@ -159,9 +159,9 @@ def inner_limb_Morse(R, P, RTP, PTP, Re, De, verbose=True):
         tmp = 1 - np.exp(-beta*(r-Re))
         P[i] = De*tmp*tmp
     if verbose:
-        print(u"RKR: Inner limb  De[1-exp(beta*(Re-R))]^2")
-        print(u"RKR:  {:g}-{:g}A   {:g}(De)  {:g}(Re)  {:g}(beta)".
-              format(R[0], r, De, Re, beta))
+        print('RKR: Inner limb  De[1-exp(beta*(Re-R))]^2')
+        print(f'RKR:  {R[0]:g}-{r:g}A   {De:g}(De)  {Re:g}(Re)  '
+              f'{beta:g}(beta)')
 
 
 def outer_limb_Morse(R, P, RTP, PTP, De, Re, verbose=True):
@@ -175,9 +175,9 @@ def outer_limb_Morse(R, P, RTP, PTP, De, Re, verbose=True):
         tmp = 1 - np.exp(-beta*(r-Re))
         P[i] = De*tmp*tmp
     if verbose:
-        print(u"RKR: Outer limb  De[1-exp(beta*(Re-R))]^2")
-        print(u"RKR:   {:g}-{:g}A   {:g}(De)  {:g}(Re)  {:g}(beta)".
-              format(RTP[-1], R[-1], De, re, beta))
+        print('RKR: Outer limb  De[1-exp(beta*(Re-R))]^2')
+        print(f'RKR:   {RTP[-1]:g}-{R[-1]:g}A   {De:g}(De)  {re:g}(Re)  '
+              f'{beta:g}(beta)')
 
 
 def outer_limb_LeRoy(R, P, RTP, PTP, De, verbose=True):
@@ -188,6 +188,6 @@ def outer_limb_LeRoy(R, P, RTP, PTP, De, verbose=True):
             continue
         P[i] = De - Cn/r**n
     if verbose:
-        print(u"RKR: Outer limb  De - Cn/R^n")
-        print(u"RKR:  {:g}-{:g}A   {:g}(De)  {:g}(n)  {:g}(Cn)".
-              format(RTP[-1], R[-1], De, n, Cn))
+        print('RKR: Outer limb  De - Cn/R^n')
+        print(f'RKR:  {RTP[-1]:g}-{R[-1]:g}A   {De:g}(De)  {n:g}(n)  '
+              f'{Cn:g}(Cn)')

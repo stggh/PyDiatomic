@@ -20,12 +20,12 @@ from scipy.integrate.quadrature import simps
 # experimental data ----------------
 #  ANU - total photoabsorption cross section 130 - 171 nm
 #  doi: 10.1016/0368-2048(96)02910-6
-xst = np.loadtxt("data/O2xs-ANU.dat", unpack=True)
+xst = np.loadtxt('data/O2xs-ANU.dat', unpack=True)
 xst = (1.0e8/xst[0], xst[1]*1e-19)
 
 #  Harvard - band oscillator strengths v'=1-12
 #  doi: 10.1016/0032-0633(83)90085-5
-fexp = np.loadtxt("data/O2osc-Yoshino.dat", unpack=True)
+fexp = np.loadtxt('data/O2osc-Yoshino.dat', unpack=True)
 
 # energy ranges for calculation in cm-1
 bands = np.array([49357.4, 50044.9, 50710, 51351.5, 51968.4, 52559.6,
@@ -68,35 +68,35 @@ O2P = cse.Xs(mu='O2', VTi=['potentials/X3S-1.dat'], eni=800,
                                     'transitionmoments/dr2PX.dat'])
 
 # ground X3Sigma_g^- state energy
-print(" E(v\"=0, J=0) = {:8.2f} (cm-1)\n".format(O2S.gs.cm))
+print(f' E(v"=0, J=0) = {O2S.gs.cm:8.2f} (cm-1)\n')
 
 # (1) band oscillator strengths - uncoupled
-print("band oscillator strengths (v', 0), v' = 0-21: ...")
+print('band oscillator strengths (v\', 0), v\' = 0-21: ...')
 tstart = time.time()
 O2bands.calculate_xs(transition_energy=bands)
-print("  in {:.1f} seconds\n".format(time.time()-tstart))
-print(" v'    fosc     fexpt(Yoshino)")
+print(f'  in {time.time()-tstart:.1f} seconds\n')
+print(' v\'    fosc     fexpt(Yoshino)')
 for v, fosc in enumerate(O2bands.xs):
     if v in fexp[0]:
-        print("{:2d}   {:8.2e}     {:8.2e}".format(v, fosc[0], fexp[1, v-1]))
+        print(f'{v:2d}   {fosc[0]:8.2e}     {fexp[1, v-1]:8.2e}')
     else:
-        print("{:2d}   {:8.2e}".format(v, fosc[0]))
+        print(f'{v:2d}   {fosc[0]:8.2e}')
 
-print("\nO2 B-X continuum photodissociation cross section:")
-print("  {:5.0f} to {:5.0f} in {:.0f} cm-1 steps ...".
-      format(continuum[0], continuum[-1], continuum[1]-continuum[0]))
+print('\nO2 B-X continuum photodissociation cross section:')
+print(f'  {continuum[0]:5.0f} to {continuum[-1]:5.0f} in '
+      f'{continuum[1]-continuum[0]:.0f} cm-1 steps ...')
 tstart = time.time()
 O2S.calculate_xs(transition_energy=continuum)
-print("  in {:.1f} seconds\n".format(time.time()-tstart))
+print(f'  in {time.time()-tstart:.1f} seconds\n')
 
-print("\nO2 3Pi-X continuum photodissociation cross section:")
-print("  {:5.0f} to {:5.0f} in {:.0f} cm-1 steps ...".
-      format(continuum[0], continuum[-1], continuum[1]-continuum[0]))
+print('\nO2 3Pi-X continuum photodissociation cross section:')
+print(f'  {continuum[0]:5.0f} to {continuum[-1]:5.0f} in '
+      f'{continuum[1]-continuum[0]:.0f} cm-1 steps ...')
 tstart = time.time()
 O2P.calculate_xs(transition_energy=continuum)
-print("    in {:.1f} seconds\n".format(time.time()-tstart))
+print(f'    in {time.time()-tstart:.1f} seconds\n')
 
-print("calculation complete - see plot")
+print('calculation complete - see plot')
 
 
 # evaluate derivative for fosc x dv/dE
@@ -109,21 +109,21 @@ plt.plot(continuum, O2S.xs[:, 0] + 2*O2P.xs[:, 0], 'C0--',
 plt.plot(bands, fosc * dvdE/1.13e12, 'C2+', label=r'$f_{osc}$ PyDiatomic')
 plt.plot((57136.2, 57136.2), (1.0e-25, 1.0e-18), 'k--', lw=1)
 
-plt.xlabel(r"wavenumber (cm$^{-1}$)")
-plt.ylabel(r"cross section (cm$^{2}$)")
-plt.title(r"O$_{2}$ $^3\Pi_u, B{ }^{3}\Sigma_{u}^{-} - X{}^{3}\Sigma_{g}^{-}$")
+plt.xlabel(r'wavenumber (cm$^{-1}$)')
+plt.ylabel(r'cross section (cm$^{2}$)')
+plt.title(r'O$_{2}$ $^3\Pi_u, B{ }^{3}\Sigma_{u}^{-} - X{}^{3}\Sigma_{g}^{-}$')
 
-plt.plot(*xst, 'C1-', label="ANU expt.", zorder=2)
+plt.plot(*xst, 'C1-', label='ANU expt.', zorder=2)
 
 plt.errorbar(bands[1:13], fexp[1]*dvdE[1:13]/1.13e12,
              yerr=fexp[2]*dvdE[1:13]/1.13e12, color='C3', fmt='o', mfc='w',
              ms=4, label='Yoshino', zorder=1)
 
 plt.yscale('log')
-plt.annotate(r"$f_{v^{\prime}0} \frac{dv^{\prime}}{dE}/1.13 \times"
-             " 10^{12}$", (49000, 3.0e-18), fontsize=12)
-plt.annotate(r"$\sigma$", (70000, 5.0e-19), fontsize=12)
+plt.annotate(r'$f_{v^{\prime}0} \frac{dv^{\prime}}{dE}/1.13 \times'
+             ' 10^{12}$', (49000, 3.0e-18), fontsize=12)
+plt.annotate(r'$\sigma$', (70000, 5.0e-19), fontsize=12)
 plt.legend(loc=8)
 
-plt.savefig("output/example_O2_continuity.png", dpi=100)
+plt.savefig('output/example_O2_continuity.png', dpi=100)
 plt.show()

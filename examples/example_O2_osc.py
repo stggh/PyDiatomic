@@ -29,20 +29,20 @@ Yv0 = int(Yv[0])
 print(r" v'     f_cse      f_Yoshino")
 for v, f in enumerate(osc):
     if v in Yv:
-        print("{:2d}   {:8.5e}   {}".format(v, f[0], Yosc[v-Yv0]))
+        print(f'{v:2d}   {f[0]:8.5e}   {Yosc[v-Yv0]}')
     else:
-        print("{:2d}   {:8.5e}   -".format(v, f[0]))
+        print(f'{v:2d}   {f[0]:8.5e}   -')
 
 plt.plot(osc, 'o', label=r'PyDiatomic')
 plt.errorbar(Yv, Yosc, Yerr, fmt='+', ms=5, label=r'Yoshino')
 
-plt.title(r"O$_2$ $B\, ^3\Sigma_{u}^{-} - X\, ^3\Sigma_{g}^{-}$ $(v^\prime,"
-          r" v^{\prime\prime}=0)$")
-plt.ylabel(r"oscillator strength")
-plt.xlabel(r"$v^\prime$")
+plt.title(r'O$_2$ $B\, ^3\Sigma_{u}^{-} - X\, ^3\Sigma_{g}^{-}$ $(v^\prime,'
+          r' v^{\prime\prime}=0)$')
+plt.ylabel(r'oscillator strength')
+plt.xlabel(r'$v^\prime$')
 plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
 plt.legend()
 plt.yscale('log')
 
-plt.savefig("output/example_O2_osc.png", dpi=100)
+plt.savefig('output/example_O2_osc.png', dpi=100)
 plt.show()

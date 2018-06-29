@@ -43,5 +43,5 @@ ax[1].legend()
 
 plt.subplots_adjust(wspace=.4)
 plt.suptitle(r"O$_2$ $B ^3\Sigma^-_u - X ^3\Sigma^-_g$ oscillator strengths")
-plt.savefig("O2osc.png", dpi=100)
+plt.savefig("output/O2osc.png", dpi=100)
 plt.show()

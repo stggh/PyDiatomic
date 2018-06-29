@@ -70,11 +70,11 @@ if __name__ == "__main__":
             SO2.diabatic2adiabatic()
 
             k += 1
-            ax = plt.subplot('{:d}{:d}{:1d}'.format(nD, nl, k))
+            ax = plt.subplot(f'{nD:d}{nl:d}{k:1d}')
             if j % nD == 0:  # start of a new row
-                plt.ylabel(r"$\lambda_{{ab}}=$ {:.0f}"
-                           .format(lamab[i]), fontsize=12)
-            plt.tick_params(axis='y', left=False, right=False, labelleft=False)
+                plt.ylabel(fr"$\lambda_{{ab}}=$ {lamab[i]:.0f}", fontsize=12)
+            plt.tick_params(axis='y', left=False, right=False,
+                            labelleft=False)
             plt.tick_params(axis='x', labelbottom=False)
             plt.plot(q3, SO2.VT[0, 0], 'C0--', label='Diabats')
             plt.plot(q3, SO2.VT[1, 1], 'C0--')
@@ -83,8 +83,8 @@ if __name__ == "__main__":
             plt.plot(q3, SO2.AT[0, 0], 'C1-', label='Adiabats')
             plt.plot(q3, SO2.AT[1, 1], 'C1-')
             plt.plot(q3, SO2.AT[2, 2], 'C1-')
-            plt.title(r"$D_{{ab}}$ = {:.0f}{}".format(Dab[j],
-                      "             " if i == 2 else ''), fontsize=12)
+            plt.title(fr"$D_{{ab}}$ = {Dab[j]:.0f}"
+                      fr"{'             ' if i == 2 else ''}")
             if i == nl-1:  # bottom row
                 plt.xlabel(r"$q_3$", fontsize=15)
                 plt.tick_params(axis='x', labelbottom=True)

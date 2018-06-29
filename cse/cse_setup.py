@@ -210,8 +210,8 @@ def coupling_function(R, VT, mu, pecfs, coup=None):
     for j in range(n):
         for k in range(j+1,n):
             if coup == None:
-                couplestr = input("CSE: coupling {:s} <-> {:s} cm-1 [0]? "\
-                                  .format(pecfs[j],pecfs[k]))
+                couplestr = input(
+                 f'CSE: coupling {pecfs[j]:s} <-> {pecfs[k]:s} cm-1 [0]? ')
                 couple = float(couplestr) if len(couplestr) > 1 else 0.0
 
             elif isinstance(coup[cnt], tuple):
@@ -249,8 +249,9 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
             if dipolemoment is not None and len(dipolemoment) > i:
                 fn = dipolemoment[i]
             else:
-                fn = input("CSE: dipolemoment filename or value {} <- {} : ".
-                           format(pec_us[u], pec_gs[g])) 
+                fn = input(
+                f'CSE: dipolemoment filename or value {pec_us[u]} <-'
+                f' {pec_gs[g]} : ')
 
             if is_number(fn):
                 dipole[u][g] = float(fn)             
