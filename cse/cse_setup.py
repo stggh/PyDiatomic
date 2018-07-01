@@ -15,6 +15,8 @@ def reduced_mass(amu=None):
     Returns
     -------
     μ : reduced mass in kg
+    molecule : str
+        molecule label
 
     """
 
@@ -140,10 +142,8 @@ def potential_energy_curves(pecfs=None, R=None):
                 AM.append((0, 0, 0, 0))
 
         else:
-            radialcoord, potential = fn  # VT=[(R, V), ...] as tuples
+            radialcoord, potential = fn
             AM.append((0, 0, 0, 0))
-            pecfs = ['']
-            
         Rin.append(radialcoord)
         Vin.append(potential)
         
@@ -163,8 +163,7 @@ def potential_energy_curves(pecfs=None, R=None):
     # curve to be extrapolated
     if R is None:
         dR = Rin[0][-1] - Rin[0][-2]
-        # cannot change size indpendent of V - removed next line 23/5/18
-        # dR = round(dR, 1-int(np.floor(np.log10(dR)))-1)
+        dR = round(dR, 1-int(np.floor(np.log10(dR)))-1)
         R = np.arange(Rm, Rx+dR/2, dR)
 
     oo = len(R)
@@ -198,7 +197,7 @@ def coupling_function(R, VT, μ, pecfs, coup=None):
         list potential curve couplings (in cm-1) 
     
     """
-    # hbar^2/2 μ in eV (once /R^2)
+    # hbar^2/2μ in eV (once /R^2)
     centrifugal_factor = (const.hbar*1.0e20/μ/2/const.e)*const.hbar
     n, m, oo = VT.shape
 
@@ -211,9 +210,8 @@ def coupling_function(R, VT, μ, pecfs, coup=None):
         for k in range(j+1,n):
             if coup == None:
                 couplestr = input(
-                 f'CSE: coupling {pecfs[j]:s} <-> {pecfs[k]:s} cm-1 [0]? ')
+                     f'CSE: coupling {pecfs[j]:s} <-> {pecfs[k]:s} cm-1 [0]? ')
                 couple = float(couplestr) if len(couplestr) > 1 else 0.0
-
             elif isinstance(coup[cnt], tuple):
                 # fix me! - should interpolate coupling function
                 Rdummy, couple = coup[cnt]
@@ -249,9 +247,8 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
             if dipolemoment is not None and len(dipolemoment) > i:
                 fn = dipolemoment[i]
             else:
-                fn = input(
-                f'CSE: dipolemoment filename or value {pec_us[u]} <-'
-                f' {pec_gs[g]} : ')
+                fn = input("CSE: dipolemoment filename or value "
+                           "{pec_us[u]} <- {pec_gs[g]} : ")
 
             if is_number(fn):
                 dipole[u][g] = float(fn)             
