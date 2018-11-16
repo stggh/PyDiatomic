@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import scipy.linalg as scla
+import scipy.constants as const
 from scipy import interpolate
 from collections import OrderedDict
 
 from . import johnson
 from . import expectation
 from . import cse_setup
+from . import tools
 
 
 class Cse():
@@ -243,7 +245,7 @@ class Xs():
     def __init__(self, μ=None, Ri=None, VTi=None, coupi=None, eni=0, roti=0,
                                 Rf=None, VTf=None, coupf=None, rotf=0,
                                 dipolemoment=None, transition_energy=None,
-                                honl=False):
+                                temperature=0):
 
         self._evcm = 8065.541
 
@@ -265,7 +267,7 @@ class Xs():
         if transition_energy is not None:
             self.calculate_xs(transition_energy)
 
-        self.honl = honl
+        self.temperature = temperature
 
     def set_param(self, μ=None, eni=None, coupi=None, roti=None,
                                            coupf=None, rotf=None):
@@ -289,7 +291,9 @@ class Xs():
             if coupi is not None:
                 self.us.set_coupling(coupf)
 
-    def calculate_xs(self, transition_energy, eni=None, roti=None, rotf=None):
+    def calculate_xs(self, transition_energy, eni=None, roti=None, rotf=None,
+                     temperature=0):
+        self.temperature = temperature
         transition_energy = np.array(transition_energy)
         emax = np.abs(transition_energy).max()
         if emax < 50:
@@ -311,6 +315,11 @@ class Xs():
         xswav = expectation.xs_vs_wav(self)
         self.xs, self.wavenumber = zip(*xswav) 
         self.xs = np.array(self.xs)
+        if self.temperature > 0:
+            self.xs *= tools.intensity.honl(self.us.rot, self.gs.rot,
+                                            self.us.AM[0][0], self.gs.AM[0][0])
+            self.xs *= tools.intensity.Boltzmann(self.gs.cm, self.gs.rot,
+                                                 temperature)
         self.wavenumber = np.array(self.wavenumber)
         self.nopen = self.xs.shape[-1] - 1
 

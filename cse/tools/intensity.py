@@ -23,7 +23,7 @@ def Boltzmann(en, J, T):
     return (2*J + 1)*np.exp(-en*const.h*const.c*100/const.k/T)
 
 
-def honl(Jd, Jdd, Od, Odd):
+def honl(Jd, Jdd, Ωd, Ωdd):
     """ Honl-London factor.
 
     Parameters
@@ -32,9 +32,9 @@ def honl(Jd, Jdd, Od, Odd):
         upperstate total angular momentum quantum number
     Jdd : int
         lowerstate total angular momentum quantum number
-    Od : int
+    Ωd : int
         upperstate Omega, projection of Jd
-    Odd : int
+    Ωdd : int
         lowerstate Omega, projection of Jdd
 
     Returns
@@ -42,7 +42,7 @@ def honl(Jd, Jdd, Od, Odd):
     Honl-London factor : float
     """
      
-    return (2*Jdd + 1)*Wigner3j(Jd, 1, Jdd, -Od, 0, Odd)**2
+    return (2*Jdd + 1)*Wigner3j(Jd, 1, Jdd, -Ωd, 0, Ωdd)**2
 
 
 def Wigner3j(j1, j2, j3, m1, m2, m3):

@@ -86,8 +86,7 @@ def xs(Xs, wavenumber):
         # bound upperstates => reset transition energy
         wavenumber = Xs.us.cm - Xs.gs.cm
     xsp = cross_section(wavenumber, Xs)
-    hlf = honl(Xs)
-    return (xsp*hlf, wavenumber) #, wavenumber)
+    return xsp, wavenumber 
 
 
 def xs_vs_wav(Xs):
@@ -102,18 +101,6 @@ def xs_vs_wav(Xs):
     pool.join()
 
     return xsp
-
-
-def honl(Xs):
-    # Honl-London factor
-    hfl = 1.0
-    if Xs.honl:
-        Jd = Xs.us.rot
-        Jdd = Xs.gs.rot
-        Od = Xs.us.Omega
-        Odd = Xs.gs.Omega
-        hfl = (2*Jd + 1) * N(wigner_3j(Jd, 1, Jdd, -Od, Od-Odd, Odd))**2
-    return hfl
 
 
 def Bv(Cse):
