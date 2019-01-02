@@ -13,6 +13,6 @@ setup(
       'Topic :: Scientific/Engineering :: Physics',
       'Topic :: Scientific/Engineering :: Chemistry',
       'Topic :: Software Development :: Libraries :: Python Modules',
-      'Programming Language :: Python :: 3.5',
+      'Programming Language :: Python :: 3.7',
       ],
 )

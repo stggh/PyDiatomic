@@ -25,28 +25,42 @@ class Cse():
         If `R=None` set to `numpy.arange(Rmin, Rmax+dR/2, dR)`
         where Rmin = highest minimum, Rmax = lowest maximum
         of all the potential curves
+
     VT : numpy 3d array
         transpose of the potential curve and couplings array
         Note: potential curves spline interpolated to grid `R`
+
     Bv : float
         evaluated rotational constant (if single wavefunction)
+
     cm : float
         eigen energy in cm-1 (from method solve)
+
     energy : float
         eigenvalue energy in eV
+
     results : dict
         single state calculation results  {vib: (energy, Bv, Jrot)} in cm-1
         (see also class representation)
+
     limits : tuple
         array sizes: (oo, n, Rmin, Rmax, Vmin, Te)
-    μ : float
-        reduced mass in kg
+
+    μ : str or float
+        reduced mass, str one of 'H2', 'HCl', 'OH', 'N2', 'N14', 'N14N15', 
+        'N15', 'NO', 'O2', 'O16O17', 'O17O18', 'O16O18', 'O18', 'CO', 'Cl2',
+        'CS2', 'Cs2', 'ICl', 'I2', 'Br', 'S2', 'S32', 'S32O16', 'S33O16', 
+        'S34O16' or float in amu 
+
     rot : int
         total angular momentum quantum number
+
     vib : int
         vibrational quantum number (if available)
+
     wavefunction : numpy array
         wavefunction(s) for all channels
+
     wavenumber: numpy float
         wavenumber eigenvalue of the solution
 

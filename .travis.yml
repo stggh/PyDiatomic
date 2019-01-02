@@ -2,12 +2,12 @@ language: python
 sudo: false
 matrix:
   include:
-  - python: '3.6'
-    env: DEPS="numpy scipy sympy nose"
+  - python: '3.7'
+    env: DEPS="numpy scipy sympy"
 install:
-- pip install --upgrade pip setuptools wheel
-- pip install --only-binary=numpy,scipy numpy scipy
-- pip install coveralls
-- python setup.py install
+  - pip install --upgrade pip setuptools wheel
+  - "pip install ${DEPS}"
+  - pip install coveralls pytest pytest-cov
+  - python install .
 script:
-- nosetests -vv --with-coverage --cover-package=cse cse/tests
+- cd tmp/; pytest -v --cov=cse --pyargs cse
