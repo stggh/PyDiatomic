@@ -10,4 +10,4 @@ install:
   - pip install coveralls pytest pytest-cov
   - python install .
 script:
-- cd tmp/; pytest -v --cov=cse --pyargs cse
+- pytest -v --cov=cse --pyargs cse
