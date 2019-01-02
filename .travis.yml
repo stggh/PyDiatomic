@@ -2,7 +2,11 @@ language: python
 sudo: false
 matrix:
   include:
-  - python: '3.6'
+  - python: '3.7'
+    env: DEPS="numpy scipy sympy"
+    sudo: true
+    dist: xenial
+  - ython: '3.6'
     env: DEPS="numpy scipy sympy"
 install:
   - pip install --upgrade pip setuptools wheel
@@ -10,4 +14,4 @@ install:
   - pip install coveralls pytest pytest-cov
   - python install .
 script:
-- pytest -v --cov=cse --pyargs cse
+  - cd tmp/; pytest -v --cov=cse --pyargs cse
