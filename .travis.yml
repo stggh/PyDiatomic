@@ -3,11 +3,11 @@ sudo: false
 matrix:
   include:
   - python: '3.7'
-    env: DEPS="numpy scipy sympy"
+    env: DEPS="numpy scipy"
     sudo: true
     dist: xenial
   - ython: '3.6'
-    env: DEPS="numpy scipy sympy"
+    env: DEPS="numpy scipy"
 install:
   - pip install --upgrade pip setuptools wheel
   - "pip install ${DEPS}"

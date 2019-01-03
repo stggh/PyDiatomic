@@ -7,7 +7,7 @@ def test_Morse():
     r = np.arange(0, 10, 0.05)
 
     # simulates O2 X-state
-    VM = cse.analytical.Morse(r, 1.21, 5.21, 0.0, 2.65)
+    VM = cse.tools.analytical.Morse(r, 1.21, 5.21, 0.0, 2.65)
 
     morse = cse.Cse('O2', VT=[(r, VM)], en=800)
 
