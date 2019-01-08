@@ -153,27 +153,25 @@ def formPEC(R, Rmin, Rmax, E, De, limb, verbose=True):
 def inner_limb_Morse(R, P, RTP, PTP, Re, De, verbose=True):
     ln0 = np.log(1 + np.sqrt(PTP[0]/De))
     beta = ln0/(Re - RTP[0])
-    for i, r in enumerate(R):
-        if r > RTP[0]:
-            break
-        tmp = 1 - np.exp(-beta*(r-Re))
-        P[i] = De*tmp*tmp
+
+    subR = R < RTP[0]
+    P[subR] = De*( 1 - np.exp(-beta*(R[subR]-Re)) )**2
+
     if verbose:
         print('RKR: Inner limb  De[1-exp(beta*(Re-R))]^2')
-        print(f'RKR:  {R[0]:g}-{r:g}A   {De:g}(De)  {Re:g}(Re)  '
+        print(f'RKR:  {R[0]:g}-{RTP[0]:g}A   {De:g}(De)  {Re:g}(Re)  '
               f'{beta:g}(beta)')
 
 
 def outer_limb_Morse(R, P, RTP, PTP, De, Re, verbose=True):
     l1 = np.log(1 - np.sqrt(PTP[-1]/De))
     l2 = np.log(1 - np.sqrt(PTP[-2]/De))
-    re = (l2*RTP[-1]-l1*RTP[-2])/(l2-l1)
+    Re = (l2*RTP[-1]-l1*RTP[-2])/(l2-l1)
     beta = l1/(Re - RTP[-1])
-    for i, r in enumerate(R):
-        if r < RTP[-1]:
-            continue
-        tmp = 1 - np.exp(-beta*(r-Re))
-        P[i] = De*tmp*tmp
+
+    subR = R > RTP[-1]
+    P[subR] = De*( 1 - np.exp(-beta*(R[subR]-Re)) )**2
+
     if verbose:
         print('RKR: Outer limb  De[1-exp(beta*(Re-R))]^2')
         print(f'RKR:   {RTP[-1]:g}-{R[-1]:g}A   {De:g}(De)  {re:g}(Re)  '
@@ -183,10 +181,10 @@ def outer_limb_Morse(R, P, RTP, PTP, De, Re, verbose=True):
 def outer_limb_LeRoy(R, P, RTP, PTP, De, verbose=True):
     n = np.log((De - PTP[-1])/(De - PTP[-2]))/np.log(RTP[-2]/RTP[-1])
     Cn = (De - PTP[-1])*RTP[-1]**n
-    for i, r in enumerate(R):
-        if r < RTP[-1]:
-            continue
-        P[i] = De - Cn/r**n
+
+    subR = R > RTP[-1]
+    P[subR] = De - Cn/R[subR]**n
+
     if verbose:
         print('RKR: Outer limb  De - Cn/R^n')
         print(f'RKR:  {RTP[-1]:g}-{R[-1]:g}A   {De:g}(De)  {n:g}(n)  '

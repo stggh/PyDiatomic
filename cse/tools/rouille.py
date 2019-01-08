@@ -112,7 +112,7 @@ if __name__ == "__main__":
     F = np.zeros(4)
     print(" N     F1         F2         F3")
     for v in range(1):
-        for N in range(1, 15, 2):
+        for N in range(1, 25, 2):
             F[2] = rouille(v, N, N)
             for J in range(N-1, N+2, 2):
                 f = N - J + 2
