@@ -11,7 +11,7 @@ def test_Morse():
 
     morse = cse.Cse('O2', VT=[(r, VM)], en=800)
 
-    npt.assert_almost_equal(morse.cm, 778.47775, decimal=5)
+    npt.assert_almost_equal(morse.cm, 778.3672, decimal=4)
 
     morse.solve(en=2000)
     npt.assert_almost_equal(morse.vib, 1)

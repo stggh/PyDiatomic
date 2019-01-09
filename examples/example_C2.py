@@ -27,7 +27,7 @@ Gv = G(vv, we=1854.71, wexe=13.34)
 Bv = B(vv, Be=1.8189, alphae=0.0176)
 
 # C2 reduced mass
-μ = 6
+μ = 6.00535
 
 # De - dissociation energy
 De = 6.21*8065.541

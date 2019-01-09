@@ -10,7 +10,6 @@ import numpy as np
 import scipy.constants as const
 from scipy.interpolate import splrep, splev
 
-
 def rkr(mu, vv, Gv, Bv, De, limb='L', dv=0.1,
         Rgrid=np.arange(0.005, 10.004, 0.005), verbose=True):
     """ Rydberg-Klien-Rees potential energy curve.
@@ -18,7 +17,7 @@ def rkr(mu, vv, Gv, Bv, De, limb='L', dv=0.1,
     Parameters
     ---------
     mu : float
-        reduced mass in atomic units
+        readuced mass in amu
     vv : numpy 1d array of floats
         vibrational quantum number for Gv, Bv
     Gv : numpy 1d array of floats
