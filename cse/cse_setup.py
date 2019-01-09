@@ -11,7 +11,7 @@ def reduced_mass(molecule):
 
     Parameters
     ----------
-    molecule : str
+    molecule : str or float kg or float amu
         e.g. 'O2', 'O16O16', 'O16O18'
 
     Returns
@@ -22,7 +22,12 @@ def reduced_mass(molecule):
 
     """
 
-    if molecule[-1] == '2':
+    if isinstance(molecule, float):
+        μ = molecule
+        if μ < 1:
+            μ /= const.u
+        molecule = 'unknown'
+    elif molecule[-1] == '2':
         μ = elements.isotope(molecule[0]).mass/2
     elif molecule[0].isalpha():
         i = len(molecule)//2
