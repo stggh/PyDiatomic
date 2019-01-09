@@ -2,75 +2,37 @@
 import numpy as np
 import scipy.constants as const
 import re
+from periodictable import elements
 from scipy.interpolate import splrep, splev
 
-def reduced_mass(amu=None):
+
+def reduced_mass(molecule):
     """ Reduced mass of diatomic molecule.
 
     Parameters
     ----------
-    amu : str or float
-        reduced mass, str one of 'H2', 'HCl', 'OH', 'N2', 'N14', 'N14N15', 'N15', 'NO', 'O2', 'O16O17', 'O17O18', 'O16O18', 'O18', 'CO', 'Cl2', 'CS2', 'Cs2', 'ICl', 'I2', 'Br', 'S2', 'S32', 'S32O16', 'S33O16', 'S34O16' or float in amu 
+    molecule : str
+        e.g. 'O2', 'O16O16', 'O16O18'
 
     Returns
     -------
-    μ : reduced mass in kg
+    μ : diatomic reduced mass in kg
     molecule : str
-        molecule label
+        molecule formula as input
 
     """
 
-    amus = {\
-        'H2': 0.50391261,
-        'HCl': 0.97959272,
-        'OH': 0.9480871,
-        'N2': 7.0015372,
-        'N14': 7.0015372,
-        'N14N15': 7.242227222,
-        'N15': 7.50005465,
-        'NO': 7.46643323,
-        'O2': 7.99745751,
-        'O16O17': 1.368448e-26/const.u,
-        'O17O18': 1.451734e-26/const.u,
-        'O16O18': 1.40607e-26/const.u,
-        'O18': 1.49417e-26/const.u,
-        'C2': 6.0,
-        'CO': 6.85620871,
-        'Cl2': 17.4844268,
-        'CS2': 8.727,
-        'Cs2': 66.452718,
-        'ICl': 27.4146708,
-        'I2': 63.4522378,
-        'Br': 39.459166,
-        'S2': 15.9860364,
-        'S32': 15.9860364,
-        'S32O16': 10.6613029,
-        'S33O16': 10.77016005,
-        'S34O16': 10.78435767,
-        'U' : 2.0   # unknown/unimportant
-        }
-    molecule = 'unknown'
-    if amu is None: 
-        mus = input ("CSE: reduced mass a.u. [O2=7.99745751]: ")
-        if mus in amus.keys():
-            molecule = mus
-            amu = amus[mus]
-        else:
-            amu = float(mus) if len(mus) > 0 else 7.99745751
-            molecule = 'O2'
-    elif amu in amus.keys():
-        molecule = amu
-        amu = amus[amu] 
+    if molecule[-1] == '2':
+        μ = elements.isotope(molecule[0]).mass/2
+    elif molecule[0].isalpha():
+        i = len(molecule)//2
+        m1 = elements.isotope(molecule[1:i] + '-' + molecule[0]).mass
+        m2 = elements.isotope(molecule[i+1:] + '-' + molecule[i]).mass
+        μ = m1*m2/(m1 + m2)
     else:
-        # atomic mass given
-        if amu < 1.0e-20:
-            amu /= const.u
-        for k, v in amus.items():
-            if np.abs(amu-v) < 0.1:
-                molecule = k
-                break
+        raise ValueError("unknown molecule " + molecule)
 
-    return amu*const.u, molecule
+    return μ*const.u, molecule
 
 
 def potential_energy_curves(pecfs=None, R=None):
