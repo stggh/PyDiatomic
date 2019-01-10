@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import scipy.constants as const
-import re
 from periodictable import elements
+import re
 from scipy.interpolate import splrep, splev
 
 
@@ -11,8 +11,8 @@ def reduced_mass(molecule):
 
     Parameters
     ----------
-    molecule : str or float kg or float amu
-        e.g. 'O2', 'O16O16', 'O16O18'
+    molecule : formula str or float value for reduced mass amu or kg
+        e.g. 'O2', 'SO18', 'S32O', '32S16O'
 
     Returns
     -------
@@ -28,12 +28,26 @@ def reduced_mass(molecule):
             μ /= const.u
         molecule = 'unknown'
     elif molecule[-1] == '2':
-        μ = elements.isotope(molecule[0]).mass/2
+        μ = elements.isotope(molecule[:-1]).mass/2
     elif molecule[0].isalpha():
-        i = len(molecule)//2
-        m1 = elements.isotope(molecule[1:i] + '-' + molecule[0]).mass
-        m2 = elements.isotope(molecule[i+1:] + '-' + molecule[i]).mass
-        μ = m1*m2/(m1 + m2)
+        # from stackoverflow.com/questions/41818916/calculate-molecular-weight-based-on-chemical-formula-using-python
+        atoms = re.findall('([A-Z][a-z]?)([0-9]*)', molecule)
+        mass = []
+        for at, amu in atoms:
+            if amu != '':
+                mass.append(elements.isotope(at)[int(amu)].mass) 
+            else:
+                mass.append(elements.isotope(at).mass) 
+        μ = mass[0]*mass[1]/(mass[0] + mass[1])
+    elif molecule[0].isnum():
+        atoms = re.findall('([0-9]*)([A-Z][a-z]?)', molecule)
+        mass = []
+        for amu, at in atoms:
+            if amu != '':
+                mass.append(elements.isotope(at)[int(amu)].mass)
+            else:
+                mass.append(elements.isotope(at).mass)
+        μ = mass[0]*mass[1]/(mass[0] + mass[1])
     else:
         raise ValueError("unknown molecule " + molecule)
 

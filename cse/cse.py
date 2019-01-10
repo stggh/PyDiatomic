@@ -43,14 +43,17 @@ class Cse():
         single state calculation results  {vib: (energy, Bv, Jrot)} in cm-1
         (see also class representation)
 
+    molecule: str
+        chemical formula str
+
+    AM : 1d array of tuples
+        Angular momenta quantum numbers (Ω, S, Λ, Σ) for each electronic state
+
     limits : tuple
         array sizes: (oo, n, Rmin, Rmax, Vmin, Te)
 
     μ : str or float
-        reduced mass, str one of 'H2', 'HCl', 'OH', 'N2', 'N14', 'N14N15', 
-        'N15', 'NO', 'O2', 'O16O17', 'O17O18', 'O16O18', 'O18', 'CO', 'Cl2',
-        'CS2', 'Cs2', 'ICl', 'I2', 'Br', 'S2', 'S32', 'S32O16', 'S33O16', 
-        'S34O16' or float in amu 
+        molecule formula str or reduced mass in amu or kg 
 
     rot : int
         total angular momentum quantum number
