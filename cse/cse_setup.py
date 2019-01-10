@@ -39,7 +39,7 @@ def reduced_mass(molecule):
             else:
                 mass.append(elements.isotope(at).mass) 
         μ = mass[0]*mass[1]/(mass[0] + mass[1])
-    elif molecule[0].isnum():
+    elif molecule[0].isdigit():
         atoms = re.findall('([0-9]*)([A-Z][a-z]?)', molecule)
         mass = []
         for amu, at in atoms:
