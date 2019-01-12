@@ -30,7 +30,10 @@ def reduced_mass(molecule):
     elif molecule[-1] == '2':
         μ = elements.isotope(molecule[:-1]).mass/2
     elif molecule[0].isalpha():
-        # from stackoverflow.com/questions/41818916/calculate-molecular-weight-based-on-chemical-formula-using-python
+        # from https://stackoverflow.com/questions/41818916
+        # /calculate-molecular-weight-based-on-chemical-formula-using-python
+
+        # style 'S32O16'
         atoms = re.findall('([A-Z][a-z]?)([0-9]*)', molecule)
         mass = []
         for at, amu in atoms:
@@ -40,6 +43,7 @@ def reduced_mass(molecule):
                 mass.append(elements.isotope(at).mass) 
         μ = mass[0]*mass[1]/(mass[0] + mass[1])
     elif molecule[0].isdigit():
+        # style '32S16O'
         atoms = re.findall('([0-9]*)([A-Z][a-z]?)', molecule)
         mass = []
         for amu, at in atoms:

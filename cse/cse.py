@@ -130,10 +130,7 @@ class Cse():
 
         wfx = self.wavefunction[self.energy > V]  # inside well
 
-        vib = 0
-        for i, wfxi in enumerate(wfx[:-1]):
-            if (wfxi > 0 and wfx[i+1] < 0) or (wfxi < 0 and wfx[i+1] > 0):
-                vib += 1
+        vib = (wfx[1:]*wfx[:-1] < 0).sum()
 
         self.vib = vib
         return vib
