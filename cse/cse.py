@@ -189,11 +189,8 @@ class Cse():
             self.results[vi] = (float(spl(vi)), float(splB(vi)), self.rot)
 
         if exact:
-            if vmax > 10:
-               print(f'{self.pecfs[0]:s} solutions for v = 0, ..., {vmax:d}'
-                     ' may take some time to evaluate ...')
             for v, (en, Bv, rot) in list(self.results.items()):
-                self.solve(en)
+                self.solve(en, rot)
 
         # sort in order of energy
         self.results = OrderedDict(sorted(self.results.items(),
