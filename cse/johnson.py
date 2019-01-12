@@ -225,7 +225,7 @@ def matching_point(en, rot, V, R, μ, AM):
 
         WI = WImat(en, rot, V, R, μ, AM)
         Rm = RImat(WI, mx)
-        while linalg.det(Rm[mx]) > 0.9:
+        while linalg.det(Rm[mx]) > 1:
             mx -= 1
 
     return mx
@@ -353,7 +353,7 @@ def solveCSE(Cse, en):
     mx = matching_point(en, rot, V, R, μ, AM)
 
     if mx < oo-5:
-        out = leastsq(eigen, (en, ), args=(rot, mx, V, R, μ, AM), xtol=0.01)
+        out = leastsq(eigen, (en, ), args=(rot, mx, V, R, μ, AM), xtol=1e-3)
         en = float(out[0])
 
     # solve CSE according to Johnson renormalized Numerov method
