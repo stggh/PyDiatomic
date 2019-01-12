@@ -225,7 +225,7 @@ def matching_point(en, rot, V, R, μ, AM):
 
         WI = WImat(en, rot, V, R, μ, AM)
         Rm = RImat(WI, mx)
-        while linalg.det(Rm[mx]) > 0.95:
+        while linalg.det(Rm[mx]) > 0.9:
             mx -= 1
 
     return mx
