@@ -353,7 +353,7 @@ def solveCSE(Cse, en):
     mx = matching_point(en, rot, V, R, μ, AM)
 
     if mx < oo-5:
-        out = leastsq(eigen, (en, ), args=(rot, mx, V, R, μ, AM), xtol=1e-3)
+        out = leastsq(eigen, (en, ), args=(rot, mx, V, R, μ, AM), xtol=1e-2)
         en = float(out[0])
 
     # solve CSE according to Johnson renormalized Numerov method
