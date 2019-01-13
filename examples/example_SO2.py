@@ -65,7 +65,8 @@ if __name__ == "__main__":
             VT = SO2_interaction_matrix(q3, Dab[j], lamab[i])
 
             # cse to store diabatic interaction matrix
-            SO2 = cse.Cse('U', R=q3, VT=VT)
+            # fix me - dummy mass
+            SO2 = cse.Cse('32S16O16O', R=q3, VT=VT)
             # diagonalize to give the adiabatic matrix
             SO2.diabatic2adiabatic()
 

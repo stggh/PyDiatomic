@@ -5,9 +5,9 @@ from scipy.integrate.quadrature import simps
 import matplotlib.pyplot as plt
 
 # ground state
-O2 = cse.Xs('O2', VTi=['potentials/X3S-1.dat'], eni=800,
-                  VTf=['potentials/B3S-1.dat'],
-                  dipolemoment=['transitionmoments/dipole_b_valence.dat'])
+O2 = cse.Xs('16O16O', VTi=['potentials/X3S-1.dat'], eni=800,
+                      VTf=['potentials/B3S-1.dat'],
+                      dipolemoment=['transitionmoments/dipole_b_valence.dat'])
 R = O2.gs.R
 
 # B-X transition energy guesses
