@@ -26,11 +26,11 @@ Download the latest version from github ::
 
 `cd`  to the PyDiatomic directory, and use ::
 
-    python3 setup.py install --user
+    python setup.py install --user
 
 Or, if you wish to edit the PyAbel source code without re-installing each time ::
 
-    python3 setup.py develop --user
+    python setup.py develop --user
 
 
 
@@ -52,9 +52,8 @@ requested if required.
 .. code-block:: python
 
    import cse
-   X = cse.Cse()   # class instance
-   # CSE: reduced mass a.u. [O2=7.99745751]:    # requested parameters
-   # CSE: potential energy curves [X3S-1.dat]:
+   X = cse.Cse('16O16O')   # class instance
+   # CSE: potential energy curves [X3S-1.dat]:   # requested parameter
    X.solve(800)    # solves TISE for energy ~ 800 cm-1
    # attributes
    #     AM                   limits               rot                  
@@ -81,7 +80,7 @@ requested if required.
 .. code-block:: python
 
    import cse
-   X = cse.Cse('O2', VT=['X3S-1.dat'])
+   X = cse.Cse('16O16O', VT=['X3S-1.dat'])
    X.levels(vmax=5)  # evaluates energy levels for v=0, .., vmax
                      # attribute .calc
    X  # class representation
@@ -112,8 +111,7 @@ cross section.
 
    import numpy as np
    import cse
-   Y = cse.Xs()
-   # CSE: reduced mass a.u. [O2=7.99745751]: 
+   Y = cse.Xs('16O16O')
    # CSE: potential energy curves [X3S-1.dat]: 
    # CSE: potential energy curves [X3S-1.dat]: B3S-1.dat, E3S-1.dat
    # CSE: coupling B3S-1.dat <-> E3S-1.dat cm-1 [0]? 4000
@@ -125,7 +123,7 @@ cross section.
    # Y.dipolemoment  Y.nopen         Y.us            Y.wavenumber  
    # and those associated with the initial and final states
    # 
-   # Y.gs.Bv                   Y.gs.mu                   Y.gs.set_mu
+   # Y.gs.Bv                   Y.gs.μ                    Y.gs.set_μ
    # Y.gs.R                    Y.gs.node_count           Y.gs.solve
    # Y.gs.VT                   Y.gs.pecfs                Y.gs.vib
    # Y.gs.cm                   Y.gs.rot                  Y.gs.wavefunction
@@ -133,9 +131,9 @@ cross section.
    # Y.gs.limits               Y.gs.set_coupling      
    # 
    # Y.us.R                    Y.us.node_count           Y.us.set_coupling
-   # Y.us.VT                   Y.us.pecfs                Y.us.set_mu
+   # Y.us.VT                   Y.us.pecfs                Y.us.set_μ
    # Y.us.limits               Y.us.rot                  Y.us.solve
-   # Y.us.mu                   Y.us.rotational_constant  
+   # Y.us.μ                    Y.us.rotational_constant  
 
 A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg-valence coupling in O\ :sub:`2`
 
@@ -145,7 +143,7 @@ A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg
     import cse
     import matplotlib.pyplot as plt
 
-    Z = cse.Xs('O2', VTi=['X3S-1.dat'], VTf=['B3S-1.dat', 'E3S-1.dat'],
+    Z = cse.Xs('16O16', VTi=['X3S-1.dat'], VTf=['B3S-1.dat', 'E3S-1.dat'],
                coupf=[4000], dipolemoment=[1, 0],
                transition_energy=np.arange(110, 174, 0.1), eni=800)
 
@@ -226,7 +224,7 @@ Rotation
 
     import cse
     
-    X = cse.Cse('O2', VT=['X3S-1.dat'])  # include path to potential curve
+    X = cse.Cse('16O16O', VT=['X3S-1.dat'])  # include path to potential curve
     X.solve(900, rot=0)
     X.cm
     # 787.3978354211097
