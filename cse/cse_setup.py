@@ -12,11 +12,13 @@ def reduced_mass(molecule):
     Parameters
     ----------
     molecule : formula str or float value for reduced mass amu or kg
-        e.g. O2' or '16O16O' or 'O16O16' etc. '32S18O', or 'S32O16'
+        e.g. O2' or '16O16O' or '16O2' or 'O2', '32S18O' etc. 
+        For '{atom}2' the most abundance isotope determines the mass
 
     Returns
     -------
     μ : diatomic reduced mass in kg
+
     molecule : str
         molecule formula as input
 
@@ -27,38 +29,30 @@ def reduced_mass(molecule):
         if μ < 1:
             μ /= const.u
         molecule = 'unknown'
-    elif molecule[-1] == '2':
-        elem = elements.isotope(molecule[:-1])
-        elem_abund = []
-        for iso in elem.isotopes:
-            elem_abund.append(elem[iso].abundance)
-        elem_abund = np.asarray(elem_abund)
-        μ = elem[elem.isotopes[elem_abund.argmax()]].mass/2
-    elif molecule[0].isalpha():
+    else:
+        if molecule[-1] == '2':
+            molecule = molecule[:-1]
+
         # from https://stackoverflow.com/questions/41818916
         # /calculate-molecular-weight-based-on-chemical-formula-using-python
-
-        # style 'S32O16'
-        atoms = re.findall('([A-Z][a-z]?)([0-9]*)', molecule)
-        mass = []
-        for at, amu in atoms:
-            if amu != '':
-                mass.append(elements.isotope(at)[int(amu)].mass) 
-            else:
-                mass.append(elements.isotope(at).mass) 
-        μ = mass[0]*mass[1]/(mass[0] + mass[1])
-    elif molecule[0].isdigit():
-        # style '32S16O'
+        # array of tuples [('34', 'S'), ('16', 'O')]
         atoms = re.findall('([0-9]*)([A-Z][a-z]?)', molecule)
-        mass = []
-        for amu, at in atoms:
-            if amu != '':
-                mass.append(elements.isotope(at)[int(amu)].mass)
+
+        if len(atoms) == 1 and atoms[0][0] == '':
+            # symbol only, find mass of most abundant isotope
+            elem = elements.isotope(atoms[0][1])
+            elem_abund = []
+            for iso in elem.isotopes:
+                elem_abund.append(elem[iso].abundance)
+            elem_abund = np.asarray(elem_abund)
+            μ = elem[elem.isotopes[elem_abund.argmax()]].mass/2
+        else:
+            m1 = elements.isotope(atoms[0][1])[int(atoms[0][0])].mass
+            if len(atoms) == 1:
+                μ = m1/2
             else:
-                mass.append(elements.isotope(at).mass)
-        μ = mass[0]*mass[1]/(mass[0] + mass[1])
-    else:
-        raise ValueError("unknown molecule " + molecule)
+                m2 = elements.isotope(atoms[1][1])[int(atoms[1][0])].mass
+                μ = m1*m2/(m1 + m2)
 
     return μ*const.u, molecule
 
