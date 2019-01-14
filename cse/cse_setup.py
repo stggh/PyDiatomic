@@ -12,7 +12,7 @@ def reduced_mass(molecule):
     Parameters
     ----------
     molecule : formula str or float value for reduced mass amu or kg
-        e.g. '32S18O', or 'S32O16'
+        e.g. O2' or '16O16O' or 'O16O16' etc. '32S18O', or 'S32O16'
 
     Returns
     -------
@@ -27,6 +27,13 @@ def reduced_mass(molecule):
         if μ < 1:
             μ /= const.u
         molecule = 'unknown'
+    elif molecule[-1] == '2':
+        elem = elements.isotope(molecule[:-1])
+        elem_abund = []
+        for iso in elem.isotopes:
+            elem_abund.append(elem[iso].abundance)
+        elem_abund = np.asarray(elem_abund)
+        μ = elem[elem.isotopes[elem_abund.argmax()]].mass/2
     elif molecule[0].isalpha():
         # from https://stackoverflow.com/questions/41818916
         # /calculate-molecular-weight-based-on-chemical-formula-using-python
