@@ -5,6 +5,22 @@ from periodictable import elements
 import re
 from scipy.interpolate import splrep, splev
 
+def atomic_mass(atom_symbol, isotope=''):
+   """atomic mass for atom_symbol, return most abundant atomic mass
+      if isotope not given.
+   """ 
+   elem = elements.isotope(atom_symbol)
+   if isotope != '': 
+        mass = elem[int(isotope)].mass   # have isotopic mass
+   else:
+       # most abundant isotopic mass
+       elem_abund = []
+       for iso in elem.isotopes:
+           elem_abund.append(elem[iso].abundance)
+       elem_abund = np.asarray(elem_abund)
+       mass = elem[elem.isotopes[elem_abund.argmax()]].mass
+   return mass
+
 
 def reduced_mass(molecule):
     """ Reduced mass of diatomic molecule.
@@ -30,29 +46,19 @@ def reduced_mass(molecule):
             μ /= const.u
         molecule = 'unknown'
     else:
-        if molecule[-1] == '2':
-            molecule = molecule[:-1]
-
         # from https://stackoverflow.com/questions/41818916
         # /calculate-molecular-weight-based-on-chemical-formula-using-python
         # array of tuples [('34', 'S'), ('16', 'O')]
         atoms = re.findall('([0-9]*)([A-Z][a-z]?)', molecule)
 
-        if len(atoms) == 1 and atoms[0][0] == '':
-            # symbol only, find mass of most abundant isotope
-            elem = elements.isotope(atoms[0][1])
-            elem_abund = []
-            for iso in elem.isotopes:
-                elem_abund.append(elem[iso].abundance)
-            elem_abund = np.asarray(elem_abund)
-            μ = elem[elem.isotopes[elem_abund.argmax()]].mass/2
+        m1 = atomic_mass(atoms[0][1], atoms[0][0])
+
+        if len(atoms) == 1:
+            m2 = m1
         else:
-            m1 = elements.isotope(atoms[0][1])[int(atoms[0][0])].mass
-            if len(atoms) == 1:
-                μ = m1/2
-            else:
-                m2 = elements.isotope(atoms[1][1])[int(atoms[1][0])].mass
-                μ = m1*m2/(m1 + m2)
+            m2 = atomic_mass(atoms[1][1], atoms[1][0])
+
+        μ = m1*m2/(m1 + m2)
 
     return μ*const.u, molecule
 
