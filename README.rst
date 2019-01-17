@@ -40,7 +40,8 @@ Or, if you wish to edit the PyAbel source code without re-installing each time :
 Example of use
 --------------
 
-PyDiatomic has a wrapper classes :class:`cse.Cse()` and  :class:`cse.Xs()` 
+PyDiatomic has a wrapper classes :class:`cse.Cse()` and
+:class:`cse.Transition()` 
 
 :class:`cse.Cse()`  set ups the CSE problem 
 (interaction matrix of potential energy curves, and couplings) and solves 
@@ -103,37 +104,26 @@ requested if required.
    # 35     40566.037      0.74300
 
 
-:class:`cse.Xs()` evaluates two couple channel problems, for an intitial 
-and final set of coupled channels, to calculate the photodissociation 
+:class:`cse.Transition()` evaluates two couple channel problems, for an
+intitial and final set of coupled channels, to calculate the photodissociation 
 cross section.
 
 .. code-block:: python
 
    import numpy as np
    import cse
-   Y = cse.Xs('16O16O')
-   # CSE: potential energy curves [X3S-1.dat]: 
-   # CSE: potential energy curves [X3S-1.dat]: B3S-1.dat, E3S-1.dat
-   # CSE: coupling B3S-1.dat <-> E3S-1.dat cm-1 [0]? 4000
-   # CSE: dipolemoment filename or value B3S-1.dat <- X3S-1.dat : 1
-   # CSE: dipolemoment filename or value E3S-1.dat <- X3S-1.dat : 0
-   Y.calculate_xs(transition_energy=np.arange(110, 174, 0.1), eni=800)
+   # initial state
+   O2X = cse.Cse('16O16O', VT=['potentials/X3S-1.dat'], en=800)
+   # final state
+   O2B = cse.Cse('16O16O', VT=['potentials/B3S-1.dat'])
+   # transition 
+   BX = cse.Transition(O2B, O2X)
+   # methods 
+   # BX.calculate_xs()  
+   BX.calculate_xs(transition_energy=np.arange(110, 174, 0.1), eni=800)
    # attributes
-   # Y.calculate_xs  Y.gs            Y.set_param     Y.xs
-   # Y.dipolemoment  Y.nopen         Y.us            Y.wavenumber  
-   # and those associated with the initial and final states
-   # 
-   # Y.gs.Bv                   Y.gs.μ                    Y.gs.set_μ
-   # Y.gs.R                    Y.gs.node_count           Y.gs.solve
-   # Y.gs.VT                   Y.gs.pecfs                Y.gs.vib
-   # Y.gs.cm                   Y.gs.rot                  Y.gs.wavefunction
-   # Y.gs.energy               Y.gs.rotational_constant  
-   # Y.gs.limits               Y.gs.set_coupling      
-   # 
-   # Y.us.R                    Y.us.node_count           Y.us.set_coupling
-   # Y.us.VT                   Y.us.pecfs                Y.us.set_μ
-   # Y.us.limits               Y.us.rot                  Y.us.solve
-   # Y.us.μ                    Y.us.rotational_constant  
+   # the calculated cross section BX.xs and those of the initial BX.gs and
+   # final coupled states BS.us
 
 A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg-valence coupling in O\ :sub:`2`
 
@@ -143,11 +133,12 @@ A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg
     import cse
     import matplotlib.pyplot as plt
 
-    Z = cse.Xs('16O16', VTi=['X3S-1.dat'], VTf=['B3S-1.dat', 'E3S-1.dat'],
-               coupf=[4000], dipolemoment=[1, 0],
-               transition_energy=np.arange(110, 174, 0.1), eni=800)
+    O2X = cse.Cse('16O16O', VT=['X3S-1.dat'], en=800)
+    O2B = cse.Cse('16O16O', VT=['B3S-1.dat', 'E3S-1.dat'], coup=[4000])
+    O2BX = cse.Transition(B, X, dipolemoment=[1, 0],
+               transition_energy=np.arange(110, 174, 0.1))
 
-    plt.plot(Z.wavenumber, Z.xs*1.0e16)
+    plt.plot(O2BX.wavenumber, O2BX.xs*1.0e16)
     plt.xlabel("Wavenumber (cm$^{-1}$)")
     plt.ylabel("Cross section ($10^{-16}$ cm$^{2}$)")
     plt.axis(ymin=-0.2)

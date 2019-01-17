@@ -237,6 +237,8 @@ class Xs():
     """ Class to evaluate photodissociation cross sections, i.e. solve the
     coupled-channel problems, for initial and final coupled-channels.
 
+    *Note*: depreciated, use `cse.Transition()`.
+
     The following attributes may be available subject to the calculation.
 
     Attributes
@@ -253,8 +255,8 @@ class Xs():
     """
 
     def __init__(self, μ=None, Ri=None, VTi=None, coupi=None, eni=0, roti=0,
-                                Rf=None, VTf=None, coupf=None, rotf=0,
-                                dipolemoment=None, transition_energy=None):
+                               Rf=None, VTf=None, coupf=None, rotf=0,
+                               dipolemoment=None, transition_energy=None):
 
         self._evcm = 8065.541
 
@@ -278,7 +280,7 @@ class Xs():
 
 
     def set_param(self, μ=None, eni=None, coupi=None, roti=None,
-                                           coupf=None, rotf=None):
+                                          coupf=None, rotf=None):
 
         if μ is not None or coupi is not None or roti is not None:
             # recalculate initial (coupled) state(s)
@@ -351,3 +353,37 @@ class Xs():
 
     def __repr__(self):
         return self.gs.__repr__() + '\n' + self.us.__repr__()
+
+
+class Transition(Xs):
+    """A simpler interface to evaluate transitions between
+       initial and final coupled states, replacing class:Xs().
+
+    """
+
+    def __init__(self, final_coupled_states, initial_coupled_states,
+                 dipolemoment=None, transition_energy=None):
+        """
+        Parameters
+        ----------
+        initial_coupled_states: `cse.Cse` class
+            initial (coupled)electronic state(s)
+
+        final_coupled_states: `cse.Cse` class
+            final (coupled)electronic state(s)
+
+        """
+
+        self.gs = initial_coupled_states
+        self.us = final_coupled_states
+
+        self.align_grids()
+
+        # electronic transition moment
+        self.dipolemoment = cse_setup.load_dipolemoment(
+                                dipolemoment=dipolemoment,
+                                R=self.us.R, pec_gs=self.gs.pecfs,
+                                pec_us=self.us.pecfs)
+
+        if transition_energy is not None:
+            self.calculate_xs(transition_energy)

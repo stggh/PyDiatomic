@@ -3,8 +3,10 @@ import cse
 import matplotlib.pyplot as plt
 
 # instance
-O2 = cse.Xs('16O16O', VTi=['potentials/X3S-1.dat'], eni=800,
-                      VTf=['potentials/B3S-1.dat'], dipolemoment=[1])
+O2X = cse.Cse('16O16O', VT=['potentials/X3S-1.dat'], en=800)
+O2B = cse.Cse('16O16O', VT=['potentials/B3S-1.dat'])
+
+O2 = cse.Transition(O2B, O2X, dipolemoment=[1])
 
 # B-X transition energy guesses
 bands = [49357, 50045, 50710, 51352, 51968, 52560, 53123, 53655,

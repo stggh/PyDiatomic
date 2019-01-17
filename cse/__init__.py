@@ -6,4 +6,4 @@ from .tools.rouille import rouille
 from .tools.xsT import total_cross_section
 from .tools.RKR import rkr
 from .tools.intensity import Boltzmann, honl, Wigner3j
-from .cse import Cse, Xs
+from .cse import Cse, Xs, Transition

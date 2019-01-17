@@ -73,7 +73,9 @@ Sorkhabi_FCF = np.array([[0.9972, 2.72e-3, 8.807e-5, 3.676e-7, 5.04e-9],
 # CSE calculation
 
 print("\nCSE FCF calculation -------------------")
-C2 = cse.Xs('12C12C', VTi=[(RX, X1S0)], VTf=[(RD, D1S0)], dipolemoment=[1])
+C2X = cse.Cse('12C12C', VT=[(RX, X1S0)])
+C2D = cse.Cse('12C12C', VT=[(RD, D1S0)])
+C2 = cse.Transition(C2D, C2X, dipolemoment=[1])
 
 C2.gs.solve(1000)
 print(f'X(v"={C2.gs.vib:d}) = {C2.gs.cm:10.5f} cm-1')
