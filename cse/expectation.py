@@ -128,106 +128,101 @@ def Dv(self):
 
     n = self.limits[1]
     oo = self.limits[0]
-    x = self.R
-    dx = x[2] - x[1]
-    x2 = 1/x**2
+    dR = self.R[2] - self.R[1]
+    R2 = 1/self.R**2
 
-    wks = np.zeros_like(x)
+    wks = np.zeros_like(R2)
 
     Dv = 0
     for j in np.arange(n):
-        v = self.VT[j, j]*kk + self.rot*(self.rot + 1)*x2
-        x0 = self.wavefunction.T[j, 0]
-        g = x0*(x2 - self.Bv*kk/self._evcm)
+        v = self.VT[j, j]*kk + self.rot*(self.rot + 1)*R2
+        R0 = self.wavefunction.T[j, 0]
+        g = R0*(R2 - self.Bv*kk/self._evcm)
 
-        mid = int((x[-1] - x[0])/dx/2)
-        while mid > 1 and np.abs(x0[mid]) < 0.1:
+        mid = int((self.R[-1] - self.R[0])/dR/2)
+        while mid > 1 and np.abs(R0[mid]) < 0.1:
             mid -= 1
 
-        while mid > 1 and (np.abs(x0[mid-1]) < np.abs(x0[mid])):
+        while mid > 1 and (np.abs(R0[mid-1]) < np.abs(R0[mid])):
             mid -= 1
 
-        x1 = lideo(v, g, x0, oo, e, dx, wks, x2, mid)
+        R1 = lideo(v, g, R0, oo, e, dR, wks, R2, mid)
 
-        g *= x1
-        Dv += simps(g, x)
+        g *= R1
+        Dv += simps(g, self.R)
 
     return -(Dv/kk)*self._evcm 
 
 
-def lideo(v, g, x0, nip, e0, h, diag, orth, mid):
-    # Fix me! - needs to pythonized/vectorized
-    x1 = np.zeros_like(x0)
+def lideo(v, g, R0, oo, e0, dR, diag, orth, mid):
+    R1 = np.zeros_like(R0)
     mid1 = mid - 1
-    nip1 = nip - 1
-    h2 = h*h
-    h12 = h2/12
-    olap = 0
+    oo1 = oo - 1
+    dR2 = dR**2
+    dR12 = dR2/12
 
-    for n in np.arange(0, nip):
-        vtemp = 1/(1 - h12*(v[n] - e0))
-        diag[n] = 10 - 12*vtemp
-        x1[n] = h2*vtemp*g[n]
-        orth[n] = x0[n]*vtemp
-        olap -= h12*orth[n]*g[n]
+    vtemp = 1/(1 - dR12*(v - e0))
+    diag = 10 - 12*vtemp
+    R1 = dR2*vtemp*g
+    orth = R0*vtemp
+    olap = -(dR12*orth*g).sum()
 
     ort = orth[0]
-    xx = x1[0]
+    xx = R1[0]
     dd = 1/diag[0]
     for n in np.arange(1, mid):
         olap -= xx*ort*dd
         ort = orth[n] - ort*dd
-        xx = x1[n] - xx*dd
-        x1[n] = xx
+        xx = R1[n] - xx*dd
+        R1[n] = xx
         dd = diag[n] - dd
         diag[n] = dd
         dd = 1/dd
     orsav = ort 
 
-    ort = orth[nip1]
-    xx = x1[nip1]
-    dd = 1/diag[nip1]
-    k = nip1
+    ort = orth[oo1]
+    xx = R1[oo1]
+    dd = 1/diag[oo1]
+    k = oo1
     midp = mid + 1
-    for n in np.arange(midp, nip):
+    for n in np.arange(midp, oo):
         k -= 1
         olap -= xx*ort*dd
         ort = orth[k] - ort*dd
-        xx = x1[k] - xx*dd
-        x1[k] = xx
+        xx = R1[k] - xx*dd
+        R1[k] = xx
         dd = diag[k] - dd
         diag[k] = dd
         dd = 1/dd
 
-    xx = (olap - ort*x1[mid1])/(orsav - diag[mid1]*ort)     
-    x1[mid1] = xx
+    xx = (olap - ort*R1[mid1])/(orsav - diag[mid1]*ort)     
+    R1[mid1] = xx
     midp = mid
-    for n in np.arange(midp, nip):
-        xx = (x1[n] - xx)/diag[n]
-        x1[n] = xx
+    for n in np.arange(midp, oo):
+        xx = (R1[n] - xx)/diag[n]
+        R1[n] = xx
 
     k = mid1
-    xx = x1[mid1]
+    xx = R1[mid1]
     for n in np.arange(1, mid):
         k -= 1
-        xx = (x1[k] - xx)/diag[k]
-        x1[k] = xx
+        xx = (R1[k] - xx)/diag[k]
+        R1[k] = xx
 
-    for n in np.arange(nip):
-        x1[n] = (x1[n] + h12*g[n])/(1 - h12*(v[n] - e0))
+    R1 = (R1 + dR12*g)/(1 - dR12*(v - e0))
 
-    if np.abs(x1[nip1]) > np.abs(x1[nip1-1]):
-        k = nip1
-        for n in np.arange(1, nip):
+    if np.abs(R1[oo1]) > np.abs(R1[oo1-1]):
+        k = oo1
+        for n in np.arange(1, oo):
             k -= 1
-            x1[k] = 0
-            if np.abs(x1[k-1]) > np.abs(x1[k]):
+            R1[k] = 0
+            if np.abs(R1[k-1]) > np.abs(R1[k]):
                 break
 
-    if np.abs(x1[1]) >= np.abs(x1[0]):
-        return x1
+    if np.abs(R1[1]) >= np.abs(R1[0]):
+        return R1
 
-    for n in np.arange(nip1):
-        x1[n] = 0
-        if np.abs(x1[n+1]) > np.abs(x1[n]):
-            return x1
+    for n in np.arange(oo1):
+        R1[n] = 0
+        if np.abs(R1[n+1]) > np.abs(R1[n]):
+            return R1
