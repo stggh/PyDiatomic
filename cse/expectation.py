@@ -155,9 +155,7 @@ def Dv(self):
 
 
 def lideo(v, g, R0, oo, e0, dR, diag, orth, mid):
-    R1 = np.zeros_like(R0)
     mid1 = mid - 1
-    oo1 = oo - 1
     dR2 = dR**2
     dR12 = dR2/12
 
@@ -180,49 +178,41 @@ def lideo(v, g, R0, oo, e0, dR, diag, orth, mid):
         dd = 1/dd
     orsav = ort 
 
-    ort = orth[oo1]
-    xx = R1[oo1]
-    dd = 1/diag[oo1]
-    k = oo1
-    midp = mid + 1
-    for n in np.arange(midp, oo):
-        k -= 1
+    ort = orth[-2]
+    xx = R1[-2]
+    dd = 1/diag[-2]
+    for n in np.arange(oo-2, mid-1, -1):
         olap -= xx*ort*dd
-        ort = orth[k] - ort*dd
-        xx = R1[k] - xx*dd
-        R1[k] = xx
-        dd = diag[k] - dd
-        diag[k] = dd
+        ort = orth[n] - ort*dd
+        xx = R1[n] - xx*dd
+        R1[n] = xx
+        dd = diag[n] - dd
+        diag[n] = dd
         dd = 1/dd
 
     xx = (olap - ort*R1[mid1])/(orsav - diag[mid1]*ort)     
     R1[mid1] = xx
-    midp = mid
-    for n in np.arange(midp, oo):
+    for n in np.arange(mid, oo):
         xx = (R1[n] - xx)/diag[n]
         R1[n] = xx
 
-    k = mid1
     xx = R1[mid1]
-    for n in np.arange(1, mid):
-        k -= 1
-        xx = (R1[k] - xx)/diag[k]
-        R1[k] = xx
+    for n in np.arange(mid1-1, 0, -1):
+        xx = (R1[n] - xx)/diag[n]
+        R1[n] = xx
 
     R1 = (R1 + dR12*g)/(1 - dR12*(v - e0))
 
-    if np.abs(R1[oo1]) > np.abs(R1[oo1-1]):
-        k = oo1
-        for n in np.arange(1, oo):
-            k -= 1
-            R1[k] = 0
-            if np.abs(R1[k-1]) > np.abs(R1[k]):
+    if np.abs(R1[-1]) > np.abs(R1[-2]):
+        for n in np.range(oo-2, 1, -1):
+            R1[n] = 0
+            if np.abs(R1[n-1]) > np.abs(R1[n]):
                 break
 
     if np.abs(R1[1]) >= np.abs(R1[0]):
         return R1
 
-    for n in np.arange(oo1):
+    for n in np.arange(oo-1):
         R1[n] = 0
         if np.abs(R1[n+1]) > np.abs(R1[n]):
             return R1
