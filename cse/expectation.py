@@ -123,32 +123,22 @@ def Dv(self):
         JM Hutson J. Phys. B14 851-857 (1981) doi:10.1088/0022-3700/14/5/018
 
     """
-    # Fix me! - needs to pythonized/vectorized
     kk = self.μ*const.e*2e-20/const.hbar**2
-    e = self.cm/self._evcm
+    e = self.cm*kk/self._evcm
 
     n = self.limits[1]
     oo = self.limits[0]
     x = self.R
     dx = x[2] - x[1]
+    x2 = 1/x**2
 
-    g = np.zeros_like(x)
-    x0 = np.zeros_like(x)
-    x2 = np.zeros_like(x)
-    v = np.zeros_like(x)
     wks = np.zeros_like(x)
 
     Dv = 0
     for j in np.arange(n):
-        for i in np.arange(oo):
-            x2[i] = 1/x[i]**2
-            v[i] = self.VT[0, 0][i]*kk + self.rot*(self.rot + 1)*x2[i]
-            x0[i] = self.wavefunction.T[j, 0][i]
-            g[i] = x0[i]*(x2[i] - self.Bv*kk/self._evcm)
-
-        if x[0] < 1e-10:
-            v[0] = 2*v[1] - v[2]
-            g[0] = 2*g[1] - g[2]
+        v = self.VT[j, j]*kk + self.rot*(self.rot + 1)*x2
+        x0 = self.wavefunction.T[j, 0]
+        g = x0*(x2 - self.Bv*kk/self._evcm)
 
         mid = int((x[-1] - x[0])/dx/2)
         while mid > 1 and np.abs(x0[mid]) < 0.1:
@@ -157,7 +147,6 @@ def Dv(self):
         while mid > 1 and (np.abs(x0[mid-1]) < np.abs(x0[mid])):
             mid -= 1
 
-        e *= kk 
         x1 = lideo(v, g, x0, oo, e, dx, wks, x2, mid)
 
         g *= x1
