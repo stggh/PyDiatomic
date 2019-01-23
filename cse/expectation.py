@@ -118,8 +118,6 @@ def Bv(Cse):
 def Dv(self):
     """ Dv rotational constant using Hudson algorithm:
         Dv = <v| Bv - H'| v(1)>.
-        Solve the linear inhomogeneous differential equation
-        d^2chi/dR^2 = V(R)chi(R) + g(R).
         JM Hutson J. Phys. B14 851-857 (1981) doi:10.1088/0022-3700/14/5/018
 
     """
@@ -146,7 +144,7 @@ def Dv(self):
         while mid > 1 and (np.abs(R0[mid-1]) < np.abs(R0[mid])):
             mid -= 1
 
-        R1 = lideo(v, g, R0, oo, e, dR, wks, R2, mid)
+        R1 = _lideo(v, g, R0, oo, e, dR, wks, R2, mid)
 
         g *= R1
         Dv += simps(g, self.R)
@@ -154,7 +152,12 @@ def Dv(self):
     return -(Dv/kk)*self._evcm 
 
 
-def lideo(v, g, R0, oo, e0, dR, diag, orth, mid):
+def _lideo(v, g, R0, oo, e0, dR, diag, orth, mid):
+    """
+        Solve the linear inhomogeneous differential equation
+        d^2chi/dR^2 = V(R)chi(R) + g(R).
+
+    """
     mid1 = mid - 1
     dR2 = dR**2
     dR12 = dR2/12
@@ -197,22 +200,23 @@ def lideo(v, g, R0, oo, e0, dR, diag, orth, mid):
         R1[n] = xx
 
     xx = R1[mid1]
-    for n in np.arange(mid1-1, 0, -1):
+    for n in np.arange(mid1-1, -1, -1):
         xx = (R1[n] - xx)/diag[n]
         R1[n] = xx
 
     R1 = (R1 + dR12*g)/(1 - dR12*(v - e0))
+    absR1 = np.abs(R1)
 
-    if np.abs(R1[-1]) > np.abs(R1[-2]):
+    if absR1[-1] > absR1[-2]:
         for n in np.range(oo-2, 1, -1):
             R1[n] = 0
-            if np.abs(R1[n-1]) > np.abs(R1[n]):
+            if absR1[n-1] > absR1[n]:
                 break
 
-    if np.abs(R1[1]) >= np.abs(R1[0]):
+    if absR1[1] >= absR1[0]:
         return R1
 
     for n in np.arange(oo-1):
         R1[n] = 0
-        if np.abs(R1[n+1]) > np.abs(R1[n]):
+        if absR1[n+1] > absR1[n]:
             return R1
