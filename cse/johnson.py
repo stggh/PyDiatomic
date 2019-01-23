@@ -351,6 +351,7 @@ def solveCSE(Cse, en):
     nopen = edash[openchann].size
 
     mx = matching_point(en, rot, V, R, μ, AM)
+    Cse.mx = mx
 
     if mx < oo-5:
         out = leastsq(eigen, (en, ), args=(rot, mx, V, R, μ, AM), xtol=1e-5)

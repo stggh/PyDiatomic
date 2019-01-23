@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import scipy.linalg as scla
+import scipy.constants as const
 from scipy import interpolate
 from collections import OrderedDict
 
@@ -40,7 +41,7 @@ class Cse():
         eigenvalue energy in eV
 
     results : dict
-        single state calculation results  {vib: (energy, Bv, Jrot)} in cm-1
+        single state calculation results  {vib: (energy, Bv, Dv, Jrot)} in cm-1
         (see also class representation)
 
     molecule: str
@@ -121,7 +122,9 @@ class Cse():
             if self.energy < self.VT[0][0][-1]:
                 self.node_count()
                 self.Bv = expectation.Bv(self)
-                self.results[self.vib] = (self.cm, self.Bv, self.rot)  # keep
+                self.Dv = expectation.Dv(self)
+                # keep results
+                self.results[self.vib] = (self.cm, self.Bv, self.Dv, self.rot)
             else:
                 self.vib = -1
 
@@ -155,7 +158,7 @@ class Cse():
         Returns
         -------
         results : dict of solutions
-            attribute .results = {vib: (energy, Bv, rot)}
+            attribute .results = {vib: (energy, Bv, Dv, rot)}
 
         """
         V = np.transpose(self.VT[0][0])
@@ -178,15 +181,18 @@ class Cse():
         vib = sorted(self.results.keys())
         actual = [self.results[vi][0] for vi in vib]
         Bv = [self.results[vi][1] for vi in vib]
+        Dv = [self.results[vi][2] for vi in vib]
 
         spl = interpolate.interp1d(vib, actual, kind='cubic')
         splB = interpolate.interp1d(vib, Bv, kind='cubic')
+        splD = interpolate.interp1d(vib, Dv, kind='cubic')
 
         for vi in v:
-            self.results[vi] = (float(spl(vi)), float(splB(vi)), self.rot)
+            self.results[vi] = (float(spl(vi)), float(splB(vi)),
+                                float(splD(vi)), self.rot)
 
         if exact:
-            for v, (en, Bv, rot) in list(self.results.items()):
+            for v, (en, Bv, Dv, rot) in list(self.results.items()):
                 self.solve(en, rot)
 
         # sort in order of energy
@@ -210,7 +216,7 @@ class Cse():
     def __repr__(self):
         n = self.limits[1]
         about = '\n' + f'Molecule: {self.molecule}'
-        about += f'  mass: {self.μ:g} kg\n'
+        about += f'  mass: {self.μ:g} kg, {self.μ/const.u:g} amu\n'
         about += f"Electronic state{'s' if n > 1 else '':s}:"
         if isinstance(self.pecfs[0], str):
             for fn in self.pecfs:
@@ -224,12 +230,13 @@ class Cse():
 
         if len(self.results) > 0:
             about += "eigenvalues (that have been evaluated for this state):\n"
-            about += " v  rot   energy(cm-1)    Bv(cm-1)\n"
+            about += " v  rot   energy(cm-1)    Bv(cm-1)     Dv(cm-1)\n"
             vib = sorted(list(self.results.keys()))
             for v in vib:
-                about += f'{v:2d}  {self.results[v][2]:2d}   '
+                about += f'{v:2d}  {self.results[v][3]:2d}   '
                 about += f'{self.results[v][0]:10.3f}     '
-                about += f'{self.results[v][1]:8.5f}\n'
+                about += f'{self.results[v][1]:9.5f}'
+                about += f'{self.results[v][2]:15.5e}\n'
         return about
 
 

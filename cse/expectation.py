@@ -113,3 +113,132 @@ def Bv(Cse):
 
     ex = simps((wavefunction/R)**2, R)
     return ex*const.hbar*1.0e18/(4*π*const.c*μ)
+
+
+def Dv(self):
+    """ Dv rotational constant using Hudson algorithm:
+        Dv = <v| Bv - H'| v(1)>.
+        Solve the linear inhomogeneous differential equation
+        d^2chi/dR^2 = V(R)chi(R) + g(R).
+        JM Hutson J. Phys. B14 851-857 (1981) doi:10.1088/0022-3700/14/5/018
+
+    """
+    # Fix me! - needs to pythonized/vectorized
+    kk = self.μ*const.e*2e-20/const.hbar**2
+    e = self.cm/self._evcm
+
+    n = self.limits[1]
+    oo = self.limits[0]
+    x = self.R
+    dx = x[2] - x[1]
+
+    g = np.zeros_like(x)
+    x0 = np.zeros_like(x)
+    x2 = np.zeros_like(x)
+    v = np.zeros_like(x)
+    wks = np.zeros_like(x)
+
+    Dv = 0
+    for j in np.arange(n):
+        for i in np.arange(oo):
+            x2[i] = 1/x[i]**2
+            v[i] = self.VT[0, 0][i]*kk + self.rot*(self.rot + 1)*x2[i]
+            x0[i] = self.wavefunction.T[j, 0][i]
+            g[i] = x0[i]*(x2[i] - self.Bv*kk/self._evcm)
+
+        if x[0] < 1e-10:
+            v[0] = 2*v[1] - v[2]
+            g[0] = 2*g[1] - g[2]
+
+        mid = int((x[-1] - x[0])/dx/2)
+        while mid > 1 and np.abs(x0[mid]) < 0.1:
+            mid -= 1
+
+        while mid > 1 and (np.abs(x0[mid-1]) < np.abs(x0[mid])):
+            mid -= 1
+
+        e *= kk 
+        x1 = lideo(v, g, x0, oo, e, dx, wks, x2, mid)
+
+        g *= x1
+        Dv += simps(g, x)
+
+    return -(Dv/kk)*self._evcm 
+
+
+def lideo(v, g, x0, nip, e0, h, diag, orth, mid):
+    # Fix me! - needs to pythonized/vectorized
+    x1 = np.zeros_like(x0)
+    mid1 = mid - 1
+    nip1 = nip - 1
+    h2 = h*h
+    h12 = h2/12
+    olap = 0
+
+    for n in np.arange(0, nip):
+        vtemp = 1/(1 - h12*(v[n] - e0))
+        diag[n] = 10 - 12*vtemp
+        x1[n] = h2*vtemp*g[n]
+        orth[n] = x0[n]*vtemp
+        olap -= h12*orth[n]*g[n]
+
+    ort = orth[0]
+    xx = x1[0]
+    dd = 1/diag[0]
+    for n in np.arange(1, mid):
+        olap -= xx*ort*dd
+        ort = orth[n] - ort*dd
+        xx = x1[n] - xx*dd
+        x1[n] = xx
+        dd = diag[n] - dd
+        diag[n] = dd
+        dd = 1/dd
+    orsav = ort 
+
+    ort = orth[nip1]
+    xx = x1[nip1]
+    dd = 1/diag[nip1]
+    k = nip1
+    midp = mid + 1
+    for n in np.arange(midp, nip):
+        k -= 1
+        olap -= xx*ort*dd
+        ort = orth[k] - ort*dd
+        xx = x1[k] - xx*dd
+        x1[k] = xx
+        dd = diag[k] - dd
+        diag[k] = dd
+        dd = 1/dd
+
+    xx = (olap - ort*x1[mid1])/(orsav - diag[mid1]*ort)     
+    x1[mid1] = xx
+    midp = mid
+    for n in np.arange(midp, nip):
+        xx = (x1[n] - xx)/diag[n]
+        x1[n] = xx
+
+    k = mid1
+    xx = x1[mid1]
+    for n in np.arange(1, mid):
+        k -= 1
+        xx = (x1[k] - xx)/diag[k]
+        x1[k] = xx
+
+    for n in np.arange(nip):
+        x1[n] = (x1[n] + h12*g[n])/(1 - h12*(v[n] - e0))
+
+    if np.abs(x1[nip1]) > np.abs(x1[nip1-1]):
+        k = nip1
+        for n in np.arange(1, nip):
+            k -= 1
+            x1[k] = 0
+            if np.abs(x1[k-1]) > np.abs(x1[k]):
+                break
+
+    if np.abs(x1[1]) >= np.abs(x1[0]):
+        return x1
+
+    for n in np.arange(nip1):
+        x1[n] = 0
+        if np.abs(x1[n+1]) > np.abs(x1[n]):
+            return x1
