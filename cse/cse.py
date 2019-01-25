@@ -236,7 +236,7 @@ class Cse():
                 about += f'{v:2d}  {self.results[v][3]:2d}   '
                 about += f'{self.results[v][0]:10.3f}     '
                 about += f'{self.results[v][1]:9.5f}'
-                about += f'{self.results[v][2]:15.5e}\n'
+                about += f'{self.results[v][2]:15.3e}\n'
         return about
 
 
