@@ -106,12 +106,27 @@ class Cse():
         self.VT = cse_setup.coupling_function(self.R, self.VT, self.μ,
                                               self.pecfs, coup=coup)
 
-    def solve(self, en, rot=None):
+    def solve(self, en, rot=None, eigbound=0.06):
+        """ solve the Schrodinger equation for the (coupled) potential(s).
+
+        Parameters
+        ----------
+        en : float
+            (initial) solution energy
+        rot : int
+            total angular momentum (excluding nuclear)
+        eigenbound : float
+            bound-eigenvalue limits en+-eigenbound
+            This helps scipy.optimize.least_squares() from straying 
+        """
+
         if en > 20:
             en /= self._evcm   # convert to eV energy units
 
         if rot is not None:
             self.rot = rot   # in case called separately
+
+        self.eigbound = eigbound
 
         self.wavefunction, self.energy, self.openchann = \
             johnson.solveCSE(self, en)

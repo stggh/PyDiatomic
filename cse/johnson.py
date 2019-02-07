@@ -3,7 +3,7 @@ import numpy as np
 import scipy.constants as const
 
 from scipy import linalg
-from scipy.optimize import leastsq
+from scipy.optimize import least_squares
 from scipy.integrate.quadrature import simps
 from scipy.special import spherical_jn, spherical_yn
 
@@ -354,8 +354,10 @@ def solveCSE(Cse, en):
     Cse.mx = mx
 
     if mx < oo-5:
-        out = leastsq(eigen, (en, ), args=(rot, mx, V, R, μ, AM), xtol=1e-5)
-        en = float(out[0])
+        out = least_squares(eigen, (en, ), args=(rot, mx, V, R, μ, AM), 
+                            bounds=([en-Cse.eigbound, en+Cse.eigbound]),
+                            xtol=1e-5)
+        en = float(out.x[0])
 
     # solve CSE according to Johnson renormalized Numerov method
     WI = WImat(en, rot, V, R, μ, AM)
