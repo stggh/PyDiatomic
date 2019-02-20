@@ -13,6 +13,11 @@ def total_cross_section(temperature, E0=None):
             header = f.readline().decode('utf8').strip()
         
         wav, xs = np.loadtxt(xsf, unpack=True)
+        if np.any(np.isnan(xs)):
+            continue
+        if np.any(np.isinf(xs)):
+            continue
+
         if xstotal is None:
             xstotal = np.zeros_like(xs, dtype=float)
 

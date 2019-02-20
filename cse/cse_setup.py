@@ -70,7 +70,7 @@ def potential_energy_curves(pecfs=None, R=None):
     ----------
     pecfs : list of strings
         potential energy curve file name list ['pot1', 'pot2', 'pot3' ... ]
-        Each file has 2 column format:  R(Angstroms)  V(eV)
+        Each file has 2 column format:  R(Angstroms)  V(eV or cm-1)
 
     R : numpy 1d array
         radial grid if not None
@@ -134,6 +134,10 @@ def potential_energy_curves(pecfs=None, R=None):
         else:
             radialcoord, potential = fn
             AM.append((0, 0, 0, 0))
+
+        if potential[-1] > 100:
+            potential /= 8065.541   # convert cm-1 to eV
+
         Rin.append(radialcoord)
         Vin.append(potential)
         
