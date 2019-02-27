@@ -154,7 +154,7 @@ def potential_energy_curves(pecfs=None, R=None):
     Vx = min([Vin[i][-1]   for i in range(n)])   # lowest dissociation limit
 
     # common internuclear distance grid, that requires no potential
-    # curve to be extrapolated
+    # curve is extrapolated
     if R is None:
         dR = Rin[0][-1] - Rin[0][-2]
         dR = round(dR, 1-int(np.floor(np.log10(dR)))-1)

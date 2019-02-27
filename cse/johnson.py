@@ -220,13 +220,19 @@ def matching_point(en, rot, V, R, μ, AM):
     if en > Vm:
         return oo-1
     else:
-        Vnn = np.transpose(V)[-1][-1]  # -1 -1 highest PEC?
-        mx = np.abs(Vnn - en).argmin()
+        Vnn = np.transpose(V)[0][0]  # lowest PEC
+        mRe = Vnn.argmin()
+        mx = np.abs(Vnn[mRe:] - en).argmin() + mRe # outer turning point
 
         WI = WImat(en, rot, V, R, μ, AM)
         Rm = RImat(WI, mx)
-        while linalg.det(Rm[mx]) > 1:
-            mx -= 1
+        detx = linalg.det(Rm[mx+1])
+        detm = linalg.det(Rm[mx])
+
+        while detm - detx > 0:
+            mx -=1
+            detx = detm
+            detm = linalg.det(Rm[mx])
 
     return mx
 
