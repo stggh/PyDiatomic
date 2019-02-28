@@ -186,6 +186,28 @@ def wavefunction(WI, j, f):
 
 # ==== end of Johnson stuff ====================
 
+def node_positions(WI, mn, mx):
+    """ find inner and outer solution nodes, before the # outer turning point.
+
+    """
+
+    oo, n, m = WI.shape
+    RIoutwards = RImat(WI, oo-1)[mn:2*mx]
+    RIinwards = RImat(WI, 1)[mn:2*mx]
+
+    if n == 1:  # 1/det(RI) is det(R)
+        detR_out = 1/RIoutwards[:, 0, 0]
+        detR_in = 1/RIinwards[:, 0, 0]
+    else:
+        detR_out = 1/np.linalg.det(RIoutwards)
+        detR_in = 1/np.linalg.det(RIinwards)
+
+    # determine the node positions
+    inner, _ = find_peaks(detR_in)
+    outer, _ = find_peaks(detR_out)
+
+    return inner, outer
+
 
 def matching_point(en, rot, V, R, μ, AM):
     """ estimate matching point for inward and outward solutions position
@@ -221,33 +243,30 @@ def matching_point(en, rot, V, R, μ, AM):
     if en > Vm:
         return oo-1
     else:
+        mn = 120
+
         Vnn = np.transpose(V)[0][0]  # lowest PEC
         mRe = Vnn.argmin()
         mx = np.abs(Vnn[mRe:] - en).argmin() + mRe # outer turning point
 
         WI = WImat(en, rot, V, R, μ, AM)
 
-        # find inner and outer solution nodes, before the # outer turning point
-        RIoutwards = RImat(WI, oo-1)[:2*mx]
-        RIinwards = RImat(WI, 1)[:2*mx]
+        inner, outer = node_positions(WI, mn, mx)
 
-        if n == 1:  # det(RI) is RI
-            detRI_out = RIoutwards[:, 0, 0]
-            detRI_in = RIinwards[:, 0, 0]
-        else:
-            detRI_out = np.linalg.det(RIoutwards)
-            detRI_in = np.linalg.det(RIinwards)
+        det = eigen(en, rot, mx, V, R, μ, AM)
 
-        # determine the node positions
-        outer, _ = find_peaks(detRI_out)
-        inner, _ = find_peaks(detRI_in)
+        if det > 0:    # energy guess en is below eigenvalue
+            en2 = en + 0.01
+        else: # above eigenvalue
+            en2 = en - 0.01
 
-        # For the moment take the average of the outermost nodes.
+        # For the moment take the average index of the outermost nodes.
         # Johnson, looks at two energies that bracket the eigenvalue.
-        # It is not obvious (to @stggh) how to obtain the bracket values.
-        mx = (outer[-1] + inner[-1])//2
+        vib = len(outer) - 1
+        if vib+1 > 0:
+            mx = (outer[-1] + inner[-1])//2 + mn
 
-    return mx
+    return mx, vib, outer, inner, eigen(en, rot, mx, V, R, μ, AM)
 
 
 def eigen(energy, rot, mx, V, R, μ, AM):
@@ -278,7 +297,7 @@ def eigen(energy, rot, mx, V, R, μ, AM):
     WI = WImat(energy, rot, V, R, μ, AM)
     RI = RImat(WI, mx)
 
-    # | R_mx - R^-1_mx+1 |
+    # | R_mx - R^-1_mx+1 |    x1000 to scale
     return linalg.det(linalg.inv(RI[mx])-RI[mx+1])*1000
 
 
@@ -369,7 +388,8 @@ def solveCSE(Cse, en):
     openchann = edash > 0
     nopen = edash[openchann].size
 
-    mx = matching_point(en, rot, V, R, μ, AM)
+    mx, Cse.vib, Cse.outer, Cse.inner, Cse.det = \
+                                       matching_point(en, rot, V, R, μ, AM)
     Cse.mx = mx
 
     if mx < oo-5:

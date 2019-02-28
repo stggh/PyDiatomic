@@ -142,7 +142,7 @@ class Cse():
 
         if self.limits[1] == 1:  # single channel save more detail
             if self.energy < self.VT[0][0][-1]:
-                self.node_count()
+                # self.node_count()      # use det(R) of matching point instead
                 self.Bv = expectation.Bv(self)
                 self.Dv = expectation.Dv(self)
                 # keep results
