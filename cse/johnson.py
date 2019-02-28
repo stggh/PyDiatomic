@@ -279,7 +279,7 @@ def eigen(energy, rot, mx, V, R, μ, AM):
     RI = RImat(WI, mx)
 
     # | R_mx - R^-1_mx+1 |
-    return linalg.det(linalg.inv(RI[mx])-RI[mx+1])
+    return linalg.det(linalg.inv(RI[mx])-RI[mx+1])*1000
 
 
 def normalize(wf, R):
@@ -373,9 +373,7 @@ def solveCSE(Cse, en):
     Cse.mx = mx
 
     if mx < oo-5:
-        out = least_squares(eigen, (en, ), args=(rot, mx, V, R, μ, AM), 
-                            bounds=([en-Cse.eigenbound, en+Cse.eigenbound]),
-                            xtol=1e-4)
+        out = least_squares(eigen, (en, ), args=(rot, mx, V, R, μ, AM))
         en = float(out.x[0])
 
     # solve CSE according to Johnson renormalized Numerov method
