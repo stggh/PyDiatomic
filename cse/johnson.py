@@ -6,6 +6,7 @@ from scipy import linalg
 from scipy.optimize import least_squares
 from scipy.integrate.quadrature import simps
 from scipy.special import spherical_jn, spherical_yn
+from scipy.signal import find_peaks
 
 ##############################################################################
 #  PyDiatomic - solve the coupled-channel time-independent Schrödinger equation
@@ -225,14 +226,26 @@ def matching_point(en, rot, V, R, μ, AM):
         mx = np.abs(Vnn[mRe:] - en).argmin() + mRe # outer turning point
 
         WI = WImat(en, rot, V, R, μ, AM)
-        Rm = RImat(WI, mx)
-        detx = linalg.det(Rm[mx+1])
-        detm = linalg.det(Rm[mx])
 
-        while detm - detx > 0:
-            mx -=1
-            detx = detm
-            detm = linalg.det(Rm[mx])
+        # find inner and outer solution nodes, before the # outer turning point
+        RIoutwards = RImat(WI, oo-1)[:2*mx]
+        RIinwards = RImat(WI, 1)[:2*mx]
+
+        if n == 1:  # det(RI) is RI
+            detRI_out = RIoutwards[:, 0, 0]
+            detRI_in = RIinwards[:, 0, 0]
+        else:
+            detRI_out = np.linalg.det(RIoutwards)
+            detRI_in = np.linalg.det(RIinwards)
+
+        # determine the node positions
+        outer, _ = find_peaks(detRI_out)
+        inner, _ = find_peaks(detRI_in)
+
+        # For the moment take the average of the outermost nodes.
+        # Johnson, looks at two energies that bracket the eigenvalue.
+        # It is not obvious (to @stggh) how to obtain the bracket values.
+        mx = (outer[-1] + inner[-1])//2
 
     return mx
 
@@ -362,7 +375,7 @@ def solveCSE(Cse, en):
     if mx < oo-5:
         out = least_squares(eigen, (en, ), args=(rot, mx, V, R, μ, AM), 
                             bounds=([en-Cse.eigenbound, en+Cse.eigenbound]),
-                            xtol=1e-5)
+                            xtol=1e-4)
         en = float(out.x[0])
 
     # solve CSE according to Johnson renormalized Numerov method

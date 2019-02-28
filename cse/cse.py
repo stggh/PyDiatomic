@@ -79,7 +79,7 @@ class Cse():
         self.rot = rot
 
         if eigenbound is None:
-            self.eigenbound = 0.06  # eV
+            self.eigenbound = 500/self._evcm  # eV
 
         if R is not None:
             # PEC array provided directly
