@@ -195,16 +195,16 @@ def node_positions(WI, mn, mx):
     RIoutwards = RImat(WI, oo-1)[mn:2*mx]
     RIinwards = RImat(WI, 1)[mn:2*mx]
 
-    if n == 1:  # 1/det(RI) is det(R)
-        detR_out = 1/RIoutwards[:, 0, 0]
-        detR_in = 1/RIinwards[:, 0, 0]
+    if n == 1:  # det(RI) works better than det(R)
+        detIR_out = RIoutwards[:, 0, 0]
+        detIR_in = RIinwards[:, 0, 0]
     else:
-        detR_out = 1/np.linalg.det(RIoutwards)
-        detR_in = 1/np.linalg.det(RIinwards)
+        detIR_out = np.linalg.det(RIoutwards)
+        detIR_in = np.linalg.det(RIinwards)
 
     # determine the node positions
-    inner, _ = find_peaks(detR_in)
-    outer, _ = find_peaks(detR_out)
+    inner, _ = find_peaks(detIR_in)
+    outer, _ = find_peaks(detIR_out)
 
     return inner, outer
 
@@ -246,24 +246,17 @@ def matching_point(en, rot, V, R, μ, AM):
         mn = 120
 
         Vnn = np.transpose(V)[0][0]  # lowest PEC
-        mRe = Vnn.argmin()
-        mx = np.abs(Vnn[mRe:] - en).argmin() + mRe # outer turning point
+        mx = Vnn.argmin()
+        # mx = np.abs(Vnn[mRe:] - en).argmin() + mRe # outer turning point
 
         WI = WImat(en, rot, V, R, μ, AM)
-
         inner, outer = node_positions(WI, mn, mx)
 
         det = eigen(en, rot, mx, V, R, μ, AM)
 
-        if det > 0:    # energy guess en is below eigenvalue
-            en2 = en + 0.01
-        else: # above eigenvalue
-            en2 = en - 0.01
-
-        # For the moment take the average index of the outermost nodes.
-        # Johnson, looks at two energies that bracket the eigenvalue.
-        vib = len(outer) - 1
-        if vib+1 > 0:
+        # Johnson two energies that bracket the eigenvalue.
+        vib = len(outer)
+        if len(outer) > 0:
             mx = (outer[-1] + inner[-1])//2 + mn
 
     return mx, vib, outer, inner, eigen(en, rot, mx, V, R, μ, AM)
