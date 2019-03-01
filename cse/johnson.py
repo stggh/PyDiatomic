@@ -259,7 +259,7 @@ def matching_point(en, rot, V, R, μ, AM):
         if len(outer) > 0:
             mx = (outer[-1] + inner[-1])//2 + mn
 
-    return mx, vib, outer, inner, eigen(en, rot, mx, V, R, μ, AM)
+    return mx
 
 
 def eigen(energy, rot, mx, V, R, μ, AM):
@@ -381,8 +381,7 @@ def solveCSE(Cse, en):
     openchann = edash > 0
     nopen = edash[openchann].size
 
-    mx, Cse.vib, Cse.outer, Cse.inner, Cse.det = \
-                                       matching_point(en, rot, V, R, μ, AM)
+    mx = matching_point(en, rot, V, R, μ, AM)
     Cse.mx = mx
 
     if mx < oo-5:
