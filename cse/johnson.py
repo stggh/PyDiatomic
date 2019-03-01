@@ -232,7 +232,8 @@ def matching_point(en, rot, V, R, μ, AM):
     -------
     mx : int
         matching point grid index
-
+    det : float
+        determinant of R^-1 at matching point mx
     """
 
     oo, n, m = V.shape
@@ -259,7 +260,7 @@ def matching_point(en, rot, V, R, μ, AM):
         if len(outer) > 0:
             mx = (outer[-1] + inner[-1])//2 + mn
 
-    return mx
+    return mx, det
 
 
 def eigen(energy, rot, mx, V, R, μ, AM):
@@ -381,7 +382,7 @@ def solveCSE(Cse, en):
     openchann = edash > 0
     nopen = edash[openchann].size
 
-    mx = matching_point(en, rot, V, R, μ, AM)
+    mx, Cse.det = matching_point(en, rot, V, R, μ, AM)
     Cse.mx = mx
 
     if mx < oo-5:
