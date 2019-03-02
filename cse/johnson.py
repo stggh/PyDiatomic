@@ -239,8 +239,6 @@ def matching_point(en, rot, V, R, μ, AM):
     -------
     mx : int
         matching point grid index
-    det : float
-        determinant of R^-1 at matching point mx
     """
 
     oo, n, m = V.shape
@@ -260,15 +258,13 @@ def matching_point(en, rot, V, R, μ, AM):
         WI = WImat(en, rot, V, R, μ, AM)
         inner, outer = node_positions(WI, mn, mx)
 
-        det = eigen(en, rot, mx, V, R, μ, AM)
-
         # Johnson uses two energies that bracket the eigenvalue,
-        # here take outermost region
+        # here take outermost region, as not obvious how to bracket eigenvalue
         vib = len(outer)
         if len(outer) > 0:
             mx = (outer[-1] + inner[-1])//2 + mn
 
-    return mx, det, inner, outer
+    return mx
 
 
 def eigen(energy, rot, mx, V, R, μ, AM):
@@ -390,7 +386,7 @@ def solveCSE(Cse, en):
     openchann = edash > 0
     nopen = edash[openchann].size
 
-    mx, Cse.det, Cse.inner, Cse.outer = matching_point(en, rot, V, R, μ, AM)
+    mx = matching_point(en, rot, V, R, μ, AM)
     Cse.mx = mx
 
     if mx < oo-5:
