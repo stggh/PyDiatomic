@@ -112,8 +112,10 @@ def RImat(WI, mx):
     U = 12*WI-I*10
     for i in range(1, mx+1):
         RI[i] = linalg.inv(U[i]-RI[i-1])
+
     for i in range(oo-2, mx, -1):
         RI[i] = linalg.inv(U[i]-RI[i+1])
+
     return RI
 
 
@@ -146,13 +148,18 @@ def fmat(j, RI, WI,  mx):
     else:
         # (R_m - R^-1_m+1).f(R) = 0
         U, s, Vh = linalg.svd(linalg.inv(RI[mx-1])-RI[mx])
-        for i, x in enumerate(s):
-            if x > 0:
-                break  # any diagonal !=0 yields a solution
-        f[mx] = U[i]
+        # for i, x in enumerate(s):
+        #     if x > 0:
+        #         break  # any diagonal !=0 yields a solution
+
+        # Fix me! Gives correct inward solution wavefunction phase
+        #  for O2X fine-structure
+        U = U.T
+        f[mx] = U[1] if U[1, 0] < 0 else U[-1]
 
     for i in range(mx-1, -1, -1):
         f[i] = f[i+1] @ RI[i]
+
     for i in range(mx+1, oo):
         f[i] = f[i-1] @ RI[i]
     return f
@@ -255,12 +262,13 @@ def matching_point(en, rot, V, R, μ, AM):
 
         det = eigen(en, rot, mx, V, R, μ, AM)
 
-        # Johnson two energies that bracket the eigenvalue.
+        # Johnson uses two energies that bracket the eigenvalue,
+        # here take outermost region
         vib = len(outer)
         if len(outer) > 0:
             mx = (outer[-1] + inner[-1])//2 + mn
 
-    return mx, det
+    return mx, det, inner, outer
 
 
 def eigen(energy, rot, mx, V, R, μ, AM):
@@ -291,7 +299,7 @@ def eigen(energy, rot, mx, V, R, μ, AM):
     WI = WImat(energy, rot, V, R, μ, AM)
     RI = RImat(WI, mx)
 
-    # | R_mx - R^-1_mx+1 |    x1000 to scale
+    # | R_mx - R^-1_mx+1 |     x1000 scalinhg helps leeastsquares
     return linalg.det(linalg.inv(RI[mx])-RI[mx+1])*1000
 
 
@@ -382,7 +390,7 @@ def solveCSE(Cse, en):
     openchann = edash > 0
     nopen = edash[openchann].size
 
-    mx, Cse.det = matching_point(en, rot, V, R, μ, AM)
+    mx, Cse.det, Cse.inner, Cse.outer = matching_point(en, rot, V, R, μ, AM)
     Cse.mx = mx
 
     if mx < oo-5:
