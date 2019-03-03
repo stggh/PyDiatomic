@@ -31,11 +31,13 @@ X = cse.Cse(2, VT=[(R, V)])
 fig, ax = plt.subplots()
 
 print(" v    E(v) in cm-1")
-for en in [0.01, 0.02, 0.04, 0.06, 0.08]:  # guess energies in eV
+for en in [0.01, 0.03, 0.04, 0.06, 0.09]:  # guess energies in eV
     X.solve(en)
+    wf = X.wavefunction[:, 0, 0]
+    if X.vib % 2:
+        wf = -wf
     print(f'{X.vib:2d}  {X.cm:8.2f}')
-    ax.plot(R, X.wavefunction[:, 0, 0]*400 + X.cm,
-            label=fr'$v={X.vib:d}$')
+    ax.plot(R, wf*400 + X.cm, label=fr'$v={X.vib:d}$')
     ax.plot(R, phi(X.vib, R, 10)*400 + X.cm, 'k--')
 
 ax.plot(np.NaN, np.NaN, 'k--', label=r'analytical')
