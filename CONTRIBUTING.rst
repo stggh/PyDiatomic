@@ -17,7 +17,7 @@ Before submitting at Pull Request, be sure to run the unit tests. The test suite
 
 For more detailed information, the following can be used:  ::
 
-    pytest cse/  -v  --cov=cse
+    pytest cse/  -v 
 
 Note that this requires that you have `pytest <https://docs.pytest.org/en/latest/>`_ and (optionally) `pytest-cov <https://pytest-cov.readthedocs.io/en/latest/>`_ installed. You can install these with ::
 

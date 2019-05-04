@@ -207,9 +207,14 @@ def coupling_function(R, VT, μ, pecfs, coup=None):
                      f'CSE: coupling {pecfs[j]:s} <-> {pecfs[k]:s} cm-1 [0]? ')
                 couple = float(couplestr) if len(couplestr) > 1 else 0.0
             elif isinstance(coup[cnt], tuple):
-                # fix me! - should interpolate coupling function
-                Rdummy, couple = coup[cnt]
-                coupling_function = 1   # tmp fix to allow general expression
+                Rcouple, couple = coup[cnt]
+                spl = splrep(Rcouple, couple)
+                couple = splev(R, spl, ext=3) 
+                cnt += 1
+            elif isinstance(coup[cnt], str):  # dipolemoment file
+                Rcouple, couple = np.loadtxt(coup[cnt], unpack=True)
+                spl = splrep(Rcouple, couple)
+                couple = splev(R, spl, ext=3) 
                 cnt += 1
             else:
                 couple = coup[cnt]

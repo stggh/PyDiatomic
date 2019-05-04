@@ -18,7 +18,7 @@ The code is directed to the computation of photodissociation cross sections for 
 Installation
 ------------
 
-PyDiatomic requires Python 3.5 (*), numpy and scipy. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.continuum.io/downloads>`_, which is available for free.
+PyDiatomic requires Python 3.6 (*), numpy, scipy and periodictable. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.continuum.io/downloads>`_, which is available for free.
 
 Download the latest version from github ::
 
@@ -32,6 +32,10 @@ Or, if you wish to edit the PyAbel source code without re-installing each time :
 
     python setup.py develop --user
 
+
+periodictable ::
+
+    pip install periodictable
 
 
 (*) due to the use of infix matrix multiplication ``@``. To run with python < 3.5, replace ``A @ B`` with ``np.dot(A, B)`` in ``cse.py`` and ``expectation.py``.
@@ -53,7 +57,7 @@ requested if required.
 .. code-block:: python
 
    import cse
-   X = cse.Cse('16O16O')   # class instance
+   X = cse.Cse('O2')   # class instance
    # CSE: potential energy curves [X3S-1.dat]:   # requested parameter
    X.solve(800)    # solves TISE for energy ~ 800 cm-1
    # attributes
@@ -81,7 +85,7 @@ requested if required.
 .. code-block:: python
 
    import cse
-   X = cse.Cse('16O16O', VT=['X3S-1.dat'])
+   X = cse.Cse('O2', VT=['X3S-1.dat'])
    X.levels(vmax=5)  # evaluates energy levels for v=0, .., vmax
                      # attribute .calc
    X  # class representation
@@ -113,9 +117,9 @@ cross section.
    import numpy as np
    import cse
    # initial state
-   O2X = cse.Cse('16O16O', VT=['potentials/X3S-1.dat'], en=800)
+   O2X = cse.Cse('O2', VT=['potentials/X3S-1.dat'], en=800)
    # final state
-   O2B = cse.Cse('16O16O', VT=['potentials/B3S-1.dat'])
+   O2B = cse.Cse('O2', VT=['potentials/B3S-1.dat'])
    # transition 
    BX = cse.Transition(O2B, O2X)
    # methods 
@@ -133,8 +137,8 @@ A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg
     import cse
     import matplotlib.pyplot as plt
 
-    O2X = cse.Cse('16O16O', VT=['X3S-1.dat'], en=800)
-    O2B = cse.Cse('16O16O', VT=['B3S-1.dat', 'E3S-1.dat'], coup=[4000])
+    O2X = cse.Cse('O2', VT=['X3S-1.dat'], en=800)
+    O2B = cse.Cse('O2', VT=['B3S-1.dat', 'E3S-1.dat'], coup=[4000])
     O2BX = cse.Transition(B, X, dipolemoment=[1, 0],
                transition_energy=np.arange(110, 174, 0.1))
 
@@ -215,7 +219,7 @@ Rotation
 
     import cse
     
-    X = cse.Cse('16O16O', VT=['X3S-1.dat'])  # include path to potential curve
+    X = cse.Cse('O2', VT=['X3S-1.dat'])  # include path to potential curve
     X.solve(900, rot=0)
     X.cm
     # 787.3978354211097
@@ -239,7 +243,7 @@ reduction in execution time on multiprocessor systems. e.g. for :code:`example_O
 ==============     ====     ======     ==========
 machine            GHz      CPU(s)     time (sec)
 ==============     ====     ======     ==========
-Xenon E5-2697      2.6      64         6
+Xeon E5-2697       2.6      64         6
 i7-6700            3.4      8          17
 Macbook pro i5     2.4      4          63
 raspberry pi 3     1.35     4          127

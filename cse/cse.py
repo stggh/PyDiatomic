@@ -391,7 +391,8 @@ class Transition(Xs):
     """
 
     def __init__(self, final_coupled_states, initial_coupled_states,
-                 dipolemoment=None, transition_energy=None):
+                 dipolemoment=None, transition_energy=None,
+                 roti=None, rotf=None):
         """
         Parameters
         ----------
@@ -415,4 +416,4 @@ class Transition(Xs):
                                 pec_us=self.us.pecfs)
 
         if transition_energy is not None:
-            self.calculate_xs(transition_energy)
+            self.calculate_xs(transition_energy, roti=roti, rotf=rotf)
