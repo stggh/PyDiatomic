@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.constants as const
-from scipy.misc import factorial
+from scipy.special import factorial
 
 
 def Boltzmann(en, J, T):
