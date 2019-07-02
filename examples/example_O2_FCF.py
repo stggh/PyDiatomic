@@ -3,8 +3,8 @@ import cse
 import matplotlib.pyplot as plt
 
 # instance
-O2X = cse.Cse('16O16O', VT=['potentials/X3S-1.dat'], en=800)
-O2B = cse.Cse('16O16O', VT=['potentials/B3S-1.dat'])
+O2X = cse.Cse('O2', VT=['potentials/X3S-1.dat'], en=800)
+O2B = cse.Cse('O2', VT=['potentials/B3S-1.dat'])
 
 O2 = cse.Transition(O2B, O2X, dipolemoment=[1])
 
