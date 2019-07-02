@@ -2,7 +2,6 @@
 import numpy as np
 import scipy.constants as const
 
-from scipy import linalg
 from scipy.optimize import least_squares
 from scipy.integrate.quadrature import simps
 from scipy.special import spherical_jn, spherical_yn
@@ -15,6 +14,19 @@ from scipy.signal import find_peaks
 #  Stephen.Gibson@anu.edu.au
 #  January 2016
 ##############################################################################
+
+# numba speed up > 2x:   https://code.i-harness.com/en/q/1ea0586
+# comment out @numba if not available
+import numba
+@numba.jit
+def numba_inv(A):
+    return np.linalg.inv(A)
+@numba.njit
+def numba_det(A):
+    return np.linalg.det(A)
+@numba.njit
+def numba_svd(A):
+    return np.linalg.svd(A)
 
 # ===== Johnson === Renormalized Numerov method ============
 
@@ -82,7 +94,7 @@ def WImat(energy, rot, V, R, μ, AM):
 
     # generate W^-1
     WI = np.zeros_like(V)
-    WI[:] = np.linalg.inv(I + (energy*I - barrier[:])*factor)
+    WI[:] = numba_inv(I + (energy*I - barrier[:])*factor)
 
     return WI
 
@@ -111,10 +123,10 @@ def RImat(WI, mx):
 
     U = 12*WI-I*10
     for i in range(1, mx+1):
-        RI[i] = linalg.inv(U[i]-RI[i-1])
+        RI[i] = numba_inv(U[i]-RI[i-1])
 
     for i in range(oo-2, mx, -1):
-        RI[i] = linalg.inv(U[i]-RI[i+1])
+        RI[i] = numba_inv(U[i]-RI[i+1])
 
     return RI
 
@@ -144,10 +156,10 @@ def fmat(j, RI, WI,  mx):
 
     if n == 1 or mx > oo-20:
         # single PEC or unbound
-        f[mx] = linalg.inv(WI[mx])[j]
+        f[mx] = numba_inv(WI[mx])[j]
     else:
         # (R_m - R^-1_m+1).f(R) = 0
-        U, s, Vh = linalg.svd(linalg.inv(RI[mx-1])-RI[mx])
+        U, s, Vh = numba_svd(numba_inv(RI[mx-1])-RI[mx])
         # for i, x in enumerate(s):
         #     if x > 0:
         #         break  # any diagonal !=0 yields a solution
@@ -206,8 +218,8 @@ def node_positions(WI, mn, mx):
         detIR_out = RIoutwards[:, 0, 0]
         detIR_in = RIinwards[:, 0, 0]
     else:
-        detIR_out = np.linalg.det(RIoutwards)
-        detIR_in = np.linalg.det(RIinwards)
+        detIR_out = numba_det(RIoutwards)
+        detIR_in = numba_det(RIinwards)
 
     # determine the node positions
     inner, _ = find_peaks(detIR_in)
@@ -296,7 +308,7 @@ def eigen(energy, rot, mx, V, R, μ, AM):
     RI = RImat(WI, mx)
 
     # | R_mx - R^-1_mx+1 |     x1000 scalinhg helps leeastsquares
-    return linalg.det(linalg.inv(RI[mx])-RI[mx+1])*1000
+    return numba_det(numba_inv(RI[mx])-RI[mx+1])*1000
 
 
 def normalize(wf, R):
@@ -364,7 +376,7 @@ def amplitude(wf, R, edash, μ):
 
         oc += 1
 
-    AI = linalg.inv(A)
+    AI = numba_inv(A)
     K = B @ AI
 
     return K, AI, B
@@ -417,7 +429,7 @@ def solveCSE(Cse, en):
         K, AI, B = amplitude(wf, R, edash, μ)   # shape = nopen x nopen
 
         # K = BA-1 = U tan xi UT
-        eig, U = linalg.eig(K)
+        eig, U = np.linalg.eig(K)
 
         # form A^-1 U cos xi exp(i xi) UT
         I = np.identity(nopen, dtype=complex)

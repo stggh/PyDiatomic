@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 # evaluates E_J" vs J"(J"+1) for the O2 X-state
 
-X = cse.Cse('16O16O', VT=['potentials/X3S-1.dat'])
+X = cse.Cse('O2', VT=['potentials/X3S-1.dat'])
 
 X.solve(800)
 E0 = X.cm

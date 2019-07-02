@@ -2,10 +2,8 @@
 import numpy as np
 import scipy.constants as const
 
-from scipy import linalg
 from scipy.optimize import leastsq
 from scipy.integrate.quadrature import simps
-import itertools
 
 import multiprocessing
 from functools import partial
