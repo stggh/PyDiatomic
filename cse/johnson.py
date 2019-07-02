@@ -17,14 +17,15 @@ from scipy.signal import find_peaks
 
 # numba speed up > 2x:   https://code.i-harness.com/en/q/1ea0586
 # comment out @numba if not available
-import numba
+import numba 
+
 @numba.jit
 def numba_inv(A):
     return np.linalg.inv(A)
-@numba.njit
+@numba.jit
 def numba_det(A):
     return np.linalg.det(A)
-@numba.njit
+@numba.jit
 def numba_svd(A):
     return np.linalg.svd(A)
 
