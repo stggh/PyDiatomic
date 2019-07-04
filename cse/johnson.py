@@ -19,13 +19,13 @@ from scipy.signal import find_peaks
 # comment out @numba if not available
 import numba 
 
-@numba.jit
+@numba.njit
 def numba_inv(A):
     return np.linalg.inv(A)
-@numba.jit
+@numba.njit
 def numba_det(A):
     return np.linalg.det(A)
-@numba.jit
+@numba.njit
 def numba_svd(A):
     return np.linalg.svd(A)
 
@@ -95,7 +95,8 @@ def WImat(energy, rot, V, R, μ, AM):
 
     # generate W^-1
     WI = np.zeros_like(V)
-    WI[:] = numba_inv(I + (energy*I - barrier[:])*factor)
+    # numba_inv() if no numpy
+    WI[:] = np.linalg.inv(I + (energy*I - barrier[:])*factor)
 
     return WI
 
