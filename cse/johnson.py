@@ -15,19 +15,6 @@ from scipy.signal import find_peaks
 #  January 2016
 ##############################################################################
 
-# numba speed up > 2x:   https://code.i-harness.com/en/q/1ea0586
-# comment out @numba if not available
-import numba 
-
-@numba.njit
-def numba_inv(A):
-    return np.linalg.inv(A)
-@numba.njit
-def numba_det(A):
-    return np.linalg.det(A)
-@numba.njit
-def numba_svd(A):
-    return np.linalg.svd(A)
 
 # ===== Johnson === Renormalized Numerov method ============
 
@@ -95,7 +82,6 @@ def WImat(energy, rot, V, R, μ, AM):
 
     # generate W^-1
     WI = np.zeros_like(V)
-    # numba_inv() if no numpy
     WI[:] = np.linalg.inv(I + (energy*I - barrier[:])*factor)
 
     return WI
@@ -125,10 +111,10 @@ def RImat(WI, mx):
 
     U = 12*WI-I*10
     for i in range(1, mx+1):
-        RI[i] = numba_inv(U[i]-RI[i-1])
+        RI[i] = np.linalg.inv(U[i]-RI[i-1])
 
     for i in range(oo-2, mx, -1):
-        RI[i] = numba_inv(U[i]-RI[i+1])
+        RI[i] = np.linalg.inv(U[i]-RI[i+1])
 
     return RI
 
@@ -158,10 +144,10 @@ def fmat(j, RI, WI,  mx):
 
     if n == 1 or mx > oo-20:
         # single PEC or unbound
-        f[mx] = numba_inv(WI[mx])[j]
+        f[mx] = np.linalg.inv(WI[mx])[j]
     else:
         # (R_m - R^-1_m+1).f(R) = 0
-        U, s, Vh = numba_svd(numba_inv(RI[mx-1])-RI[mx])
+        U, s, Vh = np.linalg.svd(np.linalg.inv(RI[mx-1])-RI[mx])
         # for i, x in enumerate(s):
         #     if x > 0:
         #         break  # any diagonal !=0 yields a solution
@@ -220,8 +206,8 @@ def node_positions(WI, mn, mx):
         detIR_out = RIoutwards[:, 0, 0]
         detIR_in = RIinwards[:, 0, 0]
     else:
-        detIR_out = numba_det(RIoutwards)
-        detIR_in = numba_det(RIinwards)
+        detIR_out = np.linalg.det(RIoutwards)
+        detIR_in = np.linalg.det(RIinwards)
 
     # determine the node positions
     inner, _ = find_peaks(detIR_in)
@@ -310,7 +296,7 @@ def eigen(energy, rot, mx, V, R, μ, AM):
     RI = RImat(WI, mx)
 
     # | R_mx - R^-1_mx+1 |     x1000 scalinhg helps leeastsquares
-    return numba_det(numba_inv(RI[mx])-RI[mx+1])*1000
+    return np.linalg.det(np.linalg.inv(RI[mx])-RI[mx+1])*1000
 
 
 def normalize(wf, R):
@@ -378,7 +364,7 @@ def amplitude(wf, R, edash, μ):
 
         oc += 1
 
-    AI = numba_inv(A)
+    AI = np.linalg.inv(A)
     K = B @ AI
 
     return K, AI, B
