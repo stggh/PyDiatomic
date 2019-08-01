@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*
 import numpy as np
 
+
 def Morse(r, re, De, Te, beta):
     """Morse potential energy curve.
 
@@ -15,7 +16,7 @@ def Morse(r, re, De, Te, beta):
     Te : float
         equilibrium energy (potential minimum)
     beta : float
-        anharmonicity parameter   
+        anharmonicity parameter
 
     Returns
     -------

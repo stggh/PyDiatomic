@@ -33,10 +33,17 @@ cse.cse_setup module
     :special-members:
     :show-inheritance:
 
+cse.tools module
+----------------
+
+.. automodule:: cse.tools
+    :members:
+    :special-members:
+
 rkr  module
 -----------
 
-.. automodule:: cse.rkr
+.. automodule:: cse.tools.RKR
     :members:
     :special-members:
     :show-inheritance:

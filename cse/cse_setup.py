@@ -1,62 +1,66 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import scipy.constants as const
+from periodictable import elements
+import re
+from scipy.interpolate import splrep, splev
 
-def reduced_mass(amu=None):
+def atomic_mass(atom_symbol, isotope=''):
+   """atomic mass for atom_symbol, return most abundant atomic mass
+      if isotope not given.
+   """ 
+   elem = elements.isotope(atom_symbol)
+   if isotope != '': 
+        mass = elem[int(isotope)].mass   # have isotopic mass
+   else:
+       # most abundant isotopic mass
+       elem_abund = []
+       for iso in elem.isotopes:
+           elem_abund.append(elem[iso].abundance)
+       elem_abund = np.asarray(elem_abund)
+       mass = elem[elem.isotopes[elem_abund.argmax()]].mass
+   return mass
+
+
+def reduced_mass(molecule):
     """ Reduced mass of diatomic molecule.
 
     Parameters
     ----------
-    amu : str or float
-        reduced mass, str one of 'H2', 'HCl', 'OH', 'N2', 'N14', 'N14N15', 'N15', 'NO', 'O2', 'O16O17', 'O17O18', 'O16O18', 'O18', 'CO', 'Cl2', 'CS2', 'Cs2', 'ICl', 'I2', 'Br', 'S2', 'S32', 'S32O16', 'S33O16', 'S34O16' or float in amu 
+    molecule : formula str or float value for reduced mass amu or kg
+        e.g. O2' or '16O16O' or '16O2' or 'O2', '32S18O' etc. 
+        For '{atom}2' the most abundance isotope determines the mass
 
     Returns
     -------
-    mu : reduced mass in kg
+    μ : diatomic reduced mass in kg
+
+    molecule : str
+        molecule formula as input
 
     """
 
-    amus = {\
-        'H2': 0.50391261,
-        'HCl': 0.97959272,
-        'OH': 0.9480871,
-        'N2': 7.0015372,
-        'N14': 7.0015372,
-        'N14N15': 7.242227222,
-        'N15': 7.50005465,
-        'NO': 7.46643323,
-        'O2': 7.99745751,
-        'O16O17': 1.368448e-26/const.u,
-        'O17O18': 1.451734e-26/const.u,
-        'O16O18': 1.40607e-26/const.u,
-        'O18': 1.49417e-26/const.u,
-        'CO': 6.85620871,
-        'Cl2': 17.4844268,
-        'CS2': 8.727,
-        'Cs2': 66.452718,
-        'ICl': 27.4146708,
-        'I2': 63.4522378,
-        'Br': 39.459166,
-        'S2': 15.9860364,
-        'S32': 15.9860364,
-        'S32O16': 10.6613029,
-        'S33O16': 10.77016005,
-        'S34O16': 10.78435767,
-        }
-    if amu is None: 
-        mus = input ("CSE: reduced mass a.u. [O2=7.99745751]: ")
-        if mus in amus.keys():
-            amu = amus[mus]
-        else:
-            amu = float(mus) if len(mus) > 0 else 7.99745751
-    elif amu in amus.keys():
-        amu = amus[amu] 
+    if isinstance(molecule, float) or isinstance(molecule, int):
+        μ = molecule
+        if μ < 1:
+            μ /= const.u
+        molecule = 'unknown'
     else:
-        # atomic mass given
-        if amu < 1.0e-20:
-            return amu   # already in kg
+        # from https://stackoverflow.com/questions/41818916
+        # /calculate-molecular-weight-based-on-chemical-formula-using-python
+        # array of tuples [('34', 'S'), ('16', 'O')]
+        atoms = re.findall('([0-9]*)([A-Z][a-z]?)', molecule)
 
-    return amu*const.m_u
+        m1 = atomic_mass(atoms[0][1], atoms[0][0])
+
+        if len(atoms) == 1:
+            m2 = m1
+        else:
+            m2 = atomic_mass(atoms[1][1], atoms[1][0])
+
+        μ = m1*m2/(m1 + m2)
+
+    return μ*const.u, molecule
 
 
 def potential_energy_curves(pecfs=None, R=None):
@@ -66,7 +70,7 @@ def potential_energy_curves(pecfs=None, R=None):
     ----------
     pecfs : list of strings
         potential energy curve file name list ['pot1', 'pot2', 'pot3' ... ]
-        Each file has 2 column format:  R(Angstroms)  V(eV)
+        Each file has 2 column format:  R(Angstroms)  V(eV or cm-1)
 
     R : numpy 1d array
         radial grid if not None
@@ -99,6 +103,8 @@ def potential_energy_curves(pecfs=None, R=None):
         Vm = lowest minimum potential energy (Te)
         Voo = lowest dissociation limit energy
     
+    AM : 1d array of tuples
+        Angular momenta quantum numbers (Ω, S, Λ, Σ) for each electronic state
     """
 
     if pecfs == None:
@@ -107,16 +113,34 @@ def potential_energy_curves(pecfs=None, R=None):
 
     n = np.shape(pecfs)[0]
 
+    AM = []
     Rin = []
     Vin = []
     for i,fn in enumerate(pecfs):
         if isinstance(fn, (np.str)):
-            radialcoord, potential = np.loadtxt(fn,unpack=True)
+            radialcoord, potential = np.loadtxt(fn, unpack=True)
+            fn = fn.split('/')[-1].upper()
+            digits = re.findall('\d', fn)
+            if len(digits) > 0:
+                degen = int(digits[0])
+                S = (degen - 1)//2
+                Ω = int(digits[1])
+                Λ = 'SPDF'.index(fn[fn.index(digits[0])+1])
+                Σ = Ω - Λ
+                AM.append((Ω, S, Λ, Σ))
+            else:
+                AM.append((0, 0, 0, 0))
+
         else:
             radialcoord, potential = fn
+            AM.append((0, 0, 0, 0))
+
+        if potential[-1] > 100:
+            potential /= 8065.541   # convert cm-1 to eV
+
         Rin.append(radialcoord)
         Vin.append(potential)
-
+        
     # flatten if only 1 PEC
     if n == 1:
        Rin = np.reshape(Rin, (n, -1))
@@ -130,37 +154,45 @@ def potential_energy_curves(pecfs=None, R=None):
     Vx = min([Vin[i][-1]   for i in range(n)])   # lowest dissociation limit
 
     # common internuclear distance grid, that requires no potential
-    # curve to be extrapolated
+    # curve is extrapolated
     if R is None:
         dR = Rin[0][-1] - Rin[0][-2]
+        dR = round(dR, 1-int(np.floor(np.log10(dR)))-1)
         R = np.arange(Rm, Rx+dR/2, dR)
 
     oo = len(R)
 
     # create V matrix, as transpose 
-    VT = np.array(np.zeros((n, n, oo)))
+    VT = np.zeros((n, n, oo))
     for j in range(n):
-       subr = np.logical_and(Rin[j] >= Rm, Rin[j] <= R[-1])
-       VT[j][j] = Vin[j][subr]
+       dRx = (Rin[j][1] - Rin[j][0])/4
+       subr = np.logical_and(Rin[j] >= Rm-dRx, Rin[j] <= R[-1]+dRx)
+       VT[j, j] = Vin[j][subr]
 
     limits = (oo, n, Rm, Rx, Vm, Vx)
   
-    return R, VT, pecfs, limits
+    return R, VT, pecfs, limits, AM
 
 
-def coupling_function(R, VT, pecfs, coup=None):
+def coupling_function(R, VT, μ, pecfs, coup=None):
     """ Fill the off-diagonal coupling elements of VT.
 
     Parameters
     ----------
     R : numpy 1d array of floats
     VT : numpy 2D array size nxn of floats
+    AM : numpy 1d array of tuples
+        (Ω, S, Σ, Λ) for each electronic state
+    μ : float
+        reduced mass
     pecfs: list
         list or potential curve names, to enquire the coupling
     coup : list
         list potential curve couplings (in cm-1) 
     
     """
+    # hbar^2/2μ in eV (once /R^2)
+    centrifugal_factor = (const.hbar*1.0e20/μ/2/const.e)*const.hbar
     n, m, oo = VT.shape
 
     coupling_function = np.ones(np.size(R), dtype='float')
@@ -171,14 +203,24 @@ def coupling_function(R, VT, pecfs, coup=None):
     for j in range(n):
         for k in range(j+1,n):
             if coup == None:
-                couplestr = input("CSE: coupling {:s} <-> {:s} cm-1 [0]? "\
-                                  .format(pecfs[j],pecfs[k]))
+                couplestr = input(
+                     f'CSE: coupling {pecfs[j]:s} <-> {pecfs[k]:s} cm-1 [0]? ')
                 couple = float(couplestr) if len(couplestr) > 1 else 0.0
+            elif isinstance(coup[cnt], tuple):
+                Rcouple, couple = coup[cnt]
+                spl = splrep(Rcouple, couple)
+                couple = splev(R, spl, ext=3) 
+                cnt += 1
+            elif isinstance(coup[cnt], str):  # dipolemoment file
+                Rcouple, couple = np.loadtxt(coup[cnt], unpack=True)
+                spl = splrep(Rcouple, couple)
+                couple = splev(R, spl, ext=3) 
+                cnt += 1
             else:
                 couple = coup[cnt]
                 cnt += 1
 
-            VT[j][k] = VT[k][j] = coupling_function*couple/8065.541
+            VT[j, k] = VT[k, j] = coupling_function*couple/8065.541
 
     return VT
 
@@ -204,18 +246,16 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
             if dipolemoment is not None and len(dipolemoment) > i:
                 fn = dipolemoment[i]
             else:
-                fn = input("CSE: dipolemoment filename or value {} <- {} : ".
-                           format(pec_us[u], pec_gs[g])) 
+                fn = input("CSE: dipolemoment filename or value "
+                           "{pec_us[u]} <- {pec_gs[g]} : ")
 
             if is_number(fn):
                 dipole[u][g] = float(fn)             
             else:
                 # fn a filename, read and load
                 RD, D = np.loadtxt(fn, unpack=True)
-                # this assumes R[0] <= RD[0] < RD[-1] <= R[-1]
-                # fix me!
-                mn = np.abs(R-RD[0]).argmin()
-                mx = np.abs(R-RD[-1]).argmin()
-                dipole[u][g][mn:mx] = D
+                # cubic spline interpolation
+                spl = splrep(RD, D)
+                dipole[u][g] = splev(R, spl, der=0, ext=1)
 
     return np.transpose(dipole)

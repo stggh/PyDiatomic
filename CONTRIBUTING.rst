@@ -11,20 +11,17 @@ If you would like to make a Pull Request, the following information may be usefu
 Unit tests
 ----------
 
-Before submitting at Pull Request, be sure to run the unit tests. The test suite can be run from within the PyAbel package with ::
+Before submitting at Pull Request, be sure to run the unit tests. The test suite can be run from within the PyDiatomic package with ::
 
-    nosetests  cse/tests/  --verbosity=2  --with-coverage --cover-package=cse
+    pytest
 
-or, from any folder with ::
+For more detailed information, the following can be used:  ::
 
-    python  -c "import cse.tests; cse.tests.run_cli(coverage=True)"
+    pytest cse/  -v 
 
-which performs an equivalent call.
+Note that this requires that you have `pytest <https://docs.pytest.org/en/latest/>`_ and (optionally) `pytest-cov <https://pytest-cov.readthedocs.io/en/latest/>`_ installed. You can install these with ::
 
-Note that this requires that you have `Nose <nose.readthedocs.io>`_ and (optionally) `Coverage <coverage.readthedocs.io>`_ installed. You can install these with ::
-
-    pip install nose
-    pip install coverage
+    pip install pytest pytest-cov
 
 
 Documentation
@@ -60,4 +57,3 @@ Now you should be able to ::
 which should launch a browser window displaying the docs. When you save a change to any of the docs, the re-build should happen automatically and the docs should update in a matter of a few seconds.
 
 Alternatively, `restview <https://pypi.python.org/pypi/restview>`_ is a nice way to preview the ``.rst`` files.
-

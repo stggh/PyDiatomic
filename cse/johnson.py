@@ -2,23 +2,24 @@
 import numpy as np
 import scipy.constants as const
 
-from scipy import linalg
-from scipy.optimize import leastsq
+from scipy.optimize import least_squares
 from scipy.integrate.quadrature import simps
-from scipy.special import sph_jn, sph_yn
+from scipy.special import spherical_jn, spherical_yn
+from scipy.signal import find_peaks
 
 ##############################################################################
-#  PyCSE - solve the coupled-channel time-independent Schrödinger equation
-#          using recipe of B.R. Johnson J Chem Phys 69, 4678 (1977).
+#  PyDiatomic - solve the coupled-channel time-independent Schrödinger equation
+#               using recipe of B.R. Johnson J Chem Phys 69, 4678 (1977).
 #
 #  Stephen.Gibson@anu.edu.au
 #  January 2016
 ##############################################################################
 
+
 # ===== Johnson === Renormalized Numerov method ============
 
 
-def WImat(energy, rot, V, R, mu):
+def WImat(energy, rot, V, R, μ, AM):
     """ Interaction matrix.
 
     Parameters
@@ -33,8 +34,10 @@ def WImat(energy, rot, V, R, mu):
     R : numpy 1d array
         the internuclear distance grid for the potential curve matrix,
         size = oo
-    mu : float
+    μ : float
         reduced mass in kg
+    AM : 1d numpy array of tuples
+        (Ω, S, Λ, Σ) for each electronic state
 
     Returns
     -------
@@ -44,22 +47,42 @@ def WImat(energy, rot, V, R, mu):
     """
 
     dR2 = (R[1] - R[0])**2
-    factor = mu*1.0e-20*dR2*const.e/const.hbar/const.hbar/6
+
+    # 2μ/hbar^2 x \DeltaR^2/12 x e
+    factor = μ*1.0e-20*dR2*const.e/const.hbar/const.hbar/6
+
+    # hbar^2/2μ x e x 10^20
+    centrifugal_factor = (const.hbar*1.0e20/μ/2/const.e)*const.hbar
 
     oo, n, m = V.shape
     I = np.identity(n)
-    barrier = np.zeros((m, n, oo))
+    barrier = V.copy().T
 
+    # Fix me! - needs a tidy-up
     if rot:
-        # centrifugal barrier -   hbar^2 J(J+1)/2 mu R^2 in eV
-        diag = np.diag_indices(n)
-        barrier[diag] = rot*(rot+1)*dR2/12/R[:]**2/factor
+        Jp1 = rot*(rot+1)
+        for j in range(n):
+            Ω, S, Λ, Σ = AM[j]
+            am = Ω**2 - S*(S+1) + Σ**2
+            # diagonal - add centrifugal barrier to potential curve
+            if Jp1 > am:
+                barrier[j, j, :] += (Jp1 - am)*centrifugal_factor/R[:]**2
 
-    barrier = np.transpose(barrier)
+            for k in range(j+1, n):
+                Ωk, Sk, Σk, Λk = AM[k]
+                # off-diagonal
+                if Ω != Ωk:
+                    # L-uncoupling, homogeneous coupling already set
+                    if Jp1 > Ω*Ωk:
+                        barrier[j, k, :] = barrier[k, j, :] = 8064.541*\
+                              V[:, j, k]*np.sqrt(Jp1 - Ω*Ωk)*\
+                              centrifugal_factor/R[:]**2
+                                   
+    barrier = barrier.T
 
     # generate W^-1
     WI = np.zeros_like(V)
-    WI[:] = np.linalg.inv(I + (energy*I - V[:] - barrier[:])*factor)
+    WI[:] = np.linalg.inv(I + (energy*I - barrier[:])*factor)
 
     return WI
 
@@ -88,9 +111,11 @@ def RImat(WI, mx):
 
     U = 12*WI-I*10
     for i in range(1, mx+1):
-        RI[i] = linalg.inv(U[i]-RI[i-1])
+        RI[i] = np.linalg.inv(U[i]-RI[i-1])
+
     for i in range(oo-2, mx, -1):
-        RI[i] = linalg.inv(U[i]-RI[i+1])
+        RI[i] = np.linalg.inv(U[i]-RI[i+1])
+
     return RI
 
 
@@ -118,17 +143,23 @@ def fmat(j, RI, WI,  mx):
     f = np.zeros((oo, n))
 
     if n == 1 or mx > oo-20:
-        # single PEC or unbound 
-        f[mx] = linalg.inv(WI[mx])[j]
+        # single PEC or unbound
+        f[mx] = np.linalg.inv(WI[mx])[j]
     else:
         # (R_m - R^-1_m+1).f(R) = 0
-        U, s, Vh = linalg.svd(linalg.inv(RI[mx-1])-RI[mx])
-        for i, x in enumerate(s):
-            if x > 0: break    # any diagonal !=0 yields a solution
-        f[mx] = U[i] 
+        U, s, Vh = np.linalg.svd(np.linalg.inv(RI[mx-1])-RI[mx])
+        # for i, x in enumerate(s):
+        #     if x > 0:
+        #         break  # any diagonal !=0 yields a solution
+
+        # Fix me! Gives correct inward solution wavefunction phase
+        #  for O2X fine-structure
+        U = U.T
+        f[mx] = U[1] if U[1, 0] < 0 else U[-1]
 
     for i in range(mx-1, -1, -1):
         f[i] = f[i+1] @ RI[i]
+
     for i in range(mx+1, oo):
         f[i] = f[i-1] @ RI[i]
     return f
@@ -162,8 +193,30 @@ def wavefunction(WI, j, f):
 
 # ==== end of Johnson stuff ====================
 
+def node_positions(WI, mn, mx):
+    """ find inner and outer solution nodes, before the # outer turning point.
 
-def matching_point(en, rot, V, R, mu):
+    """
+
+    oo, n, m = WI.shape
+    RIoutwards = RImat(WI, oo-1)[mn:2*mx]
+    RIinwards = RImat(WI, 1)[mn:2*mx]
+
+    if n == 1:  # det(RI) works better than det(R)
+        detIR_out = RIoutwards[:, 0, 0]
+        detIR_in = RIinwards[:, 0, 0]
+    else:
+        detIR_out = np.linalg.det(RIoutwards)
+        detIR_in = np.linalg.det(RIinwards)
+
+    # determine the node positions
+    inner, _ = find_peaks(detIR_in)
+    outer, _ = find_peaks(detIR_out)
+
+    return inner, outer
+
+
+def matching_point(en, rot, V, R, μ, AM):
     """ estimate matching point for inward and outward solutions position
     based on the determinant of the R-matrix.
 
@@ -177,35 +230,44 @@ def matching_point(en, rot, V, R, mu):
         potential curve and couplings matrix
     R : numpy 1d array
         internuclear distance grid
-    mu : float
+    μ : float
         reduced mass in kg
+    AM : 1d numpuy array of tuples
+        (Ω, S, Λ, Σ) for each electronic state
 
     Returns
     -------
     mx : int
         matching point grid index
-
     """
 
     oo, n, m = V.shape
 
-    Vm = min([V[-1][j][j].min() for j in range(n)])  # lowest dissociation energy
+    # lowest dissociation energy
+    Vm = np.min([V[-1, j, j].min() for j in range(n)])
 
     if en > Vm:
         return oo-1
     else:
-        Vnn = np.transpose(V)[-1][-1]  # -1 -1 highest PEC?
-        mx = np.abs(Vnn - en).argmin()
+        mn = 120
 
-        WI = WImat(en, rot, V, R, mu)
-        Rm = RImat(WI, mx)
-        while linalg.det(Rm[mx]) > 1:
-            mx -= 1
+        Vnn = np.transpose(V)[0][0]  # lowest PEC
+        mx = Vnn.argmin()
+        # mx = np.abs(Vnn[mRe:] - en).argmin() + mRe # outer turning point
+
+        WI = WImat(en, rot, V, R, μ, AM)
+        inner, outer = node_positions(WI, mn, mx)
+
+        # Johnson uses two energies that bracket the eigenvalue,
+        # here take outermost region, as not obvious how to bracket eigenvalue
+        vib = len(outer)
+        if len(outer) > 0:
+            mx = (outer[-1] + inner[-1])//2 + mn
 
     return mx
 
 
-def eigen(energy, rot, mx, V, R, mu):
+def eigen(energy, rot, mx, V, R, μ, AM):
     """ determine eigen energy solution based.
 
     Parameters
@@ -220,21 +282,21 @@ def eigen(energy, rot, mx, V, R, mu):
         potential energy curve and coupling matrix
     R : numpy 1d array
         internuclear distance grid
-    mu : float
+    μ : float
         reduced mass in kg
 
     Returns
     -------
-    eigenvalue : float
-        energy of the solution
+    determinant : float
+        | R_mx - R^-1_mx+1 | 
 
     """
 
-    WI = WImat(energy, rot, V, R, mu)
+    WI = WImat(energy, rot, V, R, μ, AM)
     RI = RImat(WI, mx)
-    
-    # | R_mx - R^-1_mx+1 |
-    return linalg.det(linalg.inv(RI[mx])-RI[mx+1])
+
+    # | R_mx - R^-1_mx+1 |     x1000 scalinhg helps leeastsquares
+    return np.linalg.det(np.linalg.inv(RI[mx])-RI[mx+1])*1000
 
 
 def normalize(wf, R):
@@ -262,10 +324,11 @@ def normalize(wf, R):
     return wf/np.sqrt(norm)
 
 
-def amplitude(wf, R, edash, mu):
+def amplitude(wf, R, edash, μ):
     # Mies    F ~ JA + NB       J ~ sin(kR)/kR
-    # normalization sqrt(2 mu/pu hbar^2) = zz
-    zz = np.sqrt(2*mu/const.pi)/const.hbar
+    # normalization sqrt(2 μ/π hbar^2) = zz
+    π = const.pi
+    zz = np.sqrt(2*μ/π)/const.hbar
 
     oo, n, nopen = wf.shape
 
@@ -282,16 +345,16 @@ def amplitude(wf, R, edash, mu):
         if edash[j] < 0:
             continue
         # open channel
-        ke = np.sqrt(2*mu*edash[j]*const.e)/const.hbar
+        ke = np.sqrt(2*μ*edash[j]*const.e)/const.hbar
         rtk = np.sqrt(ke)
         kex1 = ke*x1
         kex2 = ke*x2
 
-        j1 = sph_jn(0, kex1)[0]*x1*rtk*zz
-        y1 = sph_yn(0, kex1)[0]*x1*rtk*zz
+        j1 = spherical_jn(0, kex1)*x1*rtk*zz
+        y1 = spherical_yn(0, kex1)*x1*rtk*zz
 
-        j2 = sph_jn(0, kex2)[0]*x2*rtk*zz
-        y2 = sph_yn(0, kex2)[0]*x2*rtk*zz
+        j2 = spherical_jn(0, kex2)*x2*rtk*zz
+        y2 = spherical_yn(0, kex2)*x2*rtk*zz
 
         det = j1*y2 - j2*y1
 
@@ -301,13 +364,19 @@ def amplitude(wf, R, edash, mu):
 
         oc += 1
 
-    AI = linalg.inv(A)
+    AI = np.linalg.inv(A)
     K = B @ AI
 
     return K, AI, B
 
 
-def solveCSE(en, rot, mu, R, VT):
+def solveCSE(Cse, en):
+
+    rot = Cse.rot
+    μ = Cse.μ
+    R = Cse.R
+    AM = Cse.AM
+    VT = Cse.VT
     n, m, oo = VT.shape
 
     V = np.transpose(VT)
@@ -317,14 +386,15 @@ def solveCSE(en, rot, mu, R, VT):
     openchann = edash > 0
     nopen = edash[openchann].size
 
-    mx = matching_point(en, rot, V, R, mu)
+    mx = matching_point(en, rot, V, R, μ, AM)
+    Cse.mx = mx
 
     if mx < oo-5:
-        out = leastsq(eigen, (en, ), args=(rot, mx, V, R, mu), xtol=0.01)
-        en = float(out[0])
+        out = least_squares(eigen, (en, ), args=(rot, mx, V, R, μ, AM))
+        en = float(out.x[0])
 
     # solve CSE according to Johnson renormalized Numerov method
-    WI = WImat(en, rot, V, R, mu)
+    WI = WImat(en, rot, V, R, μ, AM)
     RI = RImat(WI, mx)
     wf = []
     if nopen > 0:
@@ -344,10 +414,10 @@ def solveCSE(en, rot, mu, R, VT):
     if nopen == 0:
         wf = normalize(wf, R)
     else:
-        K, AI, B = amplitude(wf, R, edash, mu)   # shape = nopen x nopen
+        K, AI, B = amplitude(wf, R, edash, μ)   # shape = nopen x nopen
 
         # K = BA-1 = U tan xi UT
-        eig, U = linalg.eig(K)
+        eig, U = np.linalg.eig(K)
 
         # form A^-1 U cos xi exp(i xi) UT
         I = np.identity(nopen, dtype=complex)
@@ -364,4 +434,4 @@ def solveCSE(en, rot, mu, R, VT):
         # complex wavefunction array  oo x n x nopen
         wf = wf @ Norm
 
-    return wf, en
+    return wf, en, openchann

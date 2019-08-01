@@ -11,7 +11,7 @@ def run(coverage=False):
     import nose
     argv=['', '-s', '--where={}'.format(_base_dir), '--verbosity=2']
     if coverage:
-        argv += ['--with-coverage', '--cover-package=abel']
+        argv += ['--with-coverage', '--cover-package=cse']
     result = nose.run(argv=argv)
     status = int(not result)
     return status

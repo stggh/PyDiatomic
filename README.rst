@@ -1,8 +1,8 @@
 PyDiatomic README
 =================
 
-.. image:: https://travis-ci.org/stggh/PyDiatomic.svg?branch=master
-    :target: https://travis-ci.org/stggh/PyDiatomic
+.. image:: https://travis-ci.com/stggh/PyDiatomic.svg?branch=master
+    :target: https://travis-ci.com/stggh/PyDiatomic
 
 
 Introduction
@@ -18,7 +18,7 @@ The code is directed to the computation of photodissociation cross sections for 
 Installation
 ------------
 
-PyDiatomic requires Python 3.5 (*), numpy and scipy. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.continuum.io/downloads>`_, which is available for free.
+PyDiatomic requires Python 3.6 (*), numpy, scipy and periodictable. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.continuum.io/downloads>`_, which is available for free.
 
 Download the latest version from github ::
 
@@ -26,12 +26,20 @@ Download the latest version from github ::
 
 `cd`  to the PyDiatomic directory, and use ::
 
-    python3 setup.py install --user
+    python setup.py install --user
 
 Or, if you wish to edit the PyAbel source code without re-installing each time ::
 
-    python3 setup.py develop --user
+    python setup.py develop --user
 
+
+periodictable ::
+
+    conda install periodictable
+
+numba ::
+
+    conda install numba
 
 
 (*) due to the use of infix matrix multiplication ``@``. To run with python < 3.5, replace ``A @ B`` with ``np.dot(A, B)`` in ``cse.py`` and ``expectation.py``.
@@ -40,7 +48,8 @@ Or, if you wish to edit the PyAbel source code without re-installing each time :
 Example of use
 --------------
 
-PyDiatomic has a wrapper classes :class:`cse.Cse()` and  :class:`cse.Xs()` 
+PyDiatomic has a wrapper classes :class:`cse.Cse()` and
+:class:`cse.Transition()` 
 
 :class:`cse.Cse()`  set ups the CSE problem 
 (interaction matrix of potential energy curves, and couplings) and solves 
@@ -52,55 +61,77 @@ requested if required.
 .. code-block:: python
 
    import cse
-   X = cse.Cse()   # class instance
-   # CSE: reduced mass a.u. [O2=7.99745751]:    # requested parameters
-   # CSE: potential energy curves [X3S-1.dat]:
+   X = cse.Cse('O2')   # class instance
+   # CSE: potential energy curves [X3S-1.dat]:   # requested parameter
    X.solve(800)    # solves TISE for energy ~ 800 cm-1
    # attributes
-   # X.Bv                   X.mu                   X.set_mu
-   # X.R                    X.node_count           X.solve
-   # X.VT                   X.pecfs                X.vib
-   # X.cm                   X.rot                  X.wavefunction
-   # X.energy               X.rotational_constant  
-   # X.limits               X.set_coupling       
+   #     AM                   limits               rot                  
+   #     Bv                   molecule             set_coupling()       
+   #     calc                 mu                   set_mu()             
+   #     cm                   node_count()         solve()              
+   #     diabatic2adiabatic() openchann            vib                  
+   #     energy               pecfs                VT                   
+   #     levels()             R                    wavefunction         
    X.cm
    # 787.3978354211097
    X.vib
    # 0
+   X.calc
+   # {0: (787.3981436364634, 1.4376793143458806)}   {vib: (eigenvalue, Bv}
+   X  # class representation
+   # Molecule: O2  mass: 1.32801e-26 kg
+   # Electronic state: X3S-1.dat
+   # eigenvalues (that have been evaluated for this state):
+   # v    energy(cm-1)    Bv(cm-1)
+   # 0       787.398      1.43768
 
 
-:class:`cse.Xs()` evaluates two couple channel problems, for an intitial 
-and final set of coupled channels, to calculate the photodissociation 
+.. code-block:: python
+
+   import cse
+   X = cse.Cse('O2', VT=['X3S-1.dat'])
+   X.levels(vmax=5)  # evaluates energy levels for v=0, .., vmax
+                     # attribute .calc
+   X  # class representation
+   # Molecule: O2  mass: 1.32801e-26 kg
+   # Electronic state: X3S-1.dat
+   # evaluated eigenvalues:
+   # v    energy(cm-1)    Bv(cm-1)
+   # 0       787.398      1.43768
+   # 1      2337.360      1.42051
+   # 2      3867.008      1.40407
+   # 3      5375.938      1.38823
+   # 4      6863.744      1.37288
+   # 5      8335.901      1.35919
+   # 7     11196.366      1.32867
+   # 11     16131.082      1.22378
+   # 15     21719.531      1.20443
+   # 17     24119.541      1.17186
+   # 24     31559.738      0.99627
+   # 25     32754.587      1.03787
+   # 35     40566.037      0.74300
+
+
+:class:`cse.Transition()` evaluates two couple channel problems, for an
+intitial and final set of coupled channels, to calculate the photodissociation 
 cross section.
 
 .. code-block:: python
 
    import numpy as np
    import cse
-   Y = cse.Xs()
-   # CSE: reduced mass a.u. [O2=7.99745751]: 
-   # CSE: potential energy curves [X3S-1.dat]: 
-   # CSE: potential energy curves [X3S-1.dat]: B3S-1.dat, E3S-1.dat
-   # CSE: coupling B3S-1.dat <-> E3S-1.dat cm-1 [0]? 4000
-   # CSE: dipolemoment filename or value B3S-1.dat <- X3S-1.dat : 1
-   # CSE: dipolemoment filename or value E3S-1.dat <- X3S-1.dat : 0
-   Y.calculate_xs(transition_energy=np.arange(110, 174, 0.1), eni=800)
+   # initial state
+   O2X = cse.Cse('O2', VT=['potentials/X3S-1.dat'], en=800)
+   # final state
+   O2B = cse.Cse('O2', VT=['potentials/B3S-1.dat'])
+   # transition 
+   BX = cse.Transition(O2B, O2X)
+   # methods 
+   # BX.calculate_xs()  
+   BX.calculate_xs(transition_energy=np.arange(110, 174, 0.1), eni=800)
    # attributes
-   # Y.calculate_xs  Y.gs            Y.set_param     Y.xs
-   # Y.dipolemoment  Y.nopen         Y.us            Y.wavenumber  
-   # and those associated with the initial and final states
-   # 
-   # Y.gs.Bv                   Y.gs.mu                   Y.gs.set_mu
-   # Y.gs.R                    Y.gs.node_count           Y.gs.solve
-   # Y.gs.VT                   Y.gs.pecfs                Y.gs.vib
-   # Y.gs.cm                   Y.gs.rot                  Y.gs.wavefunction
-   # Y.gs.energy               Y.gs.rotational_constant  
-   # Y.gs.limits               Y.gs.set_coupling      
-   # 
-   # Y.us.R                    Y.us.node_count           Y.us.set_coupling
-   # Y.us.VT                   Y.us.pecfs                Y.us.set_mu
-   # Y.us.limits               Y.us.rot                  Y.us.solve
-   # Y.us.mu                   Y.us.rotational_constant  
+   # the calculated cross section BX.xs and those of the initial BX.gs and
+   # final coupled states BS.us
 
 A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg-valence coupling in O\ :sub:`2`
 
@@ -110,11 +141,12 @@ A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg
     import cse
     import matplotlib.pyplot as plt
 
-    Z = cse.Xs('O2', VTi=['X3S-1.dat'], VTf=['B3S-1.dat', 'E3S-1.dat'],
-               coupf=[4000], dipolemoment=[1, 0],
-               transition_energy=np.arange(110, 174, 0.1), eni=800)
+    O2X = cse.Cse('O2', VT=['X3S-1.dat'], en=800)
+    O2B = cse.Cse('O2', VT=['B3S-1.dat', 'E3S-1.dat'], coup=[4000])
+    O2BX = cse.Transition(B, X, dipolemoment=[1, 0],
+               transition_energy=np.arange(110, 174, 0.1))
 
-    plt.plot(Z.wavenumber, Z.xs*1.0e16)
+    plt.plot(O2BX.wavenumber, O2BX.xs*1.0e16)
     plt.xlabel("Wavenumber (cm$^{-1}$)")
     plt.ylabel("Cross section ($10^{-16}$ cm$^{2}$)")
     plt.axis(ymin=-0.2)
@@ -123,21 +155,63 @@ A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg
     plt.show()
 
 
-.. figure:: https://cloud.githubusercontent.com/assets/10932229/16544284/a6fe46fc-4143-11e6-8d7a-af1e4ad67db6.png 
+.. figure:: https://cloud.githubusercontent.com/assets/10932229/21469172/177a519c-ca91-11e6-8251-52efb7aa1a37.png
    :width: 300px
    :alt: calculated cross section
    
-   Example calculated cross section
 
+`example_O2xs.py`:
 
-See also `examples/example_O2xs.py` and `example_rkr.py`:
-
-.. figure:: https://cloud.githubusercontent.com/assets/10932229/16705448/831f11d8-45cd-11e6-9406-832a67e39d63.png
+.. figure:: https://user-images.githubusercontent.com/10932229/33101884-53a8ab68-cf6e-11e7-86f2-876d28809328.png
    :width: 300px
    :alt: example_O2xs
 
 
-.. figure:: https://cloud.githubusercontent.com/assets/10932229/16547862/7a37f520-41be-11e6-86d5-e5e52ef5e38f.png
+`example_O2_continuity.py`:
+
+.. figure:: https://user-images.githubusercontent.com/10932229/30096079-b869e486-9319-11e7-8adb-3ae64bff88d4.png
+   :width: 300px
+   :alt: example_O2_continuity
+
+
+`example_O2X_fine_structure.py`:
+
+.. code-block:: python
+
+    PyDiatomic O2 X-state fine-structure levels
+      energy diffences (cm-1): Rouille - PyDiatomic
+     N        F1          F2          F3
+     1      -0.000       0.000       0.000
+     3      -0.005       0.000       0.009
+     5      -0.009       0.000       0.013
+     7      -0.013       0.000       0.017
+     9      -0.017       0.000       0.022
+    11      -0.021       0.000       0.026
+    13      -0.025       0.000       0.030
+    15      -0.029      -0.000       0.034
+    17      -0.033      -0.000       0.039
+    19      -0.037      -0.000       0.043
+    21      -0.041      -0.000       0.047
+
+
+
+`example_O2_SRB4.py`:
+
+.. figure:: https://user-images.githubusercontent.com/10932229/33054465-7094c0f0-cecd-11e7-99c1-4f14c4ffad48.png
+   :width: 300px
+   :alt: example_O2_SRB4
+
+
+`example_HO.py`:
+
+.. figure:: https://user-images.githubusercontent.com/10932229/30100890-b3195eee-932d-11e7-9480-fec2af23f6ff.png
+   :width: 300px
+   :alt: example_HO
+
+
+`example_rkr.py`:
+
+.. figure:: https://cloud.githubusercontent.com/assets/10932229/21469152/a33fd798-ca90-11e6-8fe3-1f3c3364de26.png
    :width: 300px
    :alt: example_rkr
 
@@ -173,7 +247,7 @@ reduction in execution time on multiprocessor systems. e.g. for :code:`example_O
 ==============     ====     ======     ==========
 machine            GHz      CPU(s)     time (sec)
 ==============     ====     ======     ==========
-Xenon E5-2697      2.6      64         6
+Xeon E5-2697       2.6      64         6
 i7-6700            3.4      8          17
 Macbook pro i5     2.4      4          63
 raspberry pi 3     1.35     4          127
@@ -195,18 +269,21 @@ in the calculation of diatomic photodissociation spectra.
 
 More sophisticated C and Fortran implementations have been in use for a number 
 of years, see references below. These were developed by Stephen Gibson (ANU),
-Brenton Lewis (ANU), and Alan Heays (ANU and Leiden). 
+Brenton Lewis (ANU), and Alan Heays (ANU, Leiden, and ASU). 
 
 
-Reference
----------
+References
+----------
 
 [1] `B.R. Johnson "The renormalized Numerov method applied to calculating the bound states of the coupled-channel Schroedinger equation" J. Chem. Phys. 69, 4678 (1978) <http://dx.doi.org/10.1063/1.436421>`_
 
 [2] `B.R. Lewis, S.T. Gibson, F. T. Hawes, and L. W. Torop "A new model for
 the Schumann-Runge bands of O2" Phys. Chem. Earth(C) 26 519 (2001) <http://dx.doi.org/10.1016/S1464-1917(01)00040-X>`_
 
-[3] `A. N. Heays "Photoabsorption and photodissociation in molecular nitrogen, PhD Thesis (2011) <https://digitalcollections.anu.edu.au/handle/1885/7360>`_
+[3] `B.R. Lewis, S.T. Gibson, and P.M. Dooley "Fine-structure dependence of predissociation linewidth in the Schumann-Runge bands of molecular oxygen"
+" J. Chem. Phys. 100 7012 (1994) <https://doi.org/10.1063/1.466902>`_
+
+[4] `A. N. Heays "Photoabsorption and photodissociation in molecular nitrogen, PhD Thesis (2011) <https://digitalcollections.anu.edu.au/handle/1885/7360>`_
 
 
 Citation
