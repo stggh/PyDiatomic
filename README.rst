@@ -37,9 +37,6 @@ periodictable ::
 
     conda install periodictable
 
-numba ::
-
-    conda install numba
 
 
 (*) due to the use of infix matrix multiplication ``@``. To run with python < 3.5, replace ``A @ B`` with ``np.dot(A, B)`` in ``cse.py`` and ``expectation.py``.
