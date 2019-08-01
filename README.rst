@@ -28,7 +28,7 @@ Download the latest version from github ::
 
     python setup.py install --user
 
-Or, if you wish to edit the PyAbel source code without re-installing each time ::
+Or, if you wish to edit the PyDiatomic source code without re-installing each time ::
 
     python setup.py develop --user
 
