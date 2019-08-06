@@ -35,7 +35,7 @@ Or, if you wish to edit the PyDiatomic source code without re-installing each ti
 
 periodictable ::
 
-    conda install periodictable
+    pip install periodictable
 
 
 
