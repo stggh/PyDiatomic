@@ -18,7 +18,6 @@ from scipy.signal import find_peaks
 
 # ===== Johnson === Renormalized Numerov method ============
 
-
 def WImat(energy, rot, V, R, μ, AM):
     """ Interaction matrix.
 

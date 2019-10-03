@@ -266,7 +266,7 @@ class Xs():
     """ Class to evaluate photodissociation cross sections, i.e. solve the
     coupled-channel problems, for initial and final coupled-channels.
 
-    *Note*: depreciated, use `cse.Transition()`.
+    *Note*: `cse.Transition()` to set up the transition states first.
 
     The following attributes may be available subject to the calculation.
 
@@ -345,6 +345,8 @@ class Xs():
             self.wavenumber = transition_energy
 
         if eni is not None or roti is not None:
+            if eni is None:
+                eni = self.gs.cm
             self.gs.solve(eni, roti)
 
         if rotf is not None:
@@ -391,7 +393,7 @@ class Transition(Xs):
     """
 
     def __init__(self, final_coupled_states, initial_coupled_states,
-                 dipolemoment=None, transition_energy=None,
+                 dipolemoment=None, transition_energy=None, eni=None,
                  roti=None, rotf=None):
         """
         Parameters
@@ -401,6 +403,9 @@ class Transition(Xs):
 
         final_coupled_states: `cse.Cse` class
             final (coupled)electronic state(s)
+
+        dipolemoment: float array
+            electric dipole transition moment (in a.u.)
 
         """
 
@@ -416,4 +421,4 @@ class Transition(Xs):
                                 pec_us=self.us.pecfs)
 
         if transition_energy is not None:
-            self.calculate_xs(transition_energy, roti=roti, rotf=rotf)
+            self.calculate_xs(transition_energy, roti=roti, rotf=rotf, eni=eni)
