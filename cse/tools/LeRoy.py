@@ -1,70 +1,137 @@
 import numpy as np
+from scipy.optimize import least_squares
 
 
-class MorseLR():
-    def __init__(self, R, Re=4.99, De=287.0, Cm=1.119e7, Cn=2.63e8,
-                 m=6, n=8, p=3,
-                 phi=[-2.12675, 0.0554, 20.026, -144.25, 371.6, -422.0, 180.0],
-                 Ns=1, Nl=3):
-        """ Le Roy Morse-long-range potential curve.
+class Morse():
+    def __init__(self, R, Re, Rref, De, beta=[1.0], q=2, Cm={}):
+        """ Le Roy Expanded-Morse-Oscillator (EMO),
+            Morse-Long-Range (MLR), and
+            spline-pointwise potential curves.
 
-            J Chem Phys 126, 194313 (2007)   doi:10.1063/1.2734973
+            JQSRT 186, 210-220 (2017) doi:10.1016/j.jqsrt.2016.03.036
         """
 
         self.R = R
         self.Re = Re
+        self.Rref = Rref
+        self.beta = beta
         self.De = De
-        self.Cm = Cm
-        self.Cn = Cn
-        self.m = m
-        self.n = n
-        self.p = p
-        self.phi = phi
-        self.Ns = Ns
-        self.Nl = Nl
+        self.q = q
 
-        self.MLR = self.Morse_long_range(R)
+        self.V = self.EMO()
 
-    def Morse_long_range(self, R):
-        ULRratio = self.U_LR(R)/self.U_LR(self.Re)
-        exponent = self.phiLR(R) * self.y(R)
+    def EMO(self):  # Eq. (3)
+        return self.De*(1 - np.exp(-self.betaEMO(self.R)*\
+                                   (self.R - self.Re)))**2
 
-        return self.De*(1 - ULRratio * np.exp(-exponent))**2  # Eq. (3)
+    def yref(self, R):  # Eq. (2)
+        Rq = R**self.q
+        Rrefq = self.Rref**self.q
+        return (Rq - Rrefq)/(Rq + Rrefq)
 
-    def U_LR(self, R):
-        return self.Cn/R**self.n + self.Cm/R**self.m  # Eq. (4)
+    def betaEMO(self, R):  # EQ. (4)
+        by = 0.0
+        yrefq = self.yref(R)
+        for i, b in enumerate(self.beta):
+            by += b*yrefq**i
+        return by
 
-    def y(self, R):
-        Rp = R**self.p
-        Rep = self.Re**self.p
-
-        return (Rp - Rep)/(Rp + Rep)  # Eq. (5)
-
-    def phiLR(self, R):
-        # Eq. (8) + (9)
-        self.phi_inf = np.log(2*self.De/self.U_LR(self.Re))
-        ypR = self.y(R)
-
-        z = np.array([])
-        for sub, N in zip([R <= self.Re, R > self.Re], [self.Ns, self.Nl]):
-            ypRs = ypR[sub]
-
-            x = 0.0
-            for i in range(N):
-                x += self.phi[i]*(ypRs**i)
-
-            x *= (1 - ypRs)
-            x += ypRs*self.phi_inf
-
-            z = np.append(z, x)
-
-        return z
+    def ULR(self, Rx):
+        ulr = 0.0
+        for m, Cm in self.Cm.index():
+            ulr += Cm/Rx**m
+        return ulr
 
 
-# main ----------------
-if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-    R = np.arange(4, 10, 0.1)
-    V = MorseLR(R)
-    plt.plot(V.R, V.MLR)
-    plt.show()
+class Morsefit(Morse):
+    def __init__(self, R, V, Rref=None, De=None, Nbeta=3, q=3,
+                 fitpar=[]):
+        """ fit EMO to supplied potential curve.
+
+        """
+
+        self.fitpar = fitpar
+
+        # supplied potential energy curve
+        self.R = R
+        self.V = V
+        
+        # set some easy to determine constants
+        self.Re = R[V.argmin()]
+        if Rref is None:
+            self.Rref = self.Re
+        else:
+            self.Rref = Rref
+
+        self.Te = V.min()
+        if De is None:
+            self.De = V[-1] - self.Te
+        else:
+            self.De = De
+
+        self.q = q
+        self.Nbeta = Nbeta
+        self.beta = np.ones(Nbeta)
+
+        # estimate betas from linear form Eq. (24)
+        self.est_beta()
+
+        super().__init__(R, self.Re, self.Rref, self.De, beta=self.beta, q=q)
+
+        self.fit_EMO(Rref)
+        self.V = self.EMO()
+
+
+    def est_beta(self):   # Eq. (24)
+        """ estimate betas from log-linear expression Eq. (24).
+
+        """
+        def residual(beta):
+            self.beta = beta
+            left = self.betaEMO(self.R[inner])*(self.R[inner]-self.Re)
+            right = self.betaEMO(self.R[outer])*(self.R[outer]-self.Re)
+            return np.concatenate((left-inn, right-out))
+
+        inner = self.R < self.Re
+        outer = self.R >= self.Re
+        if np.isclose(self.V[-1], self.De):
+            outer[-1] = False
+        
+        inn = -np.log(1.0 + np.sqrt((self.V[inner] - self.Te)/self.De))
+        out = -np.log(1.0 - np.sqrt((self.V[outer] - self.Te)/self.De))
+
+        self.est = least_squares(residual, self.beta)
+
+        self.beta = self.est.x
+
+
+    def fit_EMO(self, Rref):
+        """ full least-squares fit to EMO.
+
+        """
+        def residual(pars):
+            for i, p in enumerate(self.fitpar):
+                if p == 'beta':
+                    self.beta = pars[:self.Nbeta]
+                else:
+                    self.__dict__[p] = pars[-i]
+
+            return self.EMO() - self.V
+
+        if 'beta' in self.fitpar:
+            pars = self.beta.copy()
+        else:
+            pars = []
+
+        for p in self.fitpar:
+            pars = np.append(pars, self.__dict__[p])
+
+        self.fit = least_squares(residual, pars)
+
+        for i, p in enumerate(self.fitpar):
+            if p == 'beta':
+                self.beta = self.fit.x[:self.Nbeta]
+            else:
+                self.__dict__[p] = self.fit.x[-i]
+
+        self.V = self.EMO()
