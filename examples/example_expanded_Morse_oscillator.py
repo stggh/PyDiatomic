@@ -24,5 +24,5 @@ plt.xlabel(r'internuclear distance ($\AA$)')
 plt.ylabel(r'potential energy (cm$^{-1}$)')
 plt.subplots_adjust(left=0.15, right=0.95)
 
-plt.savefig('output/example_extended_Morse_oscillator.png', dpi=75)
+plt.savefig('output/example_expanded_Morse_oscillator.png', dpi=75)
 plt.show()
