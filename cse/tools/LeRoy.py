@@ -18,7 +18,7 @@ class Morse():
         self.De = De
         self.q = q
 
-        self.V = self.EMO()
+        self.VEMO = self.EMO()
 
     def EMO(self):  # Eq. (3)
         return self.De*(1 - np.exp(-self.betaEMO(self.R)*\
@@ -55,6 +55,8 @@ class Morsefit(Morse):
         # supplied potential energy curve
         self.R = R
         self.V = V
+        if self.V[-1] < 1000:
+            self.V *= 8065.541   # convert eV to cm-1 
         
         # set some easy to determine constants
         self.Re = R[V.argmin()]
@@ -78,8 +80,8 @@ class Morsefit(Morse):
 
         super().__init__(R, self.Re, self.Rref, self.De, beta=self.beta, q=q)
 
-        self.fit_EMO(Rref)
-        self.V = self.EMO()
+        self.fit_EMO()
+        self.VEMO = self.EMO()
 
 
     def est_beta(self):   # Eq. (24)
@@ -94,8 +96,7 @@ class Morsefit(Morse):
 
         inner = self.R < self.Re
         outer = self.R >= self.Re
-        if np.isclose(self.V[-1], self.De):
-            outer[-1] = False
+        outer[-1] = False  # in case value is Nan
         
         inn = -np.log(1.0 + np.sqrt((self.V[inner] - self.Te)/self.De))
         out = -np.log(1.0 - np.sqrt((self.V[outer] - self.Te)/self.De))
@@ -105,7 +106,7 @@ class Morsefit(Morse):
         self.beta = self.est.x
 
 
-    def fit_EMO(self, Rref):
+    def fit_EMO(self):
         """ full least-squares fit to EMO.
 
         """
@@ -118,12 +119,10 @@ class Morsefit(Morse):
 
             return self.EMO() - self.V
 
-        if 'beta' in self.fitpar:
-            pars = self.beta.copy()
-        else:
-            pars = []
-
+        pars = []
         for p in self.fitpar:
+            if p == 'beta':
+                pars = self.beta
             pars = np.append(pars, self.__dict__[p])
 
         self.fit = least_squares(residual, pars)
@@ -134,4 +133,4 @@ class Morsefit(Morse):
             else:
                 self.__dict__[p] = self.fit.x[-i]
 
-        self.V = self.EMO()
+        self.VEMO = self.EMO()
