@@ -9,7 +9,7 @@ subR = np.logical_and(R >= 0.8, R <= 6)
 R = R[subR]
 V = V[subR]
 
-morse = cse.tools.LeRoy.Morsefit(R, V, Rref=2.0, Nbeta=5, q=4,
+morse = cse.tools.LeRoy.Morsefit(R, V, Rref=1.37, Nbeta=8, q=6,
                                  fitpar=['beta', 'Rref', 'Re'])
 
 print('linear fit betas:\n',morse.est.x)  # betas from linear fit
