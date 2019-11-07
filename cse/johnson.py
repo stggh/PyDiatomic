@@ -198,8 +198,8 @@ def node_positions(WI, mn, mx):
     """
 
     oo, n, m = WI.shape
-    RIoutwards = RImat(WI, oo-1)[mn:2*mx]
-    RIinwards = RImat(WI, 1)[mn:2*mx]
+    RIoutwards = RImat(WI, oo-1)[mn:mx]
+    RIinwards = RImat(WI, 1)[mn:mx]
 
     if n == 1:  # det(RI) works better than det(R)
         detIR_out = RIoutwards[:, 0, 0]
@@ -242,17 +242,19 @@ def matching_point(en, rot, V, R, μ, AM):
 
     oo, n, m = V.shape
 
-    # lowest dissociation energy
-    Vm = np.min([V[-1, j, j].min() for j in range(n)])
+    # index for potential energy curve with lowest dissociation energy
+    jm = np.array([V[-1, j, j] for j in range(n)]).argmin()
+    Vm = V[-1, jm, jm]  # dissociation energy
 
-    if en > Vm:
+    if en > Vm:  #  at least one open channel
         return oo-1
-    else:
-        mn = 120
-
-        Vnn = np.transpose(V)[0][0]  # lowest PEC
-        mx = Vnn.argmin()
-        # mx = np.abs(Vnn[mRe:] - en).argmin() + mRe # outer turning point
+    else:  # all channels closed, determine matching point
+        jRe = V[:, jm, jm].argmin()  # potential energy index of minimum
+        # inner and outer crossing point indices for energy en
+        # //2, *2 factor broadens range
+        mn = np.abs(V[:jRe, jm, jm] - en).argmin()//2  # inner 
+        mx = np.abs(V[jRe:, jm, jm] - en).argmin()*2 + jRe  # outer
+        mx = min(oo, mx)
 
         WI = WImat(en, rot, V, R, μ, AM)
         inner, outer = node_positions(WI, mn, mx)
