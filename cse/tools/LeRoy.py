@@ -123,7 +123,8 @@ class Morsefit(Morse):
         for p in self.fitpar:
             if p == 'beta':
                 pars = self.beta
-            pars = np.append(pars, self.__dict__[p])
+            else:
+                pars = np.append(pars, self.__dict__[p])
 
         self.fit = least_squares(residual, pars)
 
