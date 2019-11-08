@@ -3,7 +3,7 @@ from scipy.optimize import least_squares
 
 
 class Morse():
-    def __init__(self, R, Re, Rref, De, beta=[1.0], q=2, Cm={}):
+    def __init__(self, R, Re, Rref, De, Te, beta=[1.0], q=2, Cm={}):
         """ Le Roy Expanded-Morse-Oscillator (EMO),
             Morse-Long-Range (MLR), and
             spline-pointwise potential curves.
@@ -16,13 +16,14 @@ class Morse():
         self.Rref = Rref
         self.beta = beta
         self.De = De
+        self.Te = Te
         self.q = q
 
         self.VEMO = self.EMO()
 
     def EMO(self):  # Eq. (3)
         return self.De*(1 - np.exp(-self.betaEMO(self.R)*\
-                                   (self.R - self.Re)))**2
+                                   (self.R - self.Re)))**2 + self.Te
 
     def yref(self, R):  # Eq. (2)
         Rq = R**self.q
@@ -78,7 +79,8 @@ class Morsefit(Morse):
         # estimate betas from linear form Eq. (24)
         self.est_beta()
 
-        super().__init__(R, self.Re, self.Rref, self.De, beta=self.beta, q=q)
+        super().__init__(R, self.Re, self.Rref, self.De, self.Te,
+                         beta=self.beta, q=q)
 
         self.fit_EMO()
         self.VEMO = self.EMO()
