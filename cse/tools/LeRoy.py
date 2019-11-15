@@ -3,7 +3,7 @@ from scipy.optimize import least_squares
 
 
 class Morse():
-    def __init__(self, R, Re, Rref, De, Te, beta=[1.0], q=2, Cm={}):
+    def __init__(self, R, Re, Rref, De, Te, beta=[1.0], p=1, q=2, Cm={}):
         """ Le Roy Expanded-Morse-Oscillator (EMO),
             Morse-Long-Range (MLR), and
             spline-pointwise potential curves.
@@ -17,29 +17,42 @@ class Morse():
         self.beta = beta
         self.De = De
         self.Te = Te
+        self.p = p
         self.q = q
+        self.Cm = Cm
 
         self.VEMO = self.EMO()
 
-    def EMO(self):  # Eq. (3)
-        return self.De*(1 - np.exp(-self.betaEMO(self.R)*\
-                                   (self.R - self.Re)))**2 + self.Te
+    def EMO(self):  # Expanded Morse Oscillator, Eq. (3)
+        return self.De*(1 - np.exp(-self.betaEMO(self.R, self.q)*\
+                       (self.R - self.Re)))**2 + self.Te
 
-    def yref(self, R):  # Eq. (2)
-        Rq = R**self.q
-        Rrefq = self.Rref**self.q
-        return (Rq - Rrefq)/(Rq + Rrefq)
+    def MLR(self, R):  # Morse long-range, Eq. (6)
+        ULRratio = self.ULR(R)/self.ULR(self.Re)
+        exponent = self.beta(R, self.q) * self.yref(self.R, self.p)
 
-    def betaEMO(self, R):  # EQ. (4)
+        return self.De*(1 - ULRratio * np.exp(-exponent))**2
+
+    def betaEMO(self, R, pq):  # EQ. (4)
         by = 0.0
-        yrefq = self.yref(R)
+        yrefpq = self.yref(R, pq)
         for i, b in enumerate(self.beta):
-            by += b*yrefq**i
+            by += b*yrefpq**i
         return by
+
+    def betaMLR(self, R):  # Eq. (10)
+        beta_infy = np.log(2*self.De/self.U_LR(self.Re))
+        yrefp = self.yref(self.R, self.p)
+        return yrefp*beta_infy + (1 - yrefp)*betaEMO(self.R, self.q)
+
+    def yref(self, R, pq):  # Eq. (2)
+        Rpq = R**pq
+        Rrefpq = self.Rref**pq
+        return (Rpq - Rrefpq)/(Rpq + Rrefpq)
 
     def ULR(self, Rx):
         ulr = 0.0
-        for m, Cm in self.Cm.index():
+        for m, Cm in self.Cm.items():
             ulr += Cm/Rx**m
         return ulr
 
@@ -92,8 +105,8 @@ class Morsefit(Morse):
         """
         def residual(beta):
             self.beta = beta
-            left = self.betaEMO(self.R[inner])*(self.R[inner]-self.Re)
-            right = self.betaEMO(self.R[outer])*(self.R[outer]-self.Re)
+            left = self.betaEMO(self.R[inner], self.q)*(self.R[inner]-self.Re)
+            right = self.betaEMO(self.R[outer], self.q)*(self.R[outer]-self.Re)
             return np.concatenate((left-inn, right-out))
 
         inner = self.R < self.Re
@@ -137,3 +150,24 @@ class Morsefit(Morse):
                 self.__dict__[p] = self.fit.x[-i]
 
         self.VEMO = self.EMO()
+
+
+    def fitCm(self):
+        def residual(par, Rx, Vx):
+            for i, (m, Cm) in enumerate(self.Cm.items()):
+                self.C[m] = par[i]
+            return self.ULR(Rx) - Vx
+
+        # long range part of potential curve
+        LR = self.R > 3
+        Rx = self.R[LR]
+        Vx = self.V[LR]
+
+        pars = np.ones(len(self.Cm.values))
+        
+        result = least_squares(residual, pars, arg=(Rx, Vx)) 
+        self.fitCm = result
+
+        for i, (m, Cm) in enumerate(self.Cm.items()):
+            self.C[m] = result.x[i]
+
