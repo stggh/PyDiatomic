@@ -59,7 +59,7 @@ class Morse():
 
 class Morsefit(Morse):
     def __init__(self, R, V, Rref=None, De=None, Nbeta=3, q=3,
-                 fitpar=[]):
+                 fitpar=[], Cm={}):
         """ fit EMO to supplied potential curve.
 
         """
@@ -88,6 +88,7 @@ class Morsefit(Morse):
         self.q = q
         self.Nbeta = Nbeta
         self.beta = np.ones(Nbeta)
+        self.Cm = Cm
 
         # estimate betas from linear form Eq. (24)
         self.est_beta()
@@ -95,8 +96,8 @@ class Morsefit(Morse):
         super().__init__(R, self.Re, self.Rref, self.De, self.Te,
                          beta=self.beta, q=q)
 
-        self.fit_EMO()
-        self.VEMO = self.EMO()
+        # self.fit_EMO()
+        # self.VEMO = self.EMO()
 
 
     def est_beta(self):   # Eq. (24)
@@ -153,9 +154,9 @@ class Morsefit(Morse):
 
 
     def fitCm(self):
-        def residual(par, Rx, Vx):
+        def residual(pars, Rx, Vx):
             for i, (m, Cm) in enumerate(self.Cm.items()):
-                self.C[m] = par[i]
+                self.Cm[m] = pars[i]
             return self.ULR(Rx) - Vx
 
         # long range part of potential curve
@@ -163,9 +164,9 @@ class Morsefit(Morse):
         Rx = self.R[LR]
         Vx = self.V[LR]
 
-        pars = np.ones(len(self.Cm.values))
+        pars = np.ones(len(self.Cm.values()))
         
-        result = least_squares(residual, pars, arg=(Rx, Vx)) 
+        result = least_squares(residual, pars, args=(Rx, Vx)) 
         self.fitCm = result
 
         for i, (m, Cm) in enumerate(self.Cm.items()):
