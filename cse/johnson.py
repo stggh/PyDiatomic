@@ -8,7 +8,7 @@ from scipy.special import spherical_jn, spherical_yn
 from scipy.signal import find_peaks
 
 ##############################################################################
-#  PyDiatomic - solve the coupled-channel time-independent Schrödinger equation
+#  PyDiatomic - solves the coupled-channel time-independent Schrödinger equation
 #               using recipe of B.R. Johnson J Chem Phys 69, 4678 (1977).
 #
 #  Stephen.Gibson@anu.edu.au
@@ -61,14 +61,14 @@ def WImat(energy, rot, V, R, μ, AM):
     if rot:
         Jp1 = rot*(rot+1)
         for j in range(n):
-            Ω, S, Λ, Σ = AM[j]
+            Ω, S, Λ, Σ, pm = AM[j]
             am = Ω**2 - S*(S+1) + Σ**2
             # diagonal - add centrifugal barrier to potential curve
             if Jp1 > am:
                 barrier[j, j, :] += (Jp1 - am)*centrifugal_factor/R[:]**2
 
             for k in range(j+1, n):
-                Ωk, Sk, Σk, Λk = AM[k]
+                Ωk, Sk, Σk, Λk, pmk = AM[k]
                 # off-diagonal
                 if Ω != Ωk:
                     # L-uncoupling, homogeneous coupling already set
@@ -147,12 +147,9 @@ def fmat(j, RI, WI,  mx):
     else:
         # (R_m - R^-1_m+1).f(R) = 0
         U, s, Vh = np.linalg.svd(np.linalg.inv(RI[mx-1])-RI[mx])
-        # for i, x in enumerate(s):
-        #     if x > 0:
-        #         break  # any diagonal !=0 yields a solution
 
         # Fix me! Gives correct inward solution wavefunction phase
-        #  for O2X fine-structure
+        #  for O2X fine-structure wavefunctions
         U = U.T
         f[mx] = U[1] if U[1, 0] < 0 else U[-1]
 
@@ -164,22 +161,20 @@ def fmat(j, RI, WI,  mx):
     return f
 
 
-def wavefunction(WI, j, f):
+def wavefunction(WI, f):
     """ evaluate wavefunctions from f-matrix array.
 
     Parameters
     ----------
     WI : numpy 3d array
         inverted interaction matrix, as returned from WImat
-    j : int
-        open channel number
-    f : numpy 2d array
+    f : numpy 2d array - shape (oo, n)
         f-matrix as returned from fmat
 
     Returns
     -------
     wf : numpy 3d array
-        oo x n x nopen array of wavefunctions
+        (n, oo) array of wavefunctions
 
     """
     oo, n = f.shape
@@ -403,11 +398,11 @@ def solveCSE(Cse, en):
         for j, ed in enumerate(edash):
             if ed > 0:
                 f = fmat(j, RI, WI, mx)
-                wf.append(wavefunction(WI, oc, f))
+                wf.append(wavefunction(WI, f))
                 oc += 1
     else:
         f = fmat(0, RI, WI, mx)
-        wf.append(wavefunction(WI, nopen, f))
+        wf.append(wavefunction(WI, f))
 
     wf = np.array(wf)
     wf = np.transpose(wf)

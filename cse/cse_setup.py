@@ -63,7 +63,7 @@ def reduced_mass(molecule):
     return μ*const.u, molecule
 
 
-def potential_energy_curves(pecfs=None, R=None):
+def potential_energy_curves(pecfs=None, R=None, dirpath='./'):
     """ Read potential energy curve file(s) and assemble as diagonals in an nxn array for the n-filenames provided.
 
     Parameters
@@ -74,6 +74,9 @@ def potential_energy_curves(pecfs=None, R=None):
 
     R : numpy 1d array
         radial grid if not None
+
+    dirpath : str
+        dirpath to directory of potential energy curve files
 
     Returns
     -------
@@ -118,7 +121,7 @@ def potential_energy_curves(pecfs=None, R=None):
     Vin = []
     for i,fn in enumerate(pecfs):
         if isinstance(fn, (np.str)):
-            radialcoord, potential = np.loadtxt(fn, unpack=True)
+            radialcoord, potential = np.loadtxt(dirpath+'/'+fn, unpack=True)
             fn = fn.split('/')[-1].upper()
             digits = re.findall('\d', fn)
             if len(digits) > 0:
@@ -126,10 +129,11 @@ def potential_energy_curves(pecfs=None, R=None):
                 S = (degen - 1)//2
                 Ω = int(digits[1])
                 Λ = 'SPDF'.index(fn[fn.index(digits[0])+1])
+                pm = int(Λ == 'S' and f[fn.index(digits[0])+2] == '-')
                 Σ = Ω - Λ
-                AM.append((Ω, S, Λ, Σ))
+                AM.append((Ω, S, Λ, Σ, pm))
             else:
-                AM.append((0, 0, 0, 0))
+                AM.append((0, 0, 0, 0, 0))
 
         else:
             radialcoord, potential = fn
@@ -225,7 +229,8 @@ def coupling_function(R, VT, μ, pecfs, coup=None):
     return VT
 
 
-def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
+def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None,
+                      dirpath='./'):
     def is_number(s):
         try:
             complex(s) # for int, long, float and complex
@@ -253,7 +258,7 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
                 dipole[u][g] = float(fn)             
             else:
                 # fn a filename, read and load
-                RD, D = np.loadtxt(fn, unpack=True)
+                RD, D = np.loadtxt(dirpath+'/'+fn, unpack=True)
                 # cubic spline interpolation
                 spl = splrep(RD, D)
                 dipole[u][g] = splev(R, spl, der=0, ext=1)
