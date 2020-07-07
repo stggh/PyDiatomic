@@ -2,8 +2,8 @@ language: python
 sudo: false
 matrix:
   include:
-  - python: '3.7'
-    env: DEPS="numpy scipy periodictable numba"
+  - python: '3.8'
+    env: DEPS="numpy scipy periodictable"
     dist: xenial
 install:
   - pip install --upgrade pip setuptools wheel
