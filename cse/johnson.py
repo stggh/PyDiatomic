@@ -148,9 +148,6 @@ def fmat(j, RI, WI,  mx):
         # (R_m - R^-1_m+1).f(R) = 0
         U, s, Vh = np.linalg.svd(np.linalg.inv(RI[mx-1])-RI[mx])
 
-        # Fix me! Gives correct inward solution wavefunction phase
-        #  for O2X fine-structure wavefunctions
-        U = U.T
         f[mx] = U[1] if U[1, 0] < 0 else U[-1]
 
     for i in range(mx-1, -1, -1):

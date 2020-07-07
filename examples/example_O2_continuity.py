@@ -50,25 +50,19 @@ lb = len(bands)
 vib = np.arange(lb)
 
 # CSE ^3Sigma_u^- valence and Rydbergs coupled channels -------
-O2Bcoup = cse.Cse('O2', VT=['potentials/3S-1v.dat',
-                               'potentials/3S-1r.dat',
-                               'potentials/3S-1r2.dat'],
-                          coup=[4033, 2023, 0])
+O2Bcoup = cse.Cse('O2', dirpath='potentials',
+                  VT=['3S-1v.dat', '3S-1r.dat', '3S-1r2.dat'],
+                  coup=[4033, 2023, 0])
 
-O2S = cse.Transition(O2Bcoup, O2X,
-                     dipolemoment=['transitionmoments/dvX.dat',
-                                   'transitionmoments/drX.dat',
-                                   'transitionmoments/dr2X.dat'])
+O2S = cse.Transition(O2Bcoup, O2X, dirpath='transitionmoments',
+                     dipolemoment=['dvX.dat', 'drX.dat', 'dr2X.dat'])
 
 # CSE ^3Pi_u coupled channels -------
-O2Pcoup = cse.Cse('O2', VT=['potentials/3P1v.dat',
-                               'potentials/3P1r.dat',
-                               'potentials/3P1r2.dat'],
-                          coup=[7034, 3403, 0])
-O2P = cse.Transition(O2Pcoup, O2X,
-                     dipolemoment=['transitionmoments/dvPX.dat',
-                                   'transitionmoments/drPX.dat',
-                                   'transitionmoments/dr2PX.dat'])
+O2Pcoup = cse.Cse('O2', dirpath='potentials',
+                  VT=['3P1v.dat', '3P1r.dat', '3P1r2.dat'],
+                  coup=[7034, 3403, 0])
+O2P = cse.Transition(O2Pcoup, O2X, dirpath='transitionmoments',
+                     dipolemoment=['dvPX.dat', 'drPX.dat', 'dr2PX.dat'])
 
 # ground X3Sigma_g^- state energy
 print(f' E(v"=0, J=0) = {O2S.gs.cm:8.2f} (cm-1)\n')
