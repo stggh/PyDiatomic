@@ -3,7 +3,7 @@ import numpy as np
 import scipy.constants as const
 
 from scipy.optimize import least_squares
-from scipy.integrate.quadrature import simps
+from scipy.integrate import simps
 from scipy.special import spherical_jn, spherical_yn
 from scipy.signal import find_peaks
 

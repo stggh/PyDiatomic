@@ -9,7 +9,7 @@ def test_Morse():
     # simulates O2 X-state
     VM = cse.tools.analytical.Morse(r, 1.21, 5.21, 0.0, 2.65)
 
-    morse = cse.Cse('16O16O', VT=[(r, VM)], en=800)
+    morse = cse.Cse('O2', VT=[(r, VM)], en=800)
 
     npt.assert_almost_equal(morse.cm, 778.46, decimal=2)
 

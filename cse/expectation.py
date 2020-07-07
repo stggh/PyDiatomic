@@ -3,7 +3,7 @@ import numpy as np
 import scipy.constants as const
 
 from scipy.optimize import leastsq
-from scipy.integrate.quadrature import simps
+from scipy.integrate import simps
 
 import multiprocessing
 from functools import partial
