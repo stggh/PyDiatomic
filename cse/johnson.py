@@ -148,6 +148,7 @@ def fmat(j, RI, WI,  mx):
         # (R_m - R^-1_m+1).f(R) = 0
         U, s, Vh = np.linalg.svd(np.linalg.inv(RI[mx-1])-RI[mx])
 
+        U = U.T  # yields correct wavefunction phase, subject to mx
         f[mx] = U[1] if U[1, 0] < 0 else U[-1]
 
     for i in range(mx-1, -1, -1):
@@ -351,9 +352,8 @@ def amplitude(wf, R, edash, μ):
 
         det = j1*y2 - j2*y1
 
-        for k in range(nopen):
-            A[oc, k] = (y2*wf[i1, j, k] - y1*wf[i2, j, k])/det
-            B[oc, k] = (j1*wf[i2, j, k] - j2*wf[i1, j, k])/det
+        A[oc, :] = (y2*wf[i1, j, :] - y1*wf[i2, j, :])/det
+        B[oc, :] = (j1*wf[i2, j, :] - j2*wf[i1, j, :])/det
 
         oc += 1
 
