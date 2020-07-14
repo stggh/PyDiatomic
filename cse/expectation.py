@@ -45,31 +45,26 @@ def cross_section(wavenumber, Xs):
 
     """
 
-    wfi = Xs.gs.wavefunction
-    wfu = Xs.us.wavefunction
-    oo, n, nopen = wfu.shape
+    oo, ni, niopen = Xs.gs.wavefunction.shape
+    oo, n, nopen = Xs.us.wavefunction.shape
 
-    Re = wfu.real
-    Im = wfu.imag
+    # this assumes initial (ground) states are all bound
+    wfi = Xs.gs.wavefunction.reshape((oo, ni))   # oo x ni
 
-    ReX = np.zeros((oo, nopen, 1))
-    ImX = np.zeros((oo, nopen, 1))
-    for i in range(oo):
-        ReX[i] = (Xs.dipolemoment[i] @ Re[i]).T @ wfi[i]
-        ImX[i] = (Xs.dipolemoment[i] @ Im[i]).T @ wfi[i]
+    overlap = np.zeros((oo, nopen), dtype=complex)
+    for i in range(oo):   # < i | mu | f >
+        overlap[i] = wfi[i] @ Xs.dipolemoment[i] @ Xs.us.wavefunction[i] 
 
-    xsp = np.zeros(n)  # n > nopen = max size of xs array
-    for j in range(nopen):  # nopen >= 1
-        Rx = simps(ReX[:, j, 0], Xs.us.R)
-        Ix = simps(ImX[:, j, 0], Xs.us.R)
+    xsp = np.zeros(nopen)  
+    for j in range(nopen):
+        Rx = simps(overlap[:, j].real, Xs.us.R)
+        Ix = simps(overlap[:, j].imag, Xs.us.R)
         xsp[j] = Rx**2 + Ix**2
 
     if np.any(Xs.us.openchann):
-        # cross section
-        Xs.xs = np.array(xsp)*wavenumber*CONST*1.0e-8
+        Xs.xs = xsp*wavenumber*CONST*1e-8  # cross section
     else:
-        # oscillator strength
-        Xs.xs = np.array(xsp)*wavenumber*FCONST
+        Xs.xs = xsp*wavenumber*FCONST  # oscillator strength
     return Xs.xs
 
 

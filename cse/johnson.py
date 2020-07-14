@@ -195,15 +195,15 @@ def node_positions(WI, mn, mx):
     RIinwards = RImat(WI, 1)[mn:mx]
 
     if n == 1:  # det(RI) works better than det(R)
-        detIR_out = RIoutwards[:, 0, 0]
-        detIR_in = RIinwards[:, 0, 0]
+        detRI_out = RIoutwards[:, 0, 0]
+        detRI_in = RIinwards[:, 0, 0]
     else:
-        detIR_out = np.linalg.det(RIoutwards)
-        detIR_in = np.linalg.det(RIinwards)
+        detRI_out = np.linalg.det(RIoutwards)
+        detRI_in = np.linalg.det(RIinwards)
 
     # determine the node positions
-    inner, _ = find_peaks(detIR_in)
-    outer, _ = find_peaks(detIR_out)
+    inner, _ = find_peaks(detRI_in)
+    outer, _ = find_peaks(detRI_out)
 
     return inner, outer
 
@@ -244,9 +244,8 @@ def matching_point(en, rot, V, R, μ, AM):
     else:  # all channels closed, determine matching point
         jRe = V[:, jm, jm].argmin()  # potential energy index of minimum
         # inner and outer crossing point indices for energy en
-        # //2, *2 factor broadens range
-        mn = np.abs(V[:jRe, jm, jm] - en).argmin()//2  # inner 
-        mx = np.abs(V[jRe:, jm, jm] - en).argmin()*2 + jRe  # outer
+        mn = np.abs(V[:jRe, jm, jm] - en).argmin()  # inner 
+        mx = np.abs(V[jRe:, jm, jm] - en).argmin() + jRe  # outer
         mx = min(oo, mx)
 
         WI = WImat(en, rot, V, R, μ, AM)
@@ -391,12 +390,11 @@ def solveCSE(Cse, en):
     RI = RImat(WI, mx)
     wf = []
     if nopen > 0:
-        oc = 0
         for j, ed in enumerate(edash):
             if ed > 0:
+                # wavefunction for each open channel
                 f = fmat(j, RI, WI, mx)
                 wf.append(wavefunction(WI, f))
-                oc += 1
     else:
         f = fmat(0, RI, WI, mx)
         wf.append(wavefunction(WI, f))

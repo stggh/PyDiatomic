@@ -138,8 +138,8 @@ class Cse():
         if eigenbound is not None:
             self.eigenbound = eigenbound
 
-        self.wavefunction, self.energy, self.openchann = \
-            johnson.solveCSE(self, en)
+        self.wavefunction, self.energy, self.openchann =\
+                                        johnson.solveCSE(self, en)
 
         self.cm = self.energy*self._evcm
 
