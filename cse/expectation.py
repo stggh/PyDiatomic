@@ -46,10 +46,11 @@ def cross_section(wavenumber, Xs):
     """
 
     oo, ni, niopen = Xs.gs.wavefunction.shape
-    oo, n, nopen = Xs.us.wavefunction.shape
 
     # this assumes initial (ground) states are all bound
     wfi = Xs.gs.wavefunction.reshape((oo, ni))   # oo x ni
+
+    oo, n, nopen = Xs.us.wavefunction.shape
 
     overlap = np.zeros((oo, nopen), dtype=complex)
     for i in range(oo):   # < i | mu | f >
