@@ -25,7 +25,7 @@ FCONST = 4*π*const.m_e*const.c*100*a0*a0/const.hbar/3
 
 
 def cross_section(wavenumber, Xs):
-    """ photodissociation cross section |<f|M|i>|^2.
+    """ photodissociation cross section |<i|M|f>|^2.
 
     Parameters
     ----------
@@ -52,8 +52,9 @@ def cross_section(wavenumber, Xs):
 
     oo, n, nopen = Xs.us.wavefunction.shape
 
+    # < i | mu | f >
     overlap = np.zeros((oo, nopen), dtype=complex)
-    for i in range(oo):   # < i | mu | f >
+    for i in range(oo):
         overlap[i] = wfi[i] @ Xs.dipolemoment[i] @ Xs.us.wavefunction[i] 
 
     xsp = np.zeros(nopen)  

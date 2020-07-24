@@ -173,7 +173,7 @@ def outer_limb_Morse(R, P, RTP, PTP, De, Re, verbose=True):
 
     if verbose:
         print('RKR: Outer limb  De[1-exp(beta*(Re-R))]^2')
-        print(f'RKR:   {RTP[-1]:g}-{R[-1]:g}A   {De:g}(De)  {re:g}(Re)  '
+        print(f'RKR:   {RTP[-1]:g}-{R[-1]:g}A   {De:g}(De)  {Re:g}(Re)  '
               f'{beta:g}(beta)')
 
 

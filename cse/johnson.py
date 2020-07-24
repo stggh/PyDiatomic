@@ -288,7 +288,7 @@ def eigen(energy, rot, mx, V, R, μ, AM):
     WI = WImat(energy, rot, V, R, μ, AM)
     RI = RImat(WI, mx)
 
-    # | R_mx - R^-1_mx+1 |     x1000 scalinhg helps leeastsquares
+    # | R_mx - R^-1_mx+1 |     x1000 scaling helps least squares
     return np.linalg.det(np.linalg.inv(RI[mx])-RI[mx+1])*1000
 
 
