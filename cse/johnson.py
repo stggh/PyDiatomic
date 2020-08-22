@@ -48,7 +48,7 @@ def WImat(energy, rot, V, R, μ, AM):
     dR2 = (R[1] - R[0])**2
 
     # 2μ/hbar^2 x \DeltaR^2/12 x e
-    factor = μ*1.0e-20*dR2*const.e/const.hbar/const.hbar/6
+    factor = μ*1e-20*dR2*const.e/const.hbar**2/6
 
     # hbar^2/2μ x e x 10^20
     centrifugal_factor = (const.hbar*1.0e20/μ/2/const.e)*const.hbar
@@ -79,7 +79,7 @@ def WImat(energy, rot, V, R, μ, AM):
                                    
     barrier = barrier.T
 
-    # generate W^-1
+    # generate interaction matrix W inverse W^-1
     WI = np.zeros_like(V)
     WI[:] = np.linalg.inv(I + (energy*I - barrier[:])*factor)
 
@@ -208,7 +208,7 @@ def node_positions(WI, mn, mx):
     return inner, outer
 
 
-def matching_point(en, rot, V, R, μ, AM):
+def matching_point(en, rot, V, R, μ, AM, eigenbound):
     """ estimate matching point for inward and outward solutions position
     based on the determinant of the R-matrix.
 
@@ -224,7 +224,7 @@ def matching_point(en, rot, V, R, μ, AM):
         internuclear distance grid
     μ : float
         reduced mass in kg
-    AM : 1d numpuy array of tuples
+    AM : 1d numpy array of tuples
         (Ω, S, Λ, Σ) for each electronic state
 
     Returns
@@ -240,9 +240,11 @@ def matching_point(en, rot, V, R, μ, AM):
     Vm = V[-1, jm, jm]  # dissociation energy
 
     if en > Vm:  #  at least one open channel
-        return oo-1
+        return oo-1, [], []
+
     else:  # all channels closed, determine matching point
         jRe = V[:, jm, jm].argmin()  # potential energy index of minimum
+
         # inner and outer crossing point indices for energy en
         mn = np.abs(V[:jRe, jm, jm] - en).argmin()  # inner 
         mx = np.abs(V[jRe:, jm, jm] - en).argmin() + jRe  # outer
@@ -251,13 +253,15 @@ def matching_point(en, rot, V, R, μ, AM):
         WI = WImat(en, rot, V, R, μ, AM)
         inner, outer = node_positions(WI, mn, mx)
 
-        # Johnson uses two energies that bracket the eigenvalue,
-        # here take outermost region, as not obvious how to bracket eigenvalue
-        vib = len(outer)
-        if len(outer) > 0:
-            mx = (outer[-1] + inner[-1])//2 + mn
+        # Johnson suggests bracketing the eigenvalue to map wavefunction nodes. 
+        # Inner and outer trajectories cross, mx beyond the last
+        # outward node should suffice.
+        vib = len(outer)  # node count
+        if vib > 0:
+            mx = outer[-1] + mn + 5
+        #    mx = int((outer[-1] + inner[-1])*0.4) + mn
 
-    return mx
+    return mx, inner+mn, outer+mn
 
 
 def eigen(energy, rot, mx, V, R, μ, AM):
@@ -378,11 +382,14 @@ def solveCSE(Cse, en):
     openchann = edash > 0
     nopen = edash[openchann].size
 
-    mx = matching_point(en, rot, V, R, μ, AM)
+    mx, Cse.inner, Cse.outer = matching_point(en, rot, V, R, μ, AM,
+                                              Cse.eigenbound)
     Cse.mx = mx
 
     if mx < oo-5:
-        out = least_squares(eigen, (en, ), args=(rot, mx, V, R, μ, AM))
+        out = least_squares(eigen, (en, ),
+                            bounds=(en-Cse.eigenbound, en+Cse.eigenbound),
+                            args=(rot, mx, V, R, μ, AM))
         en = float(out.x[0])
 
     # solve CSE according to Johnson renormalized Numerov method

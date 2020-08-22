@@ -252,7 +252,7 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None,
                 fn = dipolemoment[i]
             else:
                 fn = input("CSE: dipolemoment filename or value "
-                           "{pec_us[u]} <- {pec_gs[g]} : ")
+                           f"{pec_us[u]} <- {pec_gs[g]} : ")
 
             if is_number(fn):
                 dipole[u][g] = float(fn)             
