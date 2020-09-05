@@ -9,6 +9,8 @@ class Morse():
             spline-pointwise potential curves.
 
             JQSRT 186, 210-220 (2017) doi:10.1016/j.jqsrt.2016.03.036
+
+            For ordinary Morse set beta to a single value.
         """
 
         self.R = R
@@ -58,7 +60,7 @@ class Morse():
 
 
 class Morsefit(Morse):
-    def __init__(self, R, V, Rref=None, De=None, Nbeta=3, q=3,
+    def __init__(self, R, V, beta=[1.], Rref=None, De=None, q=3,
                  fitpar=[], Cm={}):
         """ fit EMO to supplied potential curve.
 
@@ -86,12 +88,11 @@ class Morsefit(Morse):
             self.De = De
 
         self.q = q
-        self.Nbeta = Nbeta
-        self.beta = np.ones(Nbeta)
         self.Cm = Cm
 
         # estimate betas from linear form Eq. (24)
-        self.est_beta()
+        # self.est_beta()
+        self.beta = beta
 
         super().__init__(R, self.Re, self.Rref, self.De, self.Te,
                          beta=self.beta, q=q)
@@ -129,9 +130,9 @@ class Morsefit(Morse):
         def residual(pars):
             for i, p in enumerate(self.fitpar):
                 if p == 'beta':
-                    self.beta = pars[:self.Nbeta]
+                    self.beta = pars[:len(self.beta)]
                 else:
-                    self.__dict__[p] = pars[-i]
+                    self.__dict__[p] = pars[len(self.beta)+i-1]
 
             return self.EMO() - self.V
 
@@ -146,9 +147,9 @@ class Morsefit(Morse):
 
         for i, p in enumerate(self.fitpar):
             if p == 'beta':
-                self.beta = self.fit.x[:self.Nbeta]
+                self.beta = self.fit.x[:len(self.beta)]
             else:
-                self.__dict__[p] = self.fit.x[-i]
+                self.__dict__[p] = self.fit.x[len(self.beta)+i-1]
 
         self.VEMO = self.EMO()
 
