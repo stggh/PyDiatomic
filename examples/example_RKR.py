@@ -27,9 +27,11 @@ try:
 except FileNotFoundError:
     print(f"RKR: file '{fn:s}' not found")
 
-# reduced mass - see Huber+Herzberg - default is O2
-μ = input("RKR: Molecule reduced mass [7.99745751]: ")
-μ = 7.99745751 if μ == '' else float(μ)
+# reduced mass in atomic mass units- see Huber+Herzberg - default is O2 = 7.9975
+mol = input("RKR: diatomic molecule [O2]: ")
+if mol == '':
+    mol = 'O2'
+μ = cse.cse_setup.reduced_mass(mol)[0]/const.m_u
 
 # De - dissociation energy
 De = input("RKR: De [42021.47 cm-1]: ")

@@ -75,7 +75,7 @@ class Cse():
 
 
     def __init__(self, μ=None, R=None, VT=None, coup=None, eigenbound=None,
-                 rot=0, en=0, dirpath='./'):
+                 en=None, rot=0, dirpath='./'):
 
         self._evcm = 8065.541
         self.set_μ(μ=μ)
@@ -103,7 +103,7 @@ class Cse():
             self.R[zeros] = 1.0e-16
 
         self.results = OrderedDict()  # store results for single bound channel
-        if en > 0:
+        if en is not None:
             self.solve(en, self.rot)
 
     def set_μ(self, μ):
@@ -151,7 +151,7 @@ class Cse():
                 # keep results
                 self.results[self.vib] = (self.cm, self.Bv, self.Dv, self.rot)
             else:
-                self.vib = -1
+                self.vib = None 
 
     def node_count(self):
         V = self.VT[0][0][:np.shape(self.wavefunction)[0]]

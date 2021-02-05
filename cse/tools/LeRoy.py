@@ -10,7 +10,7 @@ class Morse():
 
             JQSRT 186, 210-220 (2017) doi:10.1016/j.jqsrt.2016.03.036
 
-            For ordinary Morse set beta to a single value.
+            For ordinary Morse set beta array to a single value.
         """
 
         self.R = R

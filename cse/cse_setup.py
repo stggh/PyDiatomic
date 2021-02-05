@@ -111,7 +111,7 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./'):
     """
 
     if pecfs == None:
-        pecfns =  input ("CSE: potential energy curves [X3S-1.dat]: ")
+        pecfns =  input ("CSE: potential energy curve(s) [X3S-1.dat]: ")
         pecfs = pecfns.replace(',','').split() if len(pecfns) > 1 else ["X3S-1.dat"]
 
     n = np.shape(pecfs)[0]
@@ -202,7 +202,8 @@ def coupling_function(R, VT, μ, pecfs, coup=None):
     coupling_function = np.ones(np.size(R), dtype='float')
     coupling_function[R>5] = np.exp(-(R[R>5]-5)**2)
 
-    # cm-1 couplings between PECs   (at the moment all homogeneous)
+    # cm-1 couplings between PECs
+    # See Table 3.2 (page 97) Lefebrvre-Brion and Fieldi: Spectra and Dynam
     cnt = 0
     for j in range(n):
         for k in range(j+1,n):
@@ -215,7 +216,7 @@ def coupling_function(R, VT, μ, pecfs, coup=None):
                 spl = splrep(Rcouple, couple)
                 couple = splev(R, spl, ext=3) 
                 cnt += 1
-            elif isinstance(coup[cnt], str):  # dipolemoment file
+            elif isinstance(coup[cnt], str):  # R-dependent file
                 Rcouple, couple = np.loadtxt(coup[cnt], unpack=True)
                 spl = splrep(Rcouple, couple)
                 couple = splev(R, spl, ext=3) 

@@ -5,7 +5,7 @@ import time
 
 import cse
 from scipy.interpolate import InterpolatedUnivariateSpline
-from scipy.integrate.quadrature import simps
+from scipy.integrate import simps
 
 ##########################################################################
 #
