@@ -358,6 +358,8 @@ class Xs():
 
         if honl:
             # Hönl-London factor J' J" Ω' Ω" for the main allowed transition
+            # fix me - this should be within expectation calculation
+            #          at the rotational matrix level
             self.honl = tools.intensity.honl(self.us.rot, self.gs.rot,
                                              self.us.AM[0][0], self.gs.AM[0][0])
             # self.eta = 
@@ -371,7 +373,7 @@ class Xs():
             self.wavenumber = np.array(self.wavenumber)
             self.nopen = self.xs.shape[-1] - 1
         else: # don't waste time on the calculation
-            self.xs = np.zeros((len(transition_energy), 1))
+            self.xs = np.zeros((len(transition_energy), self.us.VT.shape[0]))
 
 
     def align_grids(self):

@@ -40,7 +40,7 @@ def cross_section(wavenumber, Xs):
 
     Returns
     -------
-    cross section : numpy array
+    cross section : numpy array - shape (oo, nopen)
         photodissociation cross section for each open channel
 
     """
@@ -57,7 +57,7 @@ def cross_section(wavenumber, Xs):
     for i in range(oo):
         overlap[i] = wfi[i] @ Xs.dipolemoment[i] @ Xs.us.wavefunction[i] 
 
-    xsp = np.zeros(nopen)  
+    xsp = np.zeros(n)   # allows later extra open channels   
     for j in range(nopen):
         Rx = simps(overlap[:, j].real, Xs.us.R)
         Ix = simps(overlap[:, j].imag, Xs.us.R)
