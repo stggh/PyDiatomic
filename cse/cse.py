@@ -371,7 +371,6 @@ class Xs():
             self.xs, self.wavenumber = zip(*xswav)
             self.xs = np.array(self.xs)*self.honl
             self.wavenumber = np.array(self.wavenumber)
-            self.nopen = self.xs.shape[-1] - 1
         else: # don't waste time on the calculation
             self.xs = np.zeros((len(transition_energy), self.us.VT.shape[0]))
 
