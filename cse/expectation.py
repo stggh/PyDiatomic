@@ -58,7 +58,7 @@ def cross_section(wavenumber, Xs):
         overlap[i] = wfi[i] @ Xs.dipolemoment[i] @ Xs.us.wavefunction[i] 
 
     xsp = np.zeros(n)
-    oci = np.arange(n)[Xs.openchnn]  # indices of open channels
+    oci = np.arange(n)[Xs.us.openchann]  # indices of open channels
     for j in range(nopen):
         Rx = simps(overlap[:, j].real, Xs.us.R)
         Ix = simps(overlap[:, j].imag, Xs.us.R)
