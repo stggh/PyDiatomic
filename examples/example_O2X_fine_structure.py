@@ -25,14 +25,16 @@ print("  energy diffences (cm-1): Rouille - PyDiatomic")
 print(" N        F1          F2          F3")
 F = np.zeros(4)
 f = np.zeros(4)
-for N in range(1, 101, 2):
+for N in range(1, 51, 2):
     F[2] = cse.rouille(0, N, N)
     O2f.solve(en=F[2]+E0, rot=N)
     f[2] = O2f.cm
     for fi in (1, 3):
         J = N - fi + 2
         F[fi] = cse.rouille(0, N, J)  
+
         O2e.solve(en=F[fi]+E0, rot=J)
+
         f[fi] = O2e.cm
 
     print(f'{N:2d}  {F[1]+E0-f[1]:10.3f}  {F[2]+E0-f[2]:10.3f}  '
