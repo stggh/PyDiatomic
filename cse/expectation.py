@@ -3,7 +3,7 @@ import numpy as np
 import scipy.constants as const
 
 from scipy.optimize import leastsq
-from scipy.integrate.quadrature import simps
+from scipy.integrate import simps
 
 import multiprocessing
 from functools import partial
@@ -25,7 +25,7 @@ FCONST = 4*π*const.m_e*const.c*100*a0*a0/const.hbar/3
 
 
 def cross_section(wavenumber, Xs):
-    """ photodissociation cross section |<f|M|i>|^2.
+    """ photodissociation cross section |<i|M|f>|^2.
 
     Parameters
     ----------
@@ -40,36 +40,33 @@ def cross_section(wavenumber, Xs):
 
     Returns
     -------
-    cross section : numpy array
+    cross section : numpy array - shape (oo, nopen)
         photodissociation cross section for each open channel
 
     """
 
-    wfi = Xs.gs.wavefunction
-    wfu = Xs.us.wavefunction
-    oo, n, nopen = wfu.shape
+    oo, ni, niopen = Xs.gs.wavefunction.shape
 
-    Re = wfu.real
-    Im = wfu.imag
+    # this assumes initial (ground) states are all bound
+    wfi = Xs.gs.wavefunction.reshape((oo, ni))   # oo x ni
 
-    ReX = np.zeros((oo, nopen, 1))
-    ImX = np.zeros((oo, nopen, 1))
+    oo, n, nopen = Xs.us.wavefunction.shape
+
+    # < i | mu | f >
+    overlap = np.zeros((oo, nopen), dtype=complex)
     for i in range(oo):
-        ReX[i] = (Xs.dipolemoment[i] @ Re[i]).T @ wfi[i]
-        ImX[i] = (Xs.dipolemoment[i] @ Im[i]).T @ wfi[i]
+        overlap[i] = wfi[i] @ Xs.dipolemoment[i] @ Xs.us.wavefunction[i] 
 
-    xsp = np.zeros(n)  # n > nopen = max size of xs array
-    for j in range(nopen):  # nopen >= 1
-        Rx = simps(ReX[:, j, 0], Xs.us.R)
-        Ix = simps(ImX[:, j, 0], Xs.us.R)
+    xsp = np.zeros(n)   # allows later extra open channels   
+    for j in range(nopen):
+        Rx = simps(overlap[:, j].real, Xs.us.R)
+        Ix = simps(overlap[:, j].imag, Xs.us.R)
         xsp[j] = Rx**2 + Ix**2
 
     if np.any(Xs.us.openchann):
-        # cross section
-        Xs.xs = np.array(xsp)*wavenumber*CONST*1.0e-8
+        Xs.xs = xsp*wavenumber*CONST*1e-8  # cross section
     else:
-        # oscillator strength
-        Xs.xs = np.array(xsp)*wavenumber*FCONST
+        Xs.xs = xsp*wavenumber*FCONST  # oscillator strength
     return Xs.xs
 
 

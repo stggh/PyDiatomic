@@ -3,12 +3,12 @@ import numpy as np
 import scipy.constants as const
 
 from scipy.optimize import least_squares
-from scipy.integrate.quadrature import simps
+from scipy.integrate import simps
 from scipy.special import spherical_jn, spherical_yn
 from scipy.signal import find_peaks
 
 ##############################################################################
-#  PyDiatomic - solve the coupled-channel time-independent Schrödinger equation
+#  PyDiatomic - solves the coupled-channel time-independent Schrödinger equation
 #               using recipe of B.R. Johnson J Chem Phys 69, 4678 (1977).
 #
 #  Stephen.Gibson@anu.edu.au
@@ -48,7 +48,7 @@ def WImat(energy, rot, V, R, μ, AM):
     dR2 = (R[1] - R[0])**2
 
     # 2μ/hbar^2 x \DeltaR^2/12 x e
-    factor = μ*1.0e-20*dR2*const.e/const.hbar/const.hbar/6
+    factor = μ*1e-20*dR2*const.e/const.hbar**2/6
 
     # hbar^2/2μ x e x 10^20
     centrifugal_factor = (const.hbar*1.0e20/μ/2/const.e)*const.hbar
@@ -61,14 +61,14 @@ def WImat(energy, rot, V, R, μ, AM):
     if rot:
         Jp1 = rot*(rot+1)
         for j in range(n):
-            Ω, S, Λ, Σ = AM[j]
+            Ω, S, Λ, Σ, pm = AM[j]
             am = Ω**2 - S*(S+1) + Σ**2
             # diagonal - add centrifugal barrier to potential curve
             if Jp1 > am:
                 barrier[j, j, :] += (Jp1 - am)*centrifugal_factor/R[:]**2
 
             for k in range(j+1, n):
-                Ωk, Sk, Σk, Λk = AM[k]
+                Ωk, Sk, Σk, Λk, pmk = AM[k]
                 # off-diagonal
                 if Ω != Ωk:
                     # L-uncoupling, homogeneous coupling already set
@@ -79,7 +79,7 @@ def WImat(energy, rot, V, R, μ, AM):
                                    
     barrier = barrier.T
 
-    # generate W^-1
+    # generate interaction matrix W inverse W^-1
     WI = np.zeros_like(V)
     WI[:] = np.linalg.inv(I + (energy*I - barrier[:])*factor)
 
@@ -147,13 +147,8 @@ def fmat(j, RI, WI,  mx):
     else:
         # (R_m - R^-1_m+1).f(R) = 0
         U, s, Vh = np.linalg.svd(np.linalg.inv(RI[mx-1])-RI[mx])
-        # for i, x in enumerate(s):
-        #     if x > 0:
-        #         break  # any diagonal !=0 yields a solution
 
-        # Fix me! Gives correct inward solution wavefunction phase
-        #  for O2X fine-structure
-        U = U.T
+        U = U.T  # yields correct wavefunction phase, subject to mx
         f[mx] = U[1] if U[1, 0] < 0 else U[-1]
 
     for i in range(mx-1, -1, -1):
@@ -164,22 +159,20 @@ def fmat(j, RI, WI,  mx):
     return f
 
 
-def wavefunction(WI, j, f):
+def wavefunction(WI, f):
     """ evaluate wavefunctions from f-matrix array.
 
     Parameters
     ----------
     WI : numpy 3d array
         inverted interaction matrix, as returned from WImat
-    j : int
-        open channel number
-    f : numpy 2d array
+    f : numpy 2d array - shape (oo, n)
         f-matrix as returned from fmat
 
     Returns
     -------
     wf : numpy 3d array
-        oo x n x nopen array of wavefunctions
+        (n, oo) array of wavefunctions
 
     """
     oo, n = f.shape
@@ -202,20 +195,20 @@ def node_positions(WI, mn, mx):
     RIinwards = RImat(WI, 1)[mn:mx]
 
     if n == 1:  # det(RI) works better than det(R)
-        detIR_out = RIoutwards[:, 0, 0]
-        detIR_in = RIinwards[:, 0, 0]
+        detRI_out = RIoutwards[:, 0, 0]
+        detRI_in = RIinwards[:, 0, 0]
     else:
-        detIR_out = np.linalg.det(RIoutwards)
-        detIR_in = np.linalg.det(RIinwards)
+        detRI_out = np.linalg.det(RIoutwards)
+        detRI_in = np.linalg.det(RIinwards)
 
     # determine the node positions
-    inner, _ = find_peaks(detIR_in)
-    outer, _ = find_peaks(detIR_out)
+    inner, _ = find_peaks(detRI_in)
+    outer, _ = find_peaks(detRI_out)
 
     return inner, outer
 
 
-def matching_point(en, rot, V, R, μ, AM):
+def matching_point(en, rot, V, R, μ, AM, eigenbound):
     """ estimate matching point for inward and outward solutions position
     based on the determinant of the R-matrix.
 
@@ -231,7 +224,7 @@ def matching_point(en, rot, V, R, μ, AM):
         internuclear distance grid
     μ : float
         reduced mass in kg
-    AM : 1d numpuy array of tuples
+    AM : 1d numpy array of tuples
         (Ω, S, Λ, Σ) for each electronic state
 
     Returns
@@ -247,25 +240,28 @@ def matching_point(en, rot, V, R, μ, AM):
     Vm = V[-1, jm, jm]  # dissociation energy
 
     if en > Vm:  #  at least one open channel
-        return oo-1
+        return oo-1, [], []
+
     else:  # all channels closed, determine matching point
         jRe = V[:, jm, jm].argmin()  # potential energy index of minimum
+
         # inner and outer crossing point indices for energy en
-        # //2, *2 factor broadens range
-        mn = np.abs(V[:jRe, jm, jm] - en).argmin()//2  # inner 
-        mx = np.abs(V[jRe:, jm, jm] - en).argmin()*2 + jRe  # outer
+        mn = np.abs(V[:jRe, jm, jm] - en).argmin()  # inner 
+        mx = np.abs(V[jRe:, jm, jm] - en).argmin() + jRe  # outer
         mx = min(oo, mx)
 
         WI = WImat(en, rot, V, R, μ, AM)
         inner, outer = node_positions(WI, mn, mx)
 
-        # Johnson uses two energies that bracket the eigenvalue,
-        # here take outermost region, as not obvious how to bracket eigenvalue
-        vib = len(outer)
-        if len(outer) > 0:
-            mx = (outer[-1] + inner[-1])//2 + mn
+        # Johnson suggests bracketing the eigenvalue to map wavefunction nodes. 
+        # Inner and outer trajectories cross, mx beyond the last
+        # outward node should suffice.
+        vib = len(outer)  # node count
+        if vib > 0:
+            mx = outer[-1] + mn + 5
+        #    mx = int((outer[-1] + inner[-1])*0.4) + mn
 
-    return mx
+    return mx, inner+mn, outer+mn
 
 
 def eigen(energy, rot, mx, V, R, μ, AM):
@@ -296,7 +292,7 @@ def eigen(energy, rot, mx, V, R, μ, AM):
     WI = WImat(energy, rot, V, R, μ, AM)
     RI = RImat(WI, mx)
 
-    # | R_mx - R^-1_mx+1 |     x1000 scalinhg helps leeastsquares
+    # | R_mx - R^-1_mx+1 |     x1000 scaling helps least squares
     return np.linalg.det(np.linalg.inv(RI[mx])-RI[mx+1])*1000
 
 
@@ -359,9 +355,8 @@ def amplitude(wf, R, edash, μ):
 
         det = j1*y2 - j2*y1
 
-        for k in range(nopen):
-            A[oc, k] = (y2*wf[i1, j, k] - y1*wf[i2, j, k])/det
-            B[oc, k] = (j1*wf[i2, j, k] - j2*wf[i1, j, k])/det
+        A[oc, :] = (y2*wf[i1, j, :] - y1*wf[i2, j, :])/det
+        B[oc, :] = (j1*wf[i2, j, :] - j2*wf[i1, j, :])/det
 
         oc += 1
 
@@ -387,11 +382,14 @@ def solveCSE(Cse, en):
     openchann = edash > 0
     nopen = edash[openchann].size
 
-    mx = matching_point(en, rot, V, R, μ, AM)
+    mx, Cse.inner, Cse.outer = matching_point(en, rot, V, R, μ, AM,
+                                              Cse.eigenbound)
     Cse.mx = mx
 
     if mx < oo-5:
-        out = least_squares(eigen, (en, ), args=(rot, mx, V, R, μ, AM))
+        out = least_squares(eigen, (en, ),
+                            bounds=(en-Cse.eigenbound, en+Cse.eigenbound),
+                            args=(rot, mx, V, R, μ, AM))
         en = float(out.x[0])
 
     # solve CSE according to Johnson renormalized Numerov method
@@ -399,15 +397,14 @@ def solveCSE(Cse, en):
     RI = RImat(WI, mx)
     wf = []
     if nopen > 0:
-        oc = 0
         for j, ed in enumerate(edash):
             if ed > 0:
+                # wavefunction for each open channel
                 f = fmat(j, RI, WI, mx)
-                wf.append(wavefunction(WI, oc, f))
-                oc += 1
+                wf.append(wavefunction(WI, f))
     else:
         f = fmat(0, RI, WI, mx)
-        wf.append(wavefunction(WI, nopen, f))
+        wf.append(wavefunction(WI, f))
 
     wf = np.array(wf)
     wf = np.transpose(wf)

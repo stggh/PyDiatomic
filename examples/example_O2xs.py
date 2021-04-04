@@ -13,9 +13,9 @@ wavelength = np.arange(110, 174.1, 0.1)  # nm
 X = cse.Cse('O2', VT=['potentials/X3S-1.dat'], en=800)
 
 # O2 upper coupled B-state
-B = cse.Cse('O2', VT=['potentials/B3S-1.dat', 'potentials/3P1.dat',
-                          'potentials/E3S-1.dat', 'potentials/3PR1.dat'],
-                      coup=[40, 4000, 0, 0, 7000, 0])
+B = cse.Cse('O2', dirpath='potentials',
+            VT=['B3S-1.dat', '3P1.dat', 'E3S-1.dat', '3PR1.dat'],
+            coup=[40, 4000, 0, 0, 7000, 0])
 
 # transition
 BX = cse.Transition(B, X, dipolemoment=[1, 0, 0, 0.3])

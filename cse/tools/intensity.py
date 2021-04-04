@@ -42,7 +42,8 @@ def honl(Jd, Jdd, Ωd, Ωdd):
     Honl-London factor : float
     """
      
-    return (2*Jdd + 1)*Wigner3j(Jd, 1, Jdd, -Ωd, 0, Ωdd)**2
+    # (2J'+1)(2J"+1)*Wig**2/(2J"+1)
+    return (2*Jd+1)*Wigner3j(Jd, 1, Jdd, -Ωd, 0, Ωdd)**2
 
 
 def Wigner3j(j1, j2, j3, m1, m2, m3):

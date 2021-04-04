@@ -9,6 +9,7 @@
 import numpy as np
 import scipy.constants as const
 from scipy.interpolate import splrep, splev
+from scipy.optimize import curve_fit
 
 def rkr(mu, vv, Gv, Bv, De, limb='L', dv=0.1,
         Rgrid=np.arange(0.005, 10.004, 0.005), verbose=True):
@@ -20,7 +21,7 @@ def rkr(mu, vv, Gv, Bv, De, limb='L', dv=0.1,
         readuced mass in amu
     vv : numpy 1d array of floats
         vibrational quantum number for Gv, Bv
-    Gv : numpy 1d array of floats
+    Gv : (= Te+Gv) numpy 1d array of floats
         vibrational constants at vv in cm-1
     Bv : numpy 1d array of floats
         rotational constants at vv in cm-1
@@ -93,28 +94,29 @@ def turning_points(mu, vv, Gv, Bv, dv=0.1, verbose=True):
 
     # vibrational QN at which to evaluate turning points
     V = np.arange(-1/2, vv[-1]+dv/2, dv)
-    # offset the point at v=-0.5, the bottom of the well
+    # offset the point at v=-1/2, the bottom of the well
     V[0] = -1/2 + 0.0001
-    Rmin = []
-    Rmax = []
-    E = []
-    # compute turning points using RKR method
-    if verbose:
-        print(u"RKR:  v    Rmin(A)   Rmax(A)     E(cm-1)")
-        vi = 0
 
-    for vib in V:
-        E.append(G(vib, gsp))    # energy of vibrational level
-        ff = fg_integral(vib, gsp, bsp, lambda x, y: 1)
-        gg = fg_integral(vib, gsp, bsp, B)
-        fg = np.sqrt(ff/gg + ff**2)
-        Rmin.append((fg - ff)*DD)  # turning points
-        Rmax.append((fg + ff)*DD)
-        if verbose:
-            if np.isclose(vib, vi):
-                print(f'     {vi:2d}   {Rmin[-1]:7.4f}   {Rmax[-1]:7.4f}'
-                      f'    {np.float(E[-1]):9.2f}')
-                vi += 1
+    # compute turning points using RKR method
+    E = G(V, gsp)
+    ff = fg_integral(V, gsp, bsp, lambda x, y: 1)
+    gg = fg_integral(V, gsp, bsp, B)
+    fg = np.sqrt(ff/gg + ff**2)
+
+    Rmin = (fg - ff)*DD  # turning points
+    Rmax = (fg + ff)*DD
+
+    if verbose:
+        vint = np.mod(V, 1) > 0.99
+        
+        print(u"RKR:  v    Rmin(A)   Rmax(A)     E(cm-1)")
+        for vib, rm, rx, e in zip(V[vint], Rmin[vint], Rmax[vint], E[vint]):
+            if vib >= 0: 
+                print(f'    {int(vib):2d}   {rm:7.4f}   {rx:7.4f}'
+                      f'{np.float(e):9.2f}')
+            else:
+                print(f'   {"-1/2":s}  {rm:7.4f}   {rx:7.4f}'
+                      f'{np.float(e):9.2f}')
 
     return Rmin, Rmax, E
 
@@ -135,56 +137,88 @@ def formPEC(R, Rmin, Rmax, E, De, limb, verbose=True):
     # Interpolate RKR curve to this grid
     PEC = splev(R, psp, der=0)
 
+    bound = np.logical_and(R > RTP[0], R < RTP[-1])
+    Te = PEC[bound].min()
+
     # extrapolate using analytical function
-    inner_limb_Morse(R, PEC, RTP, PTP, Re, De, verbose=verbose)
+    inner_limb_Morse(R, PEC, RTP, PTP, Re, De, Te, verbose=verbose)
     if limb == 'L':
-        outer_limb_LeRoy(R, PEC, RTP, PTP, De, verbose=verbose)
+        outer_limb_LeRoy(R, PEC, RTP, PTP, De, Te, verbose=verbose)
     else:
-        outer_limb_Morse(R, PEC, RTP, PTP, De, Re, verbose=verbose)
+        outer_limb_Morse(R, PEC, RTP, PTP, De, Re, Te, verbose=verbose)
 
     PTP /= evcm
     PEC /= evcm  # convert to eV
 
     return PEC, RTP, PTP
 
+def Morse(x, beta, De, Re, Te):
+    return De*(1 - np.exp(-beta*(x-Re)))**2 + Te
 
 # analytical functions
-def inner_limb_Morse(R, P, RTP, PTP, Re, De, verbose=True):
-    ln0 = np.log(1 + np.sqrt(PTP[0]/De))
+def inner_limb_Morse(R, P, RTP, PTP, Re, De, Te, verbose=True):
+    # V(r) = De[1 - exp(-β(R-Re))]² + Te
+
+    # evaluate β based on inner-most turning point
+    ln0 = np.log(1 + np.sqrt((PTP[0] - Te)/De))
     beta = ln0/(Re - RTP[0])
 
+    # fit Morse to inner turning points
+    inner = len(PTP) // 2
+    popt, pcov = curve_fit(Morse, RTP[:inner], PTP[:inner], 
+                           p0=[beta, De, Re, Te])
+    err = np.sqrt(np.diag(pcov))
+
     subR = R < RTP[0]
-    P[subR] = De*( 1 - np.exp(-beta*(R[subR]-Re)) )**2
+    P[subR] = Morse(R[subR], *popt)
 
     if verbose:
-        print('RKR: Inner limb  De[1-exp(beta*(Re-R))]^2')
-        print(f'RKR:  {R[0]:g}-{RTP[0]:g}A   {De:g}(De)  {Re:g}(Re)  '
-              f'{beta:g}(beta)')
+        print('\nRKR: Inner limb  De[1-exp(β(Re-R))]² + Te')
+        for par, val, er in zip(['β', 'De', 'Re', 'Te'], popt, err):
+            print(f'RKR:  {par:3s}  {val:12.2f}±{er:.2f}')
 
 
-def outer_limb_Morse(R, P, RTP, PTP, De, Re, verbose=True):
-    l1 = np.log(1 - np.sqrt(PTP[-1]/De))
-    l2 = np.log(1 - np.sqrt(PTP[-2]/De))
-    Re = (l2*RTP[-1]-l1*RTP[-2])/(l2-l1)
+def outer_limb_Morse(R, P, RTP, PTP, De, Re, Te, verbose=True):
+    # V(r) = De[1 - exp(-β(R-Re))]² + Te
+    l1 = np.log(1 - np.sqrt((PTP[-1] - Te)/De))
+    l2 = np.log(1 - np.sqrt((PTP[-2] - Te)/De))
+    Re = (l2*RTP[-1] - l1*RTP[-2])/(l2 - l1)
     beta = l1/(Re - RTP[-1])
 
-    subR = R > RTP[-1]
-    P[subR] = De*( 1 - np.exp(-beta*(R[subR]-Re)) )**2
-
-    if verbose:
-        print('RKR: Outer limb  De[1-exp(beta*(Re-R))]^2')
-        print(f'RKR:   {RTP[-1]:g}-{R[-1]:g}A   {De:g}(De)  {re:g}(Re)  '
-              f'{beta:g}(beta)')
-
-
-def outer_limb_LeRoy(R, P, RTP, PTP, De, verbose=True):
-    n = np.log((De - PTP[-1])/(De - PTP[-2]))/np.log(RTP[-2]/RTP[-1])
-    Cn = (De - PTP[-1])*RTP[-1]**n
+    # fit Morse to outer turning points
+    outer = len(PTP) // 2
+    popt, pcov = curve_fit(Morse, RTP[outer:], PTP[outer:], 
+                           p0=[beta, De, Re, Te])
+    err = np.sqrt(np.diag(pcov))
 
     subR = R > RTP[-1]
-    P[subR] = De - Cn/R[subR]**n
+    P[subR] = Morse(R[subR], *popt) 
 
     if verbose:
-        print('RKR: Outer limb  De - Cn/R^n')
-        print(f'RKR:  {RTP[-1]:g}-{R[-1]:g}A   {De:g}(De)  {n:g}(n)  '
-              f'{Cn:g}(Cn)')
+        print('\nRKR: Outer limb  De[1-exp(β(Re-R))]² + Te')
+        for par, val, er in zip(['β', 'De', 'Re', 'Te'], popt, err):
+            print(f'RKR:  {par:3s}  {val:12.2f}±{er:.2f}')
+
+
+def outer_limb_LeRoy(R, P, RTP, PTP, De, Te, verbose=True):
+    def LeRoy(x, De, Cn, n, Te):
+        return De - Cn/x**n + Te
+
+    n = int(np.log((Te + De - PTP[-1])/(Te + De - PTP[-2]))\
+        /np.log(RTP[-2]/RTP[-1]))
+    Cn = (Te + De - PTP[-1])*RTP[-1]**n
+
+    # fit long-range potential curve to outer turning points
+    outer = len(PTP)*2 // 3   # choose last 1/3 of points
+    popt, pcov = curve_fit(lambda x, De, Cn: LeRoy(x, De, Cn, n, Te), 
+                           RTP[outer:], PTP[outer:], p0=[De, Cn])
+    err = np.sqrt(np.diag(pcov))
+
+    subR = R > RTP[-1]
+    P[subR] = LeRoy(R[subR], De, Cn, n, Te)
+
+    if verbose:
+        print('\nRKR: Outer limb  De - Cn/R^n')
+        for par, val, er in zip(['De', 'Cn'], popt, err):
+            print(f'RKR:  {par:3s}  {val:12.2f}±{er:.2f}')
+        print(f'RKR: n = {n}, Te = {Te:8.2f}')

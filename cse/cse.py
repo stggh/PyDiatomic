@@ -27,6 +27,9 @@ class Cse():
         where Rmin = highest minimum, Rmax = lowest maximum
         of all the potential curves
 
+    dirpath : str
+        dirpath to directory of potential energy curve files
+
     VT : numpy 3d array
         transpose of the potential curve and couplings array
         Note: potential curves spline interpolated to grid `R`
@@ -72,7 +75,7 @@ class Cse():
 
 
     def __init__(self, μ=None, R=None, VT=None, coup=None, eigenbound=None,
-                 rot=0, en=0):
+                 en=None, rot=0, dirpath='./'):
 
         self._evcm = 8065.541
         self.set_μ(μ=μ)
@@ -91,7 +94,7 @@ class Cse():
         else:
             # list of file names provided in VT
             self.R, self.VT, self.pecfs, self.limits, self.AM =\
-                    cse_setup.potential_energy_curves(VT)
+                    cse_setup.potential_energy_curves(VT, dirpath=dirpath)
             self.set_coupling(coup=coup)
 
         # fudge to eliminate 1/0 error for 1/R^2
@@ -100,7 +103,7 @@ class Cse():
             self.R[zeros] = 1.0e-16
 
         self.results = OrderedDict()  # store results for single bound channel
-        if en > 0:
+        if en is not None:
             self.solve(en, self.rot)
 
     def set_μ(self, μ):
@@ -135,8 +138,8 @@ class Cse():
         if eigenbound is not None:
             self.eigenbound = eigenbound
 
-        self.wavefunction, self.energy, self.openchann = \
-            johnson.solveCSE(self, en)
+        self.wavefunction, self.energy, self.openchann =\
+                                        johnson.solveCSE(self, en)
 
         self.cm = self.energy*self._evcm
 
@@ -148,7 +151,7 @@ class Cse():
                 # keep results
                 self.results[self.vib] = (self.cm, self.Bv, self.Dv, self.rot)
             else:
-                self.vib = -1
+                self.vib = None 
 
     def node_count(self):
         V = self.VT[0][0][:np.shape(self.wavefunction)[0]]
@@ -283,9 +286,10 @@ class Xs():
 
     """
 
-    def __init__(self, μ=None, Ri=None, VTi=None, coupi=None, eni=0, roti=0,
-                               Rf=None, VTf=None, coupf=None, rotf=0,
-                               dipolemoment=None, transition_energy=None):
+    def __init__(self, μ=None, dirpath='./',
+                 Ri=None, VTi=None, coupi=None, eni=0, roti=0,
+                 Rf=None, VTf=None, coupf=None, rotf=0,
+                 dipolemoment=None, transition_energy=None):
 
         self._evcm = 8065.541
 
@@ -302,7 +306,7 @@ class Xs():
         self.dipolemoment = cse_setup.load_dipolemoment(
                                 dipolemoment=dipolemoment,
                                 R=self.us.R, pec_gs=self.gs.pecfs,
-                                pec_us=self.us.pecfs)
+                                pec_us=self.us.pecfs, dirpath=dirpath)
 
         if transition_energy is not None:
             self.calculate_xs(transition_energy)
@@ -352,14 +356,25 @@ class Xs():
         if rotf is not None:
             self.us.rot = rotf
 
-        xswav = expectation.xs_vs_wav(self)
-        self.xs, self.wavenumber = zip(*xswav) 
-        self.xs = np.array(self.xs)
         if honl:
-            self.xs *= tools.intensity.honl(self.us.rot, self.gs.rot,
-                                            self.us.AM[0][0], self.gs.AM[0][0])
-        self.wavenumber = np.array(self.wavenumber)
-        self.nopen = self.xs.shape[-1] - 1
+            # Hönl-London factor J' J" Ω' Ω" for the main allowed transition
+            # fix me - this should be within expectation calculation
+            #          at the rotational matrix level
+            self.honl = tools.intensity.honl(self.us.rot, self.gs.rot,
+                                             self.us.AM[0][0], self.gs.AM[0][0])
+            # self.eta = 
+        else:
+            self.honl = 1
+
+        if self.honl > 0:
+            xswav = expectation.xs_vs_wav(self)
+            self.xs, self.wavenumber = zip(*xswav)
+            self.xs = np.array(self.xs)*self.honl
+            self.wavenumber = np.array(self.wavenumber)
+            self.nopen = self.xs.shape[-1] - 1
+        else: # don't waste time on the calculation
+            self.xs = np.zeros((len(transition_energy), self.us.VT.shape[0]))
+
 
     def align_grids(self):
         """ ensure the same internuclear grid for each block
@@ -394,7 +409,7 @@ class Transition(Xs):
 
     def __init__(self, final_coupled_states, initial_coupled_states,
                  dipolemoment=None, transition_energy=None, eni=None,
-                 roti=None, rotf=None):
+                 roti=None, rotf=None, dirpath='./'):
         """
         Parameters
         ----------
@@ -418,7 +433,7 @@ class Transition(Xs):
         self.dipolemoment = cse_setup.load_dipolemoment(
                                 dipolemoment=dipolemoment,
                                 R=self.us.R, pec_gs=self.gs.pecfs,
-                                pec_us=self.us.pecfs)
+                                pec_us=self.us.pecfs, dirpath=dirpath)
 
         if transition_energy is not None:
             self.calculate_xs(transition_energy, roti=roti, rotf=rotf, eni=eni)

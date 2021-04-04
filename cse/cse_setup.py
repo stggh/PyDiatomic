@@ -63,7 +63,7 @@ def reduced_mass(molecule):
     return μ*const.u, molecule
 
 
-def potential_energy_curves(pecfs=None, R=None):
+def potential_energy_curves(pecfs=None, R=None, dirpath='./'):
     """ Read potential energy curve file(s) and assemble as diagonals in an nxn array for the n-filenames provided.
 
     Parameters
@@ -74,6 +74,9 @@ def potential_energy_curves(pecfs=None, R=None):
 
     R : numpy 1d array
         radial grid if not None
+
+    dirpath : str
+        dirpath to directory of potential energy curve files
 
     Returns
     -------
@@ -108,7 +111,7 @@ def potential_energy_curves(pecfs=None, R=None):
     """
 
     if pecfs == None:
-        pecfns =  input ("CSE: potential energy curves [X3S-1.dat]: ")
+        pecfns =  input ("CSE: potential energy curve(s) [X3S-1.dat]: ")
         pecfs = pecfns.replace(',','').split() if len(pecfns) > 1 else ["X3S-1.dat"]
 
     n = np.shape(pecfs)[0]
@@ -118,7 +121,7 @@ def potential_energy_curves(pecfs=None, R=None):
     Vin = []
     for i,fn in enumerate(pecfs):
         if isinstance(fn, (np.str)):
-            radialcoord, potential = np.loadtxt(fn, unpack=True)
+            radialcoord, potential = np.loadtxt(dirpath+'/'+fn, unpack=True)
             fn = fn.split('/')[-1].upper()
             digits = re.findall('\d', fn)
             if len(digits) > 0:
@@ -126,10 +129,11 @@ def potential_energy_curves(pecfs=None, R=None):
                 S = (degen - 1)//2
                 Ω = int(digits[1])
                 Λ = 'SPDF'.index(fn[fn.index(digits[0])+1])
+                pm = int(Λ == 'S' and f[fn.index(digits[0])+2] == '-')
                 Σ = Ω - Λ
-                AM.append((Ω, S, Λ, Σ))
+                AM.append((Ω, S, Λ, Σ, pm))
             else:
-                AM.append((0, 0, 0, 0))
+                AM.append((0, 0, 0, 0, 0))
 
         else:
             radialcoord, potential = fn
@@ -198,7 +202,8 @@ def coupling_function(R, VT, μ, pecfs, coup=None):
     coupling_function = np.ones(np.size(R), dtype='float')
     coupling_function[R>5] = np.exp(-(R[R>5]-5)**2)
 
-    # cm-1 couplings between PECs   (at the moment all homogeneous)
+    # cm-1 couplings between PECs
+    # See Table 3.2 (page 97) Lefebrvre-Brion and Fieldi: Spectra and Dynam
     cnt = 0
     for j in range(n):
         for k in range(j+1,n):
@@ -211,7 +216,7 @@ def coupling_function(R, VT, μ, pecfs, coup=None):
                 spl = splrep(Rcouple, couple)
                 couple = splev(R, spl, ext=3) 
                 cnt += 1
-            elif isinstance(coup[cnt], str):  # dipolemoment file
+            elif isinstance(coup[cnt], str):  # R-dependent file
                 Rcouple, couple = np.loadtxt(coup[cnt], unpack=True)
                 spl = splrep(Rcouple, couple)
                 couple = splev(R, spl, ext=3) 
@@ -225,7 +230,8 @@ def coupling_function(R, VT, μ, pecfs, coup=None):
     return VT
 
 
-def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
+def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None,
+                      dirpath='./'):
     def is_number(s):
         try:
             complex(s) # for int, long, float and complex
@@ -247,13 +253,13 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None):
                 fn = dipolemoment[i]
             else:
                 fn = input("CSE: dipolemoment filename or value "
-                           "{pec_us[u]} <- {pec_gs[g]} : ")
+                           f"{pec_us[u]} <- {pec_gs[g]} : ")
 
             if is_number(fn):
                 dipole[u][g] = float(fn)             
             else:
                 # fn a filename, read and load
-                RD, D = np.loadtxt(fn, unpack=True)
+                RD, D = np.loadtxt(dirpath+'/'+fn, unpack=True)
                 # cubic spline interpolation
                 spl = splrep(RD, D)
                 dipole[u][g] = splev(R, spl, der=0, ext=1)
