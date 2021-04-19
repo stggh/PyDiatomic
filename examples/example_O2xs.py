@@ -37,8 +37,10 @@ ax1 = plt.subplot2grid((2, 4), (0, 2), colspan=2, rowspan=2)
 
 BX.wavenumber /= 1.0e4
 BX.total = np.zeros_like(BX.wavenumber)
-for j in range(BX.nopen):
-    BX.total[:] += BX.xs[:, j]
+for j, xs in enumerate(BX.xs.T):
+    if np.all(xs <= 0):
+        continue
+    BX.total[:] += xs
     if BX.us.pecfs[j][-7] == 'S':
         ax0.plot(BX.xs[:, j], BX.wavenumber, label=r'$^{3}\Sigma_{u}^{-}$',
                  color='C0')

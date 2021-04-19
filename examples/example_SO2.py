@@ -71,7 +71,7 @@ if __name__ == "__main__":
             SO2.diabatic2adiabatic()
 
             k += 1
-            ax = plt.subplot(f'{nD:d}{nl:d}{k:1d}')
+            ax = plt.subplot(int(f'{nD:d}{nl:d}{k:1d}'))
             if j % nD == 0:  # start of a new row
                 plt.ylabel(fr"$\lambda_{{ab}}=$ {lamab[i]:.0f}", fontsize=12)
             plt.tick_params(axis='y', left=False, right=False,

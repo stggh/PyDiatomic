@@ -1,7 +1,7 @@
 import numpy as np
 import cse
 import scipy.constants as C
-from scipy.integrate.quadrature import simps
+from scipy.integrate import simps
 import matplotlib.pyplot as plt
 
 # ground state

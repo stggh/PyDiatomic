@@ -37,6 +37,10 @@ periodictable ::
 
     pip install periodictable
 
+execution speed: There are big gains `> x8` in using the intel math kernel librayr
+
+   sudo apt install intel-mkl
+
 
 
 (*) due to the use of infix matrix multiplication ``@``. To run with python < 3.5, replace ``A @ B`` with ``np.dot(A, B)`` in ``cse.py`` and ``expectation.py``.
@@ -244,6 +248,7 @@ reduction in execution time on multiprocessor systems. e.g. for :code:`example_O
 ==============     ====     ======     ==========
 machine            GHz      CPU(s)     time (sec)
 ==============     ====     ======     ==========
+i7-9700            4.6      8          3
 Xeon E5-2697       2.6      64         6
 i7-6700            3.4      8          17
 Macbook pro i5     2.4      4          63

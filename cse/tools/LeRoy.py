@@ -23,7 +23,7 @@ class Morse():
         self.q = q
         self.Cm = Cm
 
-        self.VEMO = self.EMO()
+        self.VEMO = self.EMO() 
 
     def EMO(self):  # Expanded Morse Oscillator, Eq. (3)
         return self.De*(1 - np.exp(-self.betaEMO(self.R, self.q)*\
@@ -60,7 +60,7 @@ class Morse():
 
 
 class Morsefit(Morse):
-    def __init__(self, R, V, beta=[1.], Rref=None, De=None, q=3,
+    def __init__(self, R, V, beta=[1.], Rref=None, De=None, p=1, q=2,
                  fitpar=[], Cm={}):
         """ fit EMO to supplied potential curve.
 
@@ -95,7 +95,7 @@ class Morsefit(Morse):
         self.beta = beta
 
         super().__init__(R, self.Re, self.Rref, self.De, self.Te,
-                         beta=self.beta, q=q)
+                         beta=self.beta, q=q, Cm=self.Cm)
 
         # self.fit_EMO()
         # self.VEMO = self.EMO()
@@ -115,8 +115,8 @@ class Morsefit(Morse):
         outer = self.R >= self.Re
         outer[-1] = False  # in case value is Nan
         
-        inn = -np.log(1.0 + np.sqrt((self.V[inner] - self.Te)/self.De))
-        out = -np.log(1.0 - np.sqrt((self.V[outer] - self.Te)/self.De))
+        inn = -np.log(1 + np.sqrt((self.V[inner] - self.Te)/self.De))
+        out = -np.log(1 - np.sqrt((self.V[outer] - self.Te)/self.De))
 
         self.est = least_squares(residual, self.beta)
 
@@ -154,22 +154,25 @@ class Morsefit(Morse):
         self.VEMO = self.EMO()
 
 
-    def fitCm(self):
-        def residual(pars, Rx, Vx):
+    def fit_Cm(self, Ro=2, Voo=None):
+        def residual(pars, Rx, Vx, Voo):
             for i, (m, Cm) in enumerate(self.Cm.items()):
                 self.Cm[m] = pars[i]
-            return self.ULR(Rx) - Vx
+            return self.ULR(Rx) + Voo - Vx 
+
+        if Voo is None:
+            Voo = self.V[-1]
 
         # long range part of potential curve
-        LR = self.R > 3
+        LR = self.R > Ro
         Rx = self.R[LR]
         Vx = self.V[LR]
 
         pars = np.ones(len(self.Cm.values()))
         
-        result = least_squares(residual, pars, args=(Rx, Vx)) 
-        self.fitCm = result
+        result = least_squares(residual, pars, args=(Rx, Vx, Voo)) 
+        self.fit_Cm = result
 
         for i, (m, Cm) in enumerate(self.Cm.items()):
-            self.C[m] = result.x[i]
+            self.Cm[m] = result.x[i]
 
