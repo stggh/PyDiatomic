@@ -413,10 +413,10 @@ def solveCSE(Cse, en):
         wf = normalize(wf, R)
     else:
         K, AI, B = amplitude(wf, R, edash, μ)   # shape = nopen x nopen
-        Cse.wf = wf
-        Cse.AI = AI
-        Cse.B = B
-        Cse.K = K
+        # Cse.wf = wf
+        # Cse.AI = AI
+        # Cse.B = B
+        # Cse.K = K
 
         # K = BA-1 = U tan xi UT
         eig, U = np.linalg.eig(K)

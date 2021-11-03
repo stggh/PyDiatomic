@@ -63,7 +63,7 @@ def reduced_mass(molecule):
     return μ*const.u, molecule
 
 
-def potential_energy_curves(pecfs=None, R=None, dirpath='./'):
+def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix=''):
     """ Read potential energy curve file(s) and assemble as diagonals in an nxn array for the n-filenames provided.
 
     Parameters
@@ -121,7 +121,8 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./'):
     Vin = []
     for i,fn in enumerate(pecfs):
         if isinstance(fn, (np.str)):
-            radialcoord, potential = np.loadtxt(dirpath+'/'+fn, unpack=True)
+            radialcoord, potential = np.loadtxt(dirpath+'/'+fn+suffix,
+                                                unpack=True)
             fn = fn.split('/')[-1].upper()
             digits = re.findall('\d', fn)
             if len(digits) > 0:
@@ -231,7 +232,7 @@ def coupling_function(R, VT, μ, pecfs, coup=None):
 
 
 def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None,
-                      dirpath='./'):
+                      dirpath='./', suffix=''):
     def is_number(s):
         try:
             complex(s) # for int, long, float and complex
@@ -259,7 +260,7 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None,
                 dipole[u][g] = float(fn)             
             else:
                 # fn a filename, read and load
-                RD, D = np.loadtxt(dirpath+'/'+fn, unpack=True)
+                RD, D = np.loadtxt(dirpath+'/'+fn+suffix, unpack=True)
                 # cubic spline interpolation
                 spl = splrep(RD, D)
                 dipole[u][g] = splev(R, spl, der=0, ext=1)
