@@ -3,6 +3,7 @@ from ._version import __version__
 from . import cse
 from .tools import analytical
 from .tools.rouille import rouille
+from .tools.ubachs import ubachs16
 from .tools.xsT import total_cross_section
 from .tools.RKR import rkr
 from .tools.intensity import Boltzmann, honl, Wigner3j

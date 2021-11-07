@@ -14,8 +14,8 @@ import cse
 O2f = cse.Cse('O2', VT=['potentials/X3S-1.dat'])
 
 # e-levels
-O2e = cse.Cse('O2', dirpath='potentials',
-               VT=['X3S-1.dat', 'X3S0.dat', 'b1S0.dat'], coup=[-2.005, 0, 229])
+O2e = cse.Cse('O2', dirpath='potentials', suffix='.dat',
+               VT=['X3S-1', 'X3S0', 'b1S0'], coup=[-2.005, 0, 229])
 
 O2f.solve(en=800)
 E0 = O2f.cm
@@ -28,14 +28,14 @@ f = np.zeros(4)
 for N in range(1, 51, 2):
     F[2] = cse.rouille(0, N, N)
     O2f.solve(en=F[2]+E0, rot=N)
-    f[2] = O2f.cm
+    f[2] = O2f.cm - E0
+
     for fi in (1, 3):
         J = N - fi + 2
         F[fi] = cse.rouille(0, N, J)  
 
         O2e.solve(en=F[fi]+E0, rot=J)
 
-        f[fi] = O2e.cm
+        f[fi] = O2e.cm - E0
 
-    print(f'{N:2d}  {F[1]+E0-f[1]:10.3f}  {F[2]+E0-f[2]:10.3f}  '
-          f'{F[3]+E0-f[3]:10.3f}')
+    print(f'{N:2d}  {F[1]-f[1]:10.3f}  {F[2]-f[2]:10.3f} {F[3]-f[3]:10.3f}')

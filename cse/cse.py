@@ -28,7 +28,10 @@ class Cse():
         of all the potential curves
 
     dirpath : str
-        dirpath to directory of potential energy curve files
+        path to directory conatining the potential energy curve files
+
+    suffix : str
+        suffix appended to potential energy curve file name
 
     VT : numpy 3d array
         transpose of the potential curve and couplings array
@@ -75,7 +78,7 @@ class Cse():
 
 
     def __init__(self, μ=None, R=None, VT=None, coup=None, eigenbound=None,
-                 en=None, rot=0, dirpath='./'):
+                 en=None, rot=0, dirpath='./', suffix=''):
 
         self._evcm = 8065.541
         self.set_μ(μ=μ)
@@ -94,7 +97,8 @@ class Cse():
         else:
             # list of file names provided in VT
             self.R, self.VT, self.pecfs, self.limits, self.AM =\
-                    cse_setup.potential_energy_curves(VT, dirpath=dirpath)
+                    cse_setup.potential_energy_curves(VT, dirpath=dirpath,
+                                                      suffix=suffix)
             self.set_coupling(coup=coup)
 
         # fudge to eliminate 1/0 error for 1/R^2
@@ -285,7 +289,7 @@ class Xs():
 
     """
 
-    def __init__(self, μ=None, dirpath='./',
+    def __init__(self, μ=None, dirpath='./', suffix='',
                  Ri=None, VTi=None, coupi=None, eni=0, roti=0,
                  Rf=None, VTf=None, coupf=None, rotf=0,
                  dipolemoment=None, transition_energy=None):
@@ -305,7 +309,8 @@ class Xs():
         self.dipolemoment = cse_setup.load_dipolemoment(
                                 dipolemoment=dipolemoment,
                                 R=self.us.R, pec_gs=self.gs.pecfs,
-                                pec_us=self.us.pecfs, dirpath=dirpath)
+                                pec_us=self.us.pecfs, dirpath=dirpath,
+                                suffix=suffix)
 
         if transition_energy is not None:
             self.calculate_xs(transition_energy)
@@ -409,7 +414,7 @@ class Transition(Xs):
 
     def __init__(self, final_coupled_states, initial_coupled_states,
                  dipolemoment=None, transition_energy=None, eni=None,
-                 roti=None, rotf=None, dirpath='./'):
+                 roti=None, rotf=None, dirpath='./', suffix=''):
         """
         Parameters
         ----------
@@ -422,6 +427,13 @@ class Transition(Xs):
         dipolemoment: float array
             electric dipole transition moment (in a.u.)
 
+        dirpath : str
+            path to the directory containing the electric dipole transition
+            moment file
+
+        suffix : str
+            suffix appended to electric dipole transition moment file name
+
         """
 
         self.gs = initial_coupled_states
@@ -433,7 +445,8 @@ class Transition(Xs):
         self.dipolemoment = cse_setup.load_dipolemoment(
                                 dipolemoment=dipolemoment,
                                 R=self.us.R, pec_gs=self.gs.pecfs,
-                                pec_us=self.us.pecfs, dirpath=dirpath)
+                                pec_us=self.us.pecfs, dirpath=dirpath,
+                                suffix=suffix)
 
         if transition_energy is not None:
             self.calculate_xs(transition_energy, roti=roti, rotf=rotf, eni=eni)
