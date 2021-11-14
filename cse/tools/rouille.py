@@ -104,10 +104,13 @@ def rouille(v, N, J):
     F13 = F13av(J, B[v], D[v], H[v], λ[v], λp[v], λpp[v], μ[v],
                 μp[v], μpp[v], μppp[v])
 
-    if J == 0 and N == 1:
-        return V[v] - 1.08574398
+    # special case N"=1, J"=0  F3 should equal -1.08574398 cm-1
+    # Amiot and Verges table 10 
+    if N == 1 and J == 0:
+        return V[v] + 2*B[v] - 4*D[v] + 8*H[v] - (4/3)*λ[v] -(8/3)*λp[v]\
+               -(16/3)*λpp[v] - 2*μ[v] - 4*μp[v] - 8*μpp[v]
     else:
-        return V[v] + F13 + x*(f-2) - 1.3316   # to match Amiot an Verges
+        return V[v] + F13 + x*(f-2) - 1.3316 
 
 if __name__ == '__main__':
     print('Calculation reproducing table 10 of Amiot+Verges'
