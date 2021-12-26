@@ -14,9 +14,7 @@ import numpy as np
 import cse
 
 import scipy.constants as const
-from scipy.interpolate import splrep, splev
 import matplotlib.pyplot as plt
-import sys
 
 print("example_RKR.py - for this example accept the default inputs\n")
 fn = input("RKR: Spectroscopic constants filename [data/GB.dat]: ")
