@@ -208,7 +208,7 @@ def coupling_function(R, VT, μ, pecfs, coup=None):
     cnt = 0
     for j in range(n):
         for k in range(j+1,n):
-            if coup == None:
+            if coup is None:
                 couplestr = input(
                      f'CSE: coupling {pecfs[j]:s} <-> {pecfs[k]:s} cm-1 [0]? ')
                 couple = float(couplestr) if len(couplestr) > 1 else 0.0
