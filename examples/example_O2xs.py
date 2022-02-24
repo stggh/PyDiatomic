@@ -13,8 +13,8 @@ wavelength = np.arange(110, 174.1, 0.1)  # nm
 X = cse.Cse('O2', VT=['potentials/X3S-1.dat'], en=800)
 
 # O2 upper coupled B-state
-B = cse.Cse('O2', dirpath='potentials',
-            VT=['B3S-1.dat', '3P1.dat', 'E3S-1.dat', '3PR1.dat'],
+B = cse.Cse('O2', dirpath='potentials', suffix='.dat',
+            VT=['B3S-1', '3P1', 'E3S-1', '3PR1'],
             coup=[40, 4000, 0, 0, 7000, 0])
 
 # transition
@@ -41,7 +41,7 @@ for j, xs in enumerate(BX.xs.T):
     if np.all(xs <= 0):
         continue
     BX.total[:] += xs
-    if BX.us.pecfs[j][-7] == 'S':
+    if 'S' in BX.us.pecfs[j]:
         ax0.plot(BX.xs[:, j], BX.wavenumber, label=r'$^{3}\Sigma_{u}^{-}$',
                  color='C0')
     else:
@@ -60,7 +60,7 @@ for j, pec in enumerate(BX.gs.pecfs):
 # adiabatic potential energy curves
 # X.us.diabatic2adiabatic()
 for j, pec in enumerate(BX.us.pecfs):
-    if BX.us.pecfs[j][-7] == 'S':  # Sigma states
+    if 'S' in BX.us.pecfs[j]:  # Sigma states
         ax1.plot(BX.us.R, BX.us.VT[j, j]*evcm, 'C0',
                  label=r'$^{3}\Sigma_{u}^{-}$')
         # ax1.plot(X.us.R, X.us.AT[j, j]*evcm, 'g', lw=2, label='adiabatic')
@@ -81,5 +81,5 @@ ax1.axes.get_yaxis().set_visible(False)
 
 plt.suptitle('example_O2xs.py', fontsize=12)
 
-plt.savefig('output/example_O2xs.png', dpi=75)
+plt.savefig('output/example_O2xs.svg')
 plt.show()

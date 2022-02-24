@@ -63,7 +63,8 @@ def reduced_mass(molecule):
     return μ*const.u, molecule
 
 
-def potential_energy_curves(pecfs=None, R=None, dirpath='./'):
+def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
+                            frac_Omega=False):
     """ Read potential energy curve file(s) and assemble as diagonals in an nxn array for the n-filenames provided.
 
     Parameters
@@ -77,6 +78,11 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./'):
 
     dirpath : str
         dirpath to directory of potential energy curve files
+
+    frac_Omega: bool
+        Ω specified as 2Ω+1 rather than Ω in the potential energy curve filename
+         (2S+1)[S,P,D,F]Ω  vs (2S+1)[S,P,D,F](2Ω+1)  e.g. X2S2.dat Ω=½
+
 
     Returns
     -------
@@ -121,13 +127,17 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./'):
     Vin = []
     for i,fn in enumerate(pecfs):
         if isinstance(fn, (np.str)):
-            radialcoord, potential = np.loadtxt(dirpath+'/'+fn, unpack=True)
+            radialcoord, potential = np.loadtxt(dirpath+'/'+fn+suffix,
+                                                unpack=True)
             fn = fn.split('/')[-1].upper()
             digits = re.findall('\d', fn)
             if len(digits) > 0:
                 degen = int(digits[0])
                 S = (degen - 1)//2
                 Ω = int(digits[1])
+                if frac_Omega:
+                    # (2Ω+1) breaks old notation, allows fractional values
+                    Ω = (Ω - 1)/2
                 Λ = 'SPDF'.index(fn[fn.index(digits[0])+1])
                 pm = int(Λ == 'S' and f[fn.index(digits[0])+2] == '-')
                 Σ = Ω - Λ
@@ -207,7 +217,7 @@ def coupling_function(R, VT, μ, pecfs, coup=None):
     cnt = 0
     for j in range(n):
         for k in range(j+1,n):
-            if coup == None:
+            if coup is None:
                 couplestr = input(
                      f'CSE: coupling {pecfs[j]:s} <-> {pecfs[k]:s} cm-1 [0]? ')
                 couple = float(couplestr) if len(couplestr) > 1 else 0.0
@@ -231,7 +241,7 @@ def coupling_function(R, VT, μ, pecfs, coup=None):
 
 
 def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None,
-                      dirpath='./'):
+                      dirpath='./', suffix=''):
     def is_number(s):
         try:
             complex(s) # for int, long, float and complex
@@ -259,7 +269,7 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None,
                 dipole[u][g] = float(fn)             
             else:
                 # fn a filename, read and load
-                RD, D = np.loadtxt(dirpath+'/'+fn, unpack=True)
+                RD, D = np.loadtxt(dirpath+'/'+fn+suffix, unpack=True)
                 # cubic spline interpolation
                 spl = splrep(RD, D)
                 dipole[u][g] = splev(R, spl, der=0, ext=1)

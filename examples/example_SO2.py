@@ -98,5 +98,5 @@ if __name__ == "__main__":
         plt.setp(text, color=col[i])
 
     plt.suptitle(r"SO$_{2}$ vibronic coupling", fontsize=15)
-    plt.savefig("output/example_SO2.png", dpi=75)
+    plt.savefig("output/example_SO2.svg")
     plt.show()

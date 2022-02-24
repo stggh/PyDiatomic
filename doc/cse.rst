@@ -47,3 +47,11 @@ rkr  module
     :members:
     :special-members:
     :show-inheritance:
+
+Le Roy module
+-------------
+
+.. automodule:: cse.tools.LeRoy
+    :members:
+    :special-members:
+    :show-inheritance:

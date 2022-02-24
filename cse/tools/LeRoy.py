@@ -60,7 +60,7 @@ class Morse():
 
 
 class Morsefit(Morse):
-    def __init__(self, R, V, beta=[1.], Rref=None, De=None, p=1, q=2,
+    def __init__(self, R, V, beta=[1.], Rref=None, Re=None, De=None, p=1, q=2,
                  fitpar=[], Cm={}):
         """ fit EMO to supplied potential curve.
 
@@ -75,7 +75,11 @@ class Morsefit(Morse):
             self.V *= 8065.541   # convert eV to cm-1 
         
         # set some easy to determine constants
-        self.Re = R[V.argmin()]
+        if Re is None:
+            self.Re = R[V.argmin()]
+        else:
+            self.Re = Re
+
         if Rref is None:
             self.Rref = self.Re
         else:
@@ -89,15 +93,16 @@ class Morsefit(Morse):
 
         self.q = q
         self.Cm = Cm
+        self.beta = beta
 
         # estimate betas from linear form Eq. (24)
-        # self.est_beta()
+        self.est_beta()
         self.beta = beta
 
         super().__init__(R, self.Re, self.Rref, self.De, self.Te,
                          beta=self.beta, q=q, Cm=self.Cm)
 
-        # self.fit_EMO()
+        self.fit_EMO()
         # self.VEMO = self.EMO()
 
 

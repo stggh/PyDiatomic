@@ -14,9 +14,7 @@ import numpy as np
 import cse
 
 import scipy.constants as const
-from scipy.interpolate import splrep, splev
 import matplotlib.pyplot as plt
-import sys
 
 print("example_RKR.py - for this example accept the default inputs\n")
 fn = input("RKR: Spectroscopic constants filename [data/GB.dat]: ")
@@ -42,7 +40,8 @@ limb = input("RKR: Outer-limb LeRoy(L) or Morse(M) [L]: ")
 if limb == '':
     limb = 'L'
 
-R, PEC, RTP, PTP = cse.tools.RKR.rkr(μ, vv, Gv, Bv, De, limb, dv=0.1,
+R, PEC, RTP, PTP = cse.tools.RKR.rkr(μ, vv, Gv, Bv, De, Voo=0, limb=limb, 
+                                     dv=0.1, ineV=True,
                                      Rgrid=np.arange(0.005, 10.004, 0.005))
 
 data = np.column_stack((R.T, PEC.T))
@@ -58,5 +57,5 @@ plt.title("example_RKR.py")
 plt.xlabel(r"R($\AA$)")
 plt.ylabel("E(eV)")
 
-plt.savefig("output/example_RKR.png", dpi=75)
+plt.savefig("output/example_RKR.svg")
 plt.show()

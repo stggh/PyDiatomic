@@ -121,7 +121,7 @@ def Wigner3j(j1, j2, j3, m1, m2, m3):
                              factorial(t-t2) * factorial(t3-t) * 
                              factorial(t4-t) * factorial(t5-t))
 
-    return wigner * (-1)**(j1-j2-m3) * np.sqrt(factorial(j1+j2-j3) * 
+    return wigner * (-1.)**(j1-j2-m3) * np.sqrt(factorial(j1+j2-j3) * 
            factorial(j1-j2+j3) * factorial(-j1+j2+j3) / 
            factorial(j1+j2+j3+1) * factorial(j1+m1) * 
            factorial(j1-m1) * factorial(j2+m2) * factorial(j2-m2) *

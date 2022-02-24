@@ -9,26 +9,30 @@ subR = np.logical_and(R >= 0.8, R <= 6)
 R = R[subR]
 V = V[subR]
 
-morse = cse.tools.LeRoy.Morsefit(R, V, Rref=1.37, Nbeta=8, q=6,
-                                 fitpar=['beta', 'Rref', 'Re'])
+morse = cse.tools.LeRoy.Morsefit(R, V, Re=R[V.argmin()], Rref=2.13, q=6, p=3,
+                                 beta=[3., 1., 1., 1.],
+                                 fitpar=['beta', 'Re'])
 
 print('linear fit betas:\n',morse.est.x)  # betas from linear fit
-print('full EMO fit message:\n', morse.fit.message)
-print('full EMO fit parameters betas, Rref, Re:\n',morse.fit.x) 
+print('full EMO fit message:\n', morse.est.message)
+print('full EMO fit parameters betas, Re:\n',morse.fit.x) 
 
 # compare eignevalues ---------------------------------------
 # eigenvalues - RKR potential curve
 Xrkr = cse.Cse('O2', VT=[(R, V)])
-Xrkr.levels(20)
+
+v = np.arange(20)
+Xrkr.levels(v[-1]+2)
+Gvrkr, Bvrkr, Dvrkr, Jvrkr = list(zip(*Xrkr.results.values()))
+Gvrkr = np.array(Gvrkr)
+subv = v <= v[-1] 
 
 # expanded Morse oscillator fit
 Xemo = cse.Cse('O2', VT=[(morse.R, morse.VEMO)])
-
-dG = []
-for v, (Gv, Bv, Dv, J) in Xrkr.results.items():
-        if v > 20: break
-        Xemo.solve(Gv)
-        dG.append(Gv - Xemo.results[v][0])
+Xemo.levels(v[-1]+2)
+Gv, Bv, Dv, Jv = list(zip(*Xemo.results.values()))
+Gv = np.array(Gv)
+dG = Gv - Gvrkr
 
 # plot --------------------------------------
 fig, (ax0, ax1) = plt.subplots(1, 2)
@@ -45,9 +49,9 @@ ax1.set_ylabel(r'$G_v$ (cm$^{-1}$)')
 ax1.set_xlabel(r'$v$')
 ax1.set_title('diffence RKR - EMO')
 
-plt.subplots_adjust(wspace=0.4)
+plt.tight_layout(w_pad=0.4)
 
-plt.savefig('output/example_expanded_Morse_oscillator.png', dpi=75)
+plt.savefig('output/example_expanded_Morse_oscillator.svg')
 plt.show()
 
 

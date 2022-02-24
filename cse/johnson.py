@@ -322,8 +322,8 @@ def normalize(wf, R):
 
 
 def amplitude(wf, R, edash, μ):
-    # Mies    F ~ JA + NB       J ~ sin(kR)/kR
-    # normalization sqrt(2 μ/π hbar^2) = zz
+    # Mies    F ~ JA + NB       J ~ sin(kR),  N ~ cos(kR)
+    # normalization √(2μ/π)/ħ = zz
     π = const.pi
     zz = np.sqrt(2*μ/π)/const.hbar
 
@@ -338,8 +338,8 @@ def amplitude(wf, R, edash, μ):
     A = np.zeros((nopen, nopen))
     B = np.zeros((nopen, nopen))
     oc = 0
-    for j in range(n):
-        if edash[j] < 0:
+    for j in range(n):  # each wavefunction
+        if edash[j] < 0:  # open channel
             continue
         # open channel
         ke = np.sqrt(2*μ*edash[j]*const.e)/const.hbar
@@ -355,6 +355,7 @@ def amplitude(wf, R, edash, μ):
 
         det = j1*y2 - j2*y1
 
+        # coefficients to match wavefunction to asymptotic form
         A[oc, :] = (y2*wf[i1, j, :] - y1*wf[i2, j, :])/det
         B[oc, :] = (j1*wf[i2, j, :] - j2*wf[i1, j, :])/det
 
@@ -384,7 +385,6 @@ def solveCSE(Cse, en):
 
     mx, Cse.inner, Cse.outer = matching_point(en, rot, V, R, μ, AM,
                                               Cse.eigenbound)
-    Cse.mx = mx
 
     if mx < oo-5:
         out = least_squares(eigen, (en, ),
@@ -413,9 +413,14 @@ def solveCSE(Cse, en):
         wf = normalize(wf, R)
     else:
         K, AI, B = amplitude(wf, R, edash, μ)   # shape = nopen x nopen
+        # Cse.wf = wf
+        # Cse.AI = AI
+        # Cse.B = B
+        # Cse.K = K
 
         # K = BA-1 = U tan xi UT
         eig, U = np.linalg.eig(K)
+        Cse.eig = eig
 
         # form A^-1 U cos xi exp(i xi) UT
         I = np.identity(nopen, dtype=complex)
@@ -432,4 +437,7 @@ def solveCSE(Cse, en):
         # complex wavefunction array  oo x n x nopen
         wf = wf @ Norm
 
-    return wf, en, openchann
+    Cse.mx = mx
+    Cse.wavefunction = wf
+    Cse.energy = en
+    Cse.openchann = openchann

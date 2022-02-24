@@ -14,8 +14,8 @@ import cse
 O2f = cse.Cse('O2', VT=['potentials/X3S-1.dat'])
 
 # e-levels
-O2e = cse.Cse('O2', dirpath='potentials',
-               VT=['X3S-1.dat', 'X3S0.dat', 'b1S0.dat'], coup=[-2.005, 0, 229])
+O2e = cse.Cse('O2', dirpath='potentials', suffix='.dat',
+               VT=['X3S-1', 'X3S0', 'b1S0'], coup=[-2.005, 0, 229])
 
 O2f.solve(en=800)
 E0 = O2f.cm
