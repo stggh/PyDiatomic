@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "PyDiatomic",
-    version = "0.1",
+    version = "0.3",
     description='A Python package to solve the time-independent coupled-channel Schr&ouml;inger equation using the Johnson renormalized Numberov method',
     packages=find_packages(),
     classifiers=[
