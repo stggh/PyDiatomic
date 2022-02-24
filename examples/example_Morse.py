@@ -35,5 +35,5 @@ plt.ylabel('potential energy (eV)')
 plt.xlabel(r'internuclear distance ($\AA$)')
 plt.legend()
 
-plt.savefig('output/example_Morse.png', dpi=75)
+plt.savefig('output/example_Morse.svg')
 plt.show()

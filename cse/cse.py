@@ -37,6 +37,11 @@ class Cse():
         transpose of the potential curve and couplings array
         Note: potential curves spline interpolated to grid `R`
 
+    frac_Omega : bool
+        Ω specified as 2Ω+1 rather than Ω in the potential energy curve filename
+         (2S+1)[S,P,D,F]Ω  vs (2S+1)[S,P,D,F](2Ω+1)  e.g. X2S2.dat Ω=½
+
+
     Bv : float
         evaluated rotational constant (if single wavefunction)
 
@@ -78,7 +83,7 @@ class Cse():
 
 
     def __init__(self, μ=None, R=None, VT=None, coup=None, eigenbound=None,
-                 en=None, rot=0, dirpath='./', suffix=''):
+                 en=None, rot=0, dirpath='./', suffix='', frac_Omega=False):
 
         self._evcm = 8065.541
         self.set_μ(μ=μ)
@@ -98,7 +103,8 @@ class Cse():
             # list of file names provided in VT
             self.R, self.VT, self.pecfs, self.limits, self.AM =\
                     cse_setup.potential_energy_curves(VT, dirpath=dirpath,
-                                                      suffix=suffix)
+                                                      suffix=suffix,
+                                                      frac_Omega=frac_Omega)
             self.set_coupling(coup=coup)
 
         # fudge to eliminate 1/0 error for 1/R^2
@@ -340,7 +346,7 @@ class Xs():
 
     def calculate_xs(self, transition_energy, eni=None, roti=None, rotf=None,
                      honl=False):
-        transition_energy = np.array(transition_energy)
+        transition_energy = np.array(transition_energy, dtype=float)
         emax = np.abs(transition_energy).max()
         if emax < 50:
             # energy unit is eV

@@ -63,7 +63,8 @@ def reduced_mass(molecule):
     return μ*const.u, molecule
 
 
-def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix=''):
+def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
+                            frac_Omega=False):
     """ Read potential energy curve file(s) and assemble as diagonals in an nxn array for the n-filenames provided.
 
     Parameters
@@ -77,6 +78,11 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix=''):
 
     dirpath : str
         dirpath to directory of potential energy curve files
+
+    frac_Omega: bool
+        Ω specified as 2Ω+1 rather than Ω in the potential energy curve filename
+         (2S+1)[S,P,D,F]Ω  vs (2S+1)[S,P,D,F](2Ω+1)  e.g. X2S2.dat Ω=½
+
 
     Returns
     -------
@@ -129,6 +135,9 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix=''):
                 degen = int(digits[0])
                 S = (degen - 1)//2
                 Ω = int(digits[1])
+                if frac_Omega:
+                    # (2Ω+1) breaks old notation, allows fractional values
+                    Ω = (Ω - 1)/2
                 Λ = 'SPDF'.index(fn[fn.index(digits[0])+1])
                 pm = int(Λ == 'S' and f[fn.index(digits[0])+2] == '-')
                 Σ = Ω - Λ

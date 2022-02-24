@@ -40,5 +40,6 @@ plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
 plt.legend()
 plt.yscale('log')
 
-plt.savefig('output/O2_fcf.png', dpi=100)
+plt.tight_layout()
+plt.savefig('output/O2_fcf.svg')
 plt.show()
