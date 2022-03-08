@@ -126,7 +126,7 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
     Rin = []
     Vin = []
     for i,fn in enumerate(pecfs):
-        if isinstance(fn, (np.str)):
+        if isinstance(fn, (str)):
             radialcoord, potential = np.loadtxt(dirpath+'/'+fn+suffix,
                                                 unpack=True)
             fn = fn.split('/')[-1].upper()

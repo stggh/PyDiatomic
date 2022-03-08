@@ -165,7 +165,7 @@ def Morse(x, β, Re, De, Voo):
     return De*(1 - np.exp(-β*(x-Re)))**2 + Te
 
 # analytical functions
-def inner_limb_Morse(R, P, RTP, PTP, Re, De, Voo, verbose=True):
+def inner_limb_Morse(R, P, RTP, PTP, Re, De, Voo, inner=None, verbose=True):
     # V(r) = De[1 - exp(-β(R-Re))]² + Te
     Te = Voo - De
 
@@ -174,7 +174,8 @@ def inner_limb_Morse(R, P, RTP, PTP, Re, De, Voo, verbose=True):
     β = ln0/(Re - RTP[0])
 
     # fit Morse to inner turning points - adjusting β, Re, De; fixed Voo
-    inner = len(PTP) // 2
+    if not inner:
+        inner = len(PTP) // 2
     popt, pcov = curve_fit(lambda x, β, Re, De: Morse(x, β, Re, De, Voo),
                            RTP[:inner], PTP[:inner], p0=[β, Re, De])
     err = np.sqrt(np.diag(pcov))
