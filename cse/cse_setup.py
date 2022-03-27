@@ -150,6 +150,7 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
             AM.append((0, 0, 0, 0))
 
         if potential[-1] > 100:
+            potential = potential.copy() # leave original untouched
             potential /= 8065.541   # convert cm-1 to eV
 
         Rin.append(radialcoord)
