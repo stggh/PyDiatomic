@@ -6,7 +6,8 @@ def test_O2X():
     X = cse.Cse('O2', dirpath='../../examples/potentials', suffix='.dat',
                 VT=['X3S-1'])
 
-    npt.assert_equal(X.AM, [(1, 1, 0, 1, 0)])
+    # (Ω, S, Λ, Σ)
+    npt.assert_equal(X.AM, [(1, 1, 0, 1, 1)])
     npt.assert_almost_equal(X.μ, 1.328e-26)
 
     X.solve(800)
