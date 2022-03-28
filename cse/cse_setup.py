@@ -130,16 +130,19 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
             radialcoord, potential = np.loadtxt(dirpath+'/'+fn+suffix,
                                                 unpack=True)
             fn = fn.split('/')[-1].upper()
-            digits = re.findall('\d', fn)
-            if len(digits) > 0:
-                degen = int(digits[0])
+            code = re.findall('\d{1}[SPDF]-*\d{1}', fn)[0]
+            if len(code) > 0:
+                degen = int(code[0])
                 S = (degen - 1)//2
-                Ω = int(digits[1])
+
+                Λ = ['S', 'P', 'D', 'F'].index(code[1])
+                pm = int(Λ == 0 and '-' in code)
+
+                Ω = int(code[-1])
                 if frac_Omega:
                     # (2Ω+1) breaks old notation, allows fractional values
                     Ω = (Ω - 1)/2
-                Λ = 'SPDF'.index(fn[fn.index(digits[0])+1])
-                pm = int(Λ == 'S' and f[fn.index(digits[0])+2] == '-')
+
                 Σ = Ω - Λ
                 AM.append((Ω, S, Λ, Σ, pm))
             else:
