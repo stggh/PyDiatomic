@@ -172,7 +172,7 @@ class Cse():
         self.vib = vib
         return vib
 
-    def levels(self, vmax=None, ntrial=5, exact=True):
+    def levels(self, vmax=None, ntrial=None, exact=True):
         """ Evaluate the vibrational energies of a potential energy curve.
 
         method spline interpolate v = 0, ..., vmax from the eigenvalue
@@ -196,9 +196,15 @@ class Cse():
 
         """
         V = np.transpose(self.VT[0][0])
+        Te = V.min()*self._evcm
+        Voo = V[-1]*self._evcm
 
-        for en in np.linspace(V.min()*self._evcm+100,
-                              V[-1]*self._evcm-10, ntrial):
+        if ntrial is None:
+            ntrial = int((Voo - Te)/2000)
+            if ntrial < 5:
+                ntrial = 5
+
+        for en in np.linspace(Te+100, Voo-10, ntrial):
             self.solve(en)
             if vmax is not None and self.vib > vmax and len(self.results) > 3:
                 break  # don't waste time
