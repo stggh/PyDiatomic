@@ -208,7 +208,7 @@ def node_positions(WI, mn, mx):
     return inner, outer
 
 
-def matching_point(en, rot, V, R, μ, AM, eigenbound):
+def matching_point(en, rot, V, R, μ, AM):
     """ estimate matching point for inward and outward solutions position
     based on the determinant of the R-matrix.
 
@@ -258,8 +258,9 @@ def matching_point(en, rot, V, R, μ, AM, eigenbound):
         # outward node should suffice.
         vib = len(outer)  # node count
         if vib > 0:
-            mx = outer[-1] + mn + 5
-        #    mx = int((outer[-1] + inner[-1])*0.4) + mn
+            mx = int(outer.mean()) + mn
+            # mx = outer[-1] + mn + 5
+            # mx = int((outer[-1] + inner[-1])*0.4) + mn
 
     return mx, inner+mn, outer+mn
 
@@ -367,7 +368,7 @@ def amplitude(wf, R, edash, μ):
     return K, AI, B
 
 
-def solveCSE(Cse, en):
+def solveCSE(Cse, en, mx=None):
 
     rot = Cse.rot
     μ = Cse.μ
@@ -383,12 +384,12 @@ def solveCSE(Cse, en):
     openchann = edash > 0
     nopen = edash[openchann].size
 
-    mx, Cse.inner, Cse.outer = matching_point(en, rot, V, R, μ, AM,
-                                              Cse.eigenbound)
+    if mx is None:
+        mx, Cse.inner, Cse.outer = matching_point(en, rot, V, R, μ, AM)
 
     if mx < oo-5:
-        out = least_squares(eigen, (en, ),
-                            bounds=(en-Cse.eigenbound, en+Cse.eigenbound),
+        out = least_squares(eigen, (en, ), method='lm',
+                            # bounds=(en-Cse.eigenbound, en+Cse.eigenbound),
                             args=(rot, mx, V, R, μ, AM))
         en = float(out.x[0])
 

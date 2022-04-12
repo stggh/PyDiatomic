@@ -3,7 +3,6 @@ import numpy as np
 import scipy.linalg as scla
 import scipy.constants as const
 from scipy import interpolate
-from collections import OrderedDict
 
 from . import johnson
 from . import expectation
@@ -83,7 +82,8 @@ class Cse():
 
 
     def __init__(self, μ=None, R=None, VT=None, coup=None, eigenbound=None,
-                 en=None, rot=0, dirpath='./', suffix='', frac_Omega=False):
+                 en=None, rot=0, mx=None,
+                 dirpath='./', suffix='', frac_Omega=False):
 
         self._evcm = 8065.541
         self.set_μ(μ=μ)
@@ -112,9 +112,9 @@ class Cse():
         if np.any(zeros):
             self.R[zeros] = 1.0e-16
 
-        self.results = OrderedDict()  # store results for single bound channel
+        self.results = {} # store results for single bound channel
         if en is not None:
-            self.solve(en, self.rot)
+            self.solve(en, self.rot, mx=mx)
 
     def set_μ(self, μ):
         self.μ, self.molecule = cse_setup.reduced_mass(μ)
@@ -123,7 +123,7 @@ class Cse():
         self.VT = cse_setup.coupling_function(self.R, self.VT, self.μ,
                                               self.pecfs, coup=coup)
 
-    def solve(self, en, rot=None, eigenbound=None):
+    def solve(self, en, rot=None, mx=None, eigenbound=None):
         """ solve the Schrodinger equation for the (coupled) potential(s).
 
         Parameters
@@ -148,7 +148,7 @@ class Cse():
         if eigenbound is not None:
             self.eigenbound = eigenbound
 
-        johnson.solveCSE(self, en)
+        johnson.solveCSE(self, en, mx=mx)
 
         self.cm = self.energy*self._evcm
 
@@ -236,8 +236,7 @@ class Cse():
                 self.solve(en, rot)
 
         # sort in order of energy
-        self.results = OrderedDict(sorted(self.results.items(),
-                                   key=lambda t: t[1]))
+        self.results = sorted(self.results.items(), key=lambda t: t[1])
 
     def diabatic2adiabatic(self):
         """ Convert diabatic interaction matrix to adiabatic (diagonal)
@@ -304,7 +303,8 @@ class Xs():
     def __init__(self, μ=None, dirpath='./', suffix='',
                  Ri=None, VTi=None, coupi=None, eni=0, roti=0,
                  Rf=None, VTf=None, coupf=None, rotf=0,
-                 dipolemoment=None, transition_energy=None):
+                 dipolemoment=None, transition_energy=None,
+                 mx=None):
 
         self._evcm = 8065.541
 
@@ -351,7 +351,7 @@ class Xs():
                 self.us.set_coupling(coupf)
 
     def calculate_xs(self, transition_energy, eni=None, roti=None, rotf=None,
-                     honl=False):
+                     honl=False, mx=None):
         transition_energy = np.array(transition_energy, dtype=float)
         emax = np.abs(transition_energy).max()
         if emax < 50:
@@ -367,7 +367,7 @@ class Xs():
         if eni is not None or roti is not None:
             if eni is None:
                 eni = self.gs.cm
-            self.gs.solve(eni, roti)
+            self.gs.solve(eni, roti, mx=mx)
 
         if rotf is not None:
             self.us.rot = rotf
