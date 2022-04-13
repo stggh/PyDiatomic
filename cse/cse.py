@@ -51,7 +51,7 @@ class Cse():
         eigenvalue energy in eV
 
     results : dict
-        single state calculation results  {vib: (energy, Bv, Dv, Jrot)} in cm-1
+        single state calculation results {vib: (energy, Bv, Dv, Jrot)} in cm-1
         (see also class representation)
 
     molecule: str
@@ -81,16 +81,12 @@ class Cse():
     """
 
 
-    def __init__(self, μ=None, R=None, VT=None, coup=None, eigenbound=None,
-                 en=None, rot=0, mx=None,
-                 dirpath='./', suffix='', frac_Omega=False):
+    def __init__(self, μ=None, R=None, VT=None, coup=None, en=None, rot=0,
+                 mx=None, dirpath='./', suffix='', frac_Omega=False):
 
         self._evcm = 8065.541
         self.set_μ(μ=μ)
         self.rot = rot
-
-        if eigenbound is None:
-            self.eigenbound = 500/self._evcm  # eV
 
         if R is not None:
             # PEC array provided directly
@@ -112,7 +108,7 @@ class Cse():
         if np.any(zeros):
             self.R[zeros] = 1.0e-16
 
-        self.results = {} # store results for single bound channel
+        self.results = {} # store results of bound channels
         if en is not None:
             self.solve(en, self.rot, mx=mx)
 
@@ -123,7 +119,7 @@ class Cse():
         self.VT = cse_setup.coupling_function(self.R, self.VT, self.μ,
                                               self.pecfs, coup=coup)
 
-    def solve(self, en, rot=None, mx=None, eigenbound=None):
+    def solve(self, en, rot=None, mx=None):
         """ solve the Schrodinger equation for the (coupled) potential(s).
 
         Parameters
@@ -132,21 +128,13 @@ class Cse():
             (initial) solution energy
         rot : int
             total angular momentum (excluding nuclear)
-        eigenbound : float
-            bound-eigenvalue limits en+-eigenbound - same units as en
-            This helps scipy.optimize.least_squares() from straying 
         """
 
         if en > 20:
             en /= self._evcm   # convert to eV energy unit
-            if eigenbound is not None:
-                eigenbound /= self._evcm
 
         if rot is not None:
             self.rot = rot   # in case called separately
-
-        if eigenbound is not None:
-            self.eigenbound = eigenbound
 
         johnson.solveCSE(self, en, mx=mx)
 
@@ -167,7 +155,7 @@ class Cse():
 
         wfx = self.wavefunction[self.energy > V]  # inside well
 
-        vib = (wfx[1:]*wfx[:-1] < 0).sum()
+        vib = (wfx[1:]*wfx[:-1] < 0).sum(dtype=int)
 
         self.vib = vib
         return vib
@@ -195,19 +183,17 @@ class Cse():
             attribute .results = {vib: (energy, Bv, Dv, rot)}
 
         """
-        V = np.transpose(self.VT[0][0])
+        V = self.VT[0][0]
         Te = V.min()*self._evcm
         Voo = V[-1]*self._evcm
 
         if ntrial is None:
-            ntrial = int((Voo - Te)/2000)
-            if ntrial < 5:
-                ntrial = 5
+            ntrial = max(int((Voo - Te)/2000), 5)
 
         for en in np.linspace(Te+100, Voo-10, ntrial):
             self.solve(en)
             if vmax is not None and self.vib > vmax and len(self.results) > 3:
-                break  # don't waste time
+                break  # don't waste time evaluating energies above vmax
 
         maxv = max(list(self.results.keys()))
         if vmax is None:
@@ -215,13 +201,15 @@ class Cse():
         else:
             vmax = min(maxv, vmax)  # no extrapolation
 
-        # interpolate calculation
+        # interpolate calculated values
         v = np.arange(vmax+1)
 
-        vib = sorted(self.results.keys())
-        actual = [self.results[vi][0] for vi in vib]
-        Bv = [self.results[vi][1] for vi in vib]
-        Dv = [self.results[vi][2] for vi in vib]
+        vib, actual, Bv, Dv = ([] for _ in range(4))
+        for vi, (Gi, Bi, Di, _) in self.results.items():
+           vib.append(vi)
+           actual.append(Gi)
+           Bv.append(Bi)
+           Dv.append(Di)
 
         spl = interpolate.interp1d(vib, actual, kind='cubic')
         splB = interpolate.interp1d(vib, Bv, kind='cubic')
@@ -236,7 +224,7 @@ class Cse():
                 self.solve(en, rot)
 
         # sort in order of energy
-        self.results = sorted(self.results.items(), key=lambda t: t[1])
+        self.results = dict(sorted(self.results.items(), key=lambda t: t[1]))
 
     def diabatic2adiabatic(self):
         """ Convert diabatic interaction matrix to adiabatic (diagonal)

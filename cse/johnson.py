@@ -389,7 +389,6 @@ def solveCSE(Cse, en, mx=None):
 
     if mx < oo-5:
         out = least_squares(eigen, (en, ), method='lm',
-                            # bounds=(en-Cse.eigenbound, en+Cse.eigenbound),
                             args=(rot, mx, V, R, μ, AM))
         en = float(out.x[0])
 
