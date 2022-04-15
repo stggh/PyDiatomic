@@ -37,9 +37,8 @@ class Cse():
         Note: potential curves spline interpolated to grid `R`
 
     frac_Omega : bool
-        Ω specified as 2Ω+1 rather than Ω in the potential energy curve filename
-         (2S+1)[S,P,D,F]Ω  vs (2S+1)[S,P,D,F](2Ω+1)  e.g. X2S2.dat Ω=½
-
+        Ω specified as 2Ω+1 rather than Ω in the potential energy curve
+        filename: (2S+1)[S,P,D,F]Ω  vs (2S+1)[S,P,D,F](2Ω+1)  e.g. X2S2.dat Ω=½
 
     Bv : float
         evaluated rotational constant (if single wavefunction)
@@ -64,7 +63,7 @@ class Cse():
         array sizes: (oo, n, Rmin, Rmax, Vmin, Te)
 
     μ : str or float
-        molecule formula str or reduced mass in amu or kg 
+        molecule formula str or reduced mass in amu or kg
 
     rot : int
         total angular momentum quantum number
@@ -79,7 +78,6 @@ class Cse():
         wavenumber eigenvalue of the solution
 
     """
-
 
     def __init__(self, μ=None, R=None, VT=None, coup=None, en=None, rot=0,
                  mx=None, dirpath='./', suffix='', frac_Omega=False):
@@ -108,7 +106,7 @@ class Cse():
         if np.any(zeros):
             self.R[zeros] = 1.0e-16
 
-        self.results = {} # store results of bound channels
+        self.results = {}  # store results of bound channels
         if en is not None:
             self.solve(en, self.rot, mx=mx)
 
@@ -148,7 +146,7 @@ class Cse():
                 # keep results
                 self.results[self.vib] = (self.cm, self.Bv, self.Dv, self.rot)
             else:
-                self.vib = None 
+                self.vib = None
 
     def node_count(self):
         V = self.VT[0][0][:np.shape(self.wavefunction)[0]]
@@ -206,10 +204,10 @@ class Cse():
 
         vib, actual, Bv, Dv = ([] for _ in range(4))
         for vi, (Gi, Bi, Di, _) in self.results.items():
-           vib.append(vi)
-           actual.append(Gi)
-           Bv.append(Bi)
-           Dv.append(Di)
+            vib.append(vi)
+            actual.append(Gi)
+            Bv.append(Bi)
+            Dv.append(Di)
 
         spl = interpolate.interp1d(vib, actual, kind='cubic')
         splB = interpolate.interp1d(vib, Bv, kind='cubic')
@@ -315,7 +313,6 @@ class Xs():
         if transition_energy is not None:
             self.calculate_xs(transition_energy)
 
-
     def set_param(self, μ=None, eni=None, coupi=None, roti=None,
                                           coupf=None, rotf=None):
 
@@ -365,8 +362,7 @@ class Xs():
             # fix me - this should be within expectation calculation
             #          at the rotational matrix level
             self.honl = tools.intensity.honl(self.us.rot, self.gs.rot,
-                                             self.us.AM[0][0], self.gs.AM[0][0])
-            # self.eta = 
+                                            self.us.AM[0][0], self.gs.AM[0][0])
         else:
             self.honl = 1
 
@@ -377,9 +373,8 @@ class Xs():
             self.wavenumber = np.array(self.wavenumber)
             self.oci = np.any(self.xs > 0, axis=0)  # open channels xs > 0
             self.nopen = self.oci.sum()
-        else: # don't waste time on the calculation
+        else:  # don't waste time on the calculation
             self.xs = np.zeros((len(transition_energy), self.us.VT.shape[0]))
-
 
     def align_grids(self):
         """ ensure the same internuclear grid for each block

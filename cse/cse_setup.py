@@ -1,25 +1,25 @@
-# -*- coding: utf-8 -*-
 import numpy as np
 import scipy.constants as const
 from periodictable import elements
 import re
 from scipy.interpolate import splrep, splev
 
+
 def atomic_mass(atom_symbol, isotope=''):
-   """atomic mass for atom_symbol, return most abundant atomic mass
-      if isotope not given.
-   """ 
-   elem = elements.isotope(atom_symbol)
-   if isotope != '': 
+    """atomic mass for atom_symbol, return most abundant atomic mass
+       if isotope not given.
+    """
+    elem = elements.isotope(atom_symbol)
+    if isotope != '':
         mass = elem[int(isotope)].mass   # have isotopic mass
-   else:
-       # most abundant isotopic mass
-       elem_abund = []
-       for iso in elem.isotopes:
-           elem_abund.append(elem[iso].abundance)
-       elem_abund = np.asarray(elem_abund)
-       mass = elem[elem.isotopes[elem_abund.argmax()]].mass
-   return mass
+    else:
+        # most abundant isotopic mass
+        elem_abund = []
+        for iso in elem.isotopes:
+            elem_abund.append(elem[iso].abundance)
+        elem_abund = np.asarray(elem_abund)
+        mass = elem[elem.isotopes[elem_abund.argmax()]].mass
+    return mass
 
 
 def reduced_mass(molecule):
@@ -28,7 +28,7 @@ def reduced_mass(molecule):
     Parameters
     ----------
     molecule : formula str or float value for reduced mass amu or kg
-        e.g. O2' or '16O16O' or '16O2' or 'O2', '32S18O' etc. 
+        e.g. O2' or '16O16O' or '16O2' or 'O2', '32S18O' etc.
         For '{atom}2' the most abundance isotope determines the mass
 
     Returns
@@ -65,7 +65,8 @@ def reduced_mass(molecule):
 
 def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
                             frac_Omega=False):
-    """ Read potential energy curve file(s) and assemble as diagonals in an nxn array for the n-filenames provided.
+    """ Read potential energy curve file(s) and assemble as diagonals in
+        a nxn array for the n-filenames provided.
 
     Parameters
     ----------
@@ -80,13 +81,14 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
         dirpath to directory of potential energy curve files
 
     frac_Omega: bool
-        Ω specified as 2Ω+1 rather than Ω in the potential energy curve filename
+        Ω specified as 2Ω+1 rather than Ω in the potential energy curve
+        filename:
          (2S+1)[S,P,D,F]Ω  vs (2S+1)[S,P,D,F](2Ω+1)  e.g. X2S2.dat Ω=½
 
 
     Returns
     -------
-    R : numpy 1d array 
+    R : numpy 1d array
         radial coordinates, set to `numpy.arange(Rmin, Rmax+dR/2, dR)`
         where Rmin = highest R[0], Rmax = lowest R[-1] of all the
         potential curves
@@ -94,11 +96,11 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
     VT : numpy 2D array size nxn
         (transposed) potential energy array for the n-filenames given: ::
 
-            VT = [ V1  0   0 ...]                                     
-                 [  0 V2   0 ...]                                    
-                 [  0  0  V3 ...]                                    
-                    :  :   :  
-                 [  0  0  ... Vn] 
+            VT = [ V1  0   0 ...]
+                 [  0 V2   0 ...]
+                 [  0  0  V3 ...]
+                    :  :   :
+                 [  0  0  ... Vn]
 
     pecfs: list of str
         as inputted
@@ -111,21 +113,23 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
         Rmax = lowest maximum
         Vm = lowest minimum potential energy (Te)
         Voo = lowest dissociation limit energy
-    
+
     AM : 1d array of tuples
         Angular momenta quantum numbers (Ω, S, Λ, Σ) for each electronic state
     """
 
-    if pecfs == None:
-        pecfns =  input ("CSE: potential energy curve(s) [X3S-1.dat]: ")
-        pecfs = pecfns.replace(',','').split() if len(pecfns) > 1 else ["X3S-1.dat"]
+    if pecfs is None:
+        pecfns = input("CSE: potential energy curve(s) [X3S-1.dat]: ")
+        if len(pecfns) > 1:
+            pecfs = pecfns.replace(',', '').split()
+        else:
+            pecfs = ['X3S-1.dat']
 
-    n = np.shape(pecfs)[0]
-
+    n = len(pecfs)
     AM = []
     Rin = []
     Vin = []
-    for i,fn in enumerate(pecfs):
+    for i, fn in enumerate(pecfs):
         if isinstance(fn, (str)):
             radialcoord, potential = np.loadtxt(dirpath+'/'+fn+suffix,
                                                 unpack=True)
@@ -153,23 +157,23 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
             AM.append((0, 0, 0, 0))
 
         if potential[-1] > 100:
-            potential = potential.copy() # leave original untouched
+            potential = potential.copy()  # leave original untouched
             potential /= 8065.541   # convert cm-1 to eV
 
         Rin.append(radialcoord)
         Vin.append(potential)
-        
+
     # flatten if only 1 PEC
     if n == 1:
-       Rin = np.reshape(Rin, (n, -1))
-       Vin = np.reshape(Vin, (n, -1))
+        Rin = np.reshape(Rin, (n, -1))
+        Vin = np.reshape(Vin, (n, -1))
 
-    # find internuclear distance min/max domain - some files do not cover 
+    # find internuclear distance min/max domain - some files do not cover
     # R=0 to 10A, dR=0.005
-    Rm  = max([Rin[i][0]    for i in range(n)])   # highest minimum
-    Rx  = min([Rin[i][-1]   for i in range(n)])   # lowest maximum
-    Vm  = min([Vin[i].min() for i in range(n)])   # lowest potential energy
-    Vx = min([Vin[i][-1]   for i in range(n)])   # lowest dissociation limit
+    Rm = max([Rin[i][0] for i in range(n)])  # highest minimum
+    Rx = min([Rin[i][-1] for i in range(n)])  # lowest maximum
+    Vm = min([Vin[i].min() for i in range(n)])  # lowest potential energy
+    Vx = min([Vin[i][-1] for i in range(n)])  # lowest dissociation limit
 
     # common internuclear distance grid, that requires no potential
     # curve is extrapolated
@@ -180,15 +184,15 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
 
     oo = len(R)
 
-    # create V matrix, as transpose 
+    # create V matrix, as transpose
     VT = np.zeros((n, n, oo))
     for j in range(n):
-       dRx = (Rin[j][1] - Rin[j][0])/4
-       subr = np.logical_and(Rin[j] >= Rm-dRx, Rin[j] <= R[-1]+dRx)
-       VT[j, j] = Vin[j][subr]
+        dRx = (Rin[j][1] - Rin[j][0])/4
+        subr = np.logical_and(Rin[j] >= Rm-dRx, Rin[j] <= R[-1]+dRx)
+        VT[j, j] = Vin[j][subr]
 
     limits = (oo, n, Rm, Rx, Vm, Vx)
-  
+
     return R, VT, pecfs, limits, AM
 
 
@@ -206,21 +210,20 @@ def coupling_function(R, VT, μ, pecfs, coup=None):
     pecfs: list
         list or potential curve names, to enquire the coupling
     coup : list
-        list potential curve couplings (in cm-1) 
-    
+        list potential curve couplings (in cm-1)
     """
     # hbar^2/2μ in eV (once /R^2)
     centrifugal_factor = (const.hbar*1.0e20/μ/2/const.e)*const.hbar
     n, m, oo = VT.shape
 
     coupling_function = np.ones(np.size(R), dtype='float')
-    coupling_function[R>5] = np.exp(-(R[R>5]-5)**2)
+    coupling_function[R > 5] = np.exp(-(R[R > 5] - 5)**2)
 
     # cm-1 couplings between PECs
     # See Table 3.2 (page 97) Lefebrvre-Brion and Fieldi: Spectra and Dynam
     cnt = 0
     for j in range(n):
-        for k in range(j+1,n):
+        for k in range(j+1, n):
             if coup is None:
                 couplestr = input(
                      f'CSE: coupling {pecfs[j]:s} <-> {pecfs[k]:s} cm-1 [0]? ')
@@ -228,12 +231,12 @@ def coupling_function(R, VT, μ, pecfs, coup=None):
             elif isinstance(coup[cnt], tuple):
                 Rcouple, couple = coup[cnt]
                 spl = splrep(Rcouple, couple)
-                couple = splev(R, spl, ext=3) 
+                couple = splev(R, spl, ext=3)
                 cnt += 1
             elif isinstance(coup[cnt], str):  # R-dependent file
                 Rcouple, couple = np.loadtxt(coup[cnt], unpack=True)
                 spl = splrep(Rcouple, couple)
-                couple = splev(R, spl, ext=3) 
+                couple = splev(R, spl, ext=3)
                 cnt += 1
             else:
                 couple = coup[cnt]
@@ -248,7 +251,7 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None,
                       dirpath='./', suffix=''):
     def is_number(s):
         try:
-            complex(s) # for int, long, float and complex
+            complex(s)  # for int, long, float and complex
         except ValueError:
             return False
 
@@ -270,7 +273,7 @@ def load_dipolemoment(dipolemoment=None, R=None, pec_gs=None, pec_us=None,
                            f"{pec_us[u]} <- {pec_gs[g]} : ")
 
             if is_number(fn):
-                dipole[u][g] = float(fn)             
+                dipole[u][g] = float(fn)
             else:
                 # fn a filename, read and load
                 RD, D = np.loadtxt(dirpath+'/'+fn+suffix, unpack=True)

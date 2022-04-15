@@ -55,7 +55,7 @@ def cross_section(wavenumber, Xs):
     # < i | mu | f >
     overlap = np.zeros((oo, nopen), dtype=complex)
     for i in range(oo):
-        overlap[i] = wfi[i] @ Xs.dipolemoment[i] @ Xs.us.wavefunction[i] 
+        overlap[i] = wfi[i] @ Xs.dipolemoment[i] @ Xs.us.wavefunction[i]
 
     xsp = np.zeros(n)
     oci = np.arange(n)
@@ -85,7 +85,7 @@ def xs(Xs, wavenumber):
         # bound upperstates => reset transition energy
         wavenumber = Xs.us.cm - Xs.gs.cm
     xsp = cross_section(wavenumber, Xs)
-    return xsp, wavenumber 
+    return xsp, wavenumber
 
 
 def xs_vs_wav(Xs):
@@ -148,7 +148,7 @@ def Dv(self):
         g *= R1
         Dv += simps(g, self.R)
 
-    return -(Dv/kk)*self._evcm 
+    return -(Dv/kk)*self._evcm
 
 
 def _lideo(v, g, R0, oo, e0, dR, diag, orth, mid):
@@ -178,7 +178,7 @@ def _lideo(v, g, R0, oo, e0, dR, diag, orth, mid):
         dd = diag[n] - dd
         diag[n] = dd
         dd = 1/dd
-    orsav = ort 
+    orsav = ort
 
     ort = orth[-2]
     xx = R1[-2]
@@ -192,7 +192,7 @@ def _lideo(v, g, R0, oo, e0, dR, diag, orth, mid):
         diag[n] = dd
         dd = 1/dd
 
-    xx = (olap - ort*R1[mid1])/(orsav - diag[mid1]*ort)     
+    xx = (olap - ort*R1[mid1])/(orsav - diag[mid1]*ort)
     R1[mid1] = xx
     for n in np.arange(mid, oo):
         xx = (R1[n] - xx)/diag[n]

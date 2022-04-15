@@ -2,8 +2,9 @@ import numpy as np
 from scipy.optimize import least_squares
 from scipy.special import genlaguerre, gamma
 
+
 def Wei(r, re, De, Te, b, h=0.):
-    """ Modified Wei potential curve 
+    """ Modified Wei potential curve
            Jai et al. J Chem Phys 137, 014101 (2012).
 
     Parameters
@@ -28,10 +29,10 @@ def Wei(r, re, De, Te, b, h=0.):
 
     """
 
-    #if abs(h) > 1:
-    #    raise SystemExit(f'Wei(r, re, De, Te, b, h): error h={h}, '
-    #                      'require |h| < 1')
-        
+    # if abs(h) > 1:
+    #     raise SystemExit(f'Wei(r, re, De, Te, b, h): error h={h}, '
+    #                       'require |h| < 1')
+
     ebre = np.exp(b*re)
     ebr = np.exp(b*r)
 
@@ -45,7 +46,7 @@ def Wei_fit(r, V, re, De, Te=1., b=1., h=0.):
 
     pars = [re, De, Te, b, h]
     result = least_squares(residual, pars, args=(r, V),
-                           bounds=([0.1, 100., -1000., 0.1, -0.1], 
+                           bounds=([0.1, 100., -1000., 0.1, -0.1],
                                    [10., 1.e8, 1.e8, 5., 0.1]))
     return result
 
@@ -83,6 +84,7 @@ def Morse_wavefunction(r, re, v, alpha, A):
     wf = Nv*np.exp(-y/2)*y**(beta/2)*genlaguerre(v, beta)(y)
     return wf
 
+
 def Julienne(r, mx, rx, vx, voo):
     """Julienne (and Krauss) dissociative potential energy curve.
 
@@ -115,7 +117,7 @@ def Julienne(r, mx, rx, vx, voo):
 
 def Julienne_fit(r, V, mx, rx, vx, voo):
     def residual(pars, r, V):
-        mx, rx, vx, voo  = pars
+        mx, rx, vx, voo = pars
         return Julienne(r, mx, rx, vx, voo) - V
 
     pars = [mx, rx, vx, voo]

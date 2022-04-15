@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import numpy as np
 import scipy.constants as const
 
@@ -8,8 +7,9 @@ from scipy.special import spherical_jn, spherical_yn
 from scipy.signal import find_peaks
 
 ##############################################################################
-#  PyDiatomic - solves the coupled-channel time-independent Schrödinger equation
-#               using recipe of B.R. Johnson J Chem Phys 69, 4678 (1977).
+#  PyDiatomic
+#      Solves the coupled-channel time-independent Schrödinger equation
+#      using recipe of B.R. Johnson J Chem Phys 69, 4678 (1977).
 #
 #  Stephen.Gibson@anu.edu.au
 #  January 2016
@@ -73,10 +73,10 @@ def WImat(energy, rot, V, R, μ, AM):
                 if Ω != Ωk:
                     # L-uncoupling, homogeneous coupling already set
                     if Jp1 > Ω*Ωk:
-                        barrier[j, k, :] = barrier[k, j, :] = 8064.541*\
-                              V[:, j, k]*np.sqrt(Jp1 - Ω*Ωk)*\
+                        barrier[j, k, :] = barrier[k, j, :] = 8064.541 * \
+                              V[:, j, k]*np.sqrt(Jp1 - Ω*Ωk) * \
                               centrifugal_factor/R[:]**2
-                                   
+
     barrier = barrier.T
 
     # generate interaction matrix W inverse W^-1
@@ -185,6 +185,7 @@ def wavefunction(WI, f):
 
 # ==== end of Johnson stuff ====================
 
+
 def node_positions(WI, mn, mx):
     """ find inner and outer solution nodes, before the # outer turning point.
 
@@ -239,21 +240,21 @@ def matching_point(en, rot, V, R, μ, AM):
     jm = np.array([V[-1, j, j] for j in range(n)]).argmin()
     Vm = V[-1, jm, jm]  # dissociation energy
 
-    if en > Vm:  #  at least one open channel
+    if en > Vm:  # at least one open channel
         return oo-1, [], []
 
     else:  # all channels closed, determine matching point
         jRe = V[:, jm, jm].argmin()  # potential energy index of minimum
 
         # inner and outer crossing point indices for energy en
-        mn = np.abs(V[:jRe, jm, jm] - en).argmin()  # inner 
+        mn = np.abs(V[:jRe, jm, jm] - en).argmin()  # inner
         mx = np.abs(V[jRe:, jm, jm] - en).argmin() + jRe  # outer
         mx = min(oo, mx)
 
         WI = WImat(en, rot, V, R, μ, AM)
         inner, outer = node_positions(WI, mn, mx)
 
-        # Johnson suggests bracketing the eigenvalue to map wavefunction nodes. 
+        # Johnson suggests bracketing the eigenvalue to map wavefunction nodes.
         # Inner and outer trajectories cross, mx beyond the last
         # outward node should suffice.
         vib = len(outer)  # node count
@@ -286,7 +287,7 @@ def eigen(energy, rot, mx, V, R, μ, AM):
     Returns
     -------
     determinant : float
-        | R_mx - R^-1_mx+1 | 
+        | R_mx - R^-1_mx+1 |
 
     """
 
