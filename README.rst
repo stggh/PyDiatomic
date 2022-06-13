@@ -271,7 +271,17 @@ in the calculation of diatomic photodissociation spectra.
 
 More sophisticated C and Fortran implementations have been in use for a number 
 of years, see references below. These were developed by Stephen Gibson (ANU),
-Brenton Lewis (ANU), and Alan Heays (ANU, Leiden, and ASU). 
+Brenton Lewis (ANU), and Alan Heays (ANU, Leiden, and ASU).
+
+
+Applications
+------------
+The following publications have made use of `PyDiatomic`:
+
+[1] `Z. Xu, N. Luo, S. R. Federman, W. M. Jackson, C-Y. Ng, L-P. Wang, and
+     K. N. Crabtree "Ab Initio Study of Ground-state CS Photodissociation via Highly Excited Electronic States" Astrophy. J. 86, 882 (2019) <http://doi.org/10.3847/1538-4357/ab35ea>`_
+
+[2] `Z. Xu, S. R. Federman, W. M. Jackson, C-Y. Ng, L-P. Wang, and K. N. Crabtree "Multireference configuration interaction study of the predissociation of C₂ via its F¹Πu state" J. Chem. Phys. (2022) <http://doi.org/10.1063/5.0097451>`_
 
 
 References
@@ -280,7 +290,7 @@ References
 [1] `B.R. Johnson "The renormalized Numerov method applied to calculating the bound states of the coupled-channel Schroedinger equation" J. Chem. Phys. 69, 4678 (1978) <http://dx.doi.org/10.1063/1.436421>`_
 
 [2] `B.R. Lewis, S.T. Gibson, F. T. Hawes, and L. W. Torop "A new model for
-the Schumann-Runge bands of O2" Phys. Chem. Earth(C) 26 519 (2001) <http://dx.doi.org/10.1016/S1464-1917(01)00040-X>`_
+the Schumann-Runge bands of O₂" Phys. Chem. Earth(C) 26 519 (2001) <http://dx.doi.org/10.1016/S1464-1917(01)00040-X>`_
 
 [3] `B.R. Lewis, S.T. Gibson, and P.M. Dooley "Fine-structure dependence of predissociation linewidth in the Schumann-Runge bands of molecular oxygen"
 " J. Chem. Phys. 100 7012 (1994) <https://doi.org/10.1063/1.466902>`_

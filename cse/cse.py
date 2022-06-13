@@ -226,7 +226,7 @@ class Cse():
 
     def diabatic2adiabatic(self):
         """ Convert diabatic interaction matrix to adiabatic (diagonal)
-            A = UT V U     unitary transformation
+            A = Uᵀ V U     unitary transformation
 
         """
         V = np.transpose(self.VT)

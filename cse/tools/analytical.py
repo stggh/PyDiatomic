@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.optimize import least_squares
 from scipy.special import genlaguerre, gamma
+from scipy.linalg import svd
 
 
 def Wei(r, re, De, Te, b, h=0.):
@@ -39,19 +40,8 @@ def Wei(r, re, De, Te, b, h=0.):
     return De*(1 - ebre*(1 - h)/(ebr - h*ebre))**2 + Te
 
 
-def Wei_fit(r, V, re, De, Te=1., b=1., h=0.):
-    def residual(pars, r, V):
-        re, De, Te, b, h = pars
-        return Wei(r, re, De, Te, b, h) - V
-
-    pars = [re, De, Te, b, h]
-    result = least_squares(residual, pars, args=(r, V),
-                           bounds=([0.1, 100., -1000., 0.1, -0.1],
-                                   [10., 1.e8, 1.e8, 5., 0.1]))
-    return result
-
-
-def Morse(r, re, De, Te, beta):
+def Morse(r, re=2, De=40000, Te=0, beta=1):
+    # default parameters Morse oscillator 1. 10.1016/j.jms.2022.111621
     """Morse potential energy curve.
 
     Parameters
@@ -77,7 +67,8 @@ def Morse(r, re, De, Te, beta):
     return Wei(r, re, De, Te, beta, h=0)
 
 
-def Morse_wavefunction(r, re, v, alpha, A):
+def Morse_wavefunction(r, re=2, v=1, alpha=1, A=68.8885):
+    # default parameters Morse oscillator 1. 10.1016/j.jms.2022.111621
     y = A*np.exp(-alpha*(r-re))
     beta = A - 2*v - 1
     Nv = np.sqrt(alpha*beta*np.math.factorial(v)/gamma(A - v))
@@ -115,11 +106,58 @@ def Julienne(r, mx, rx, vx, voo):
     return vx*np.exp(-(mx/vx)*(r-rx)) + voo
 
 
-def Julienne_fit(r, V, mx, rx, vx, voo):
+def fiterrors(result):
+    ''' from:
+        https://stackoverflow.com/questions/42388139/how-to-compute-standard-deviation-errors-with-scipy-optimize-least-squares
+
+    '''
+    U, s, Vh = svd(result.jac, full_matrices=False)
+    tol = np.finfo(float).eps*s[0]*max(result.jac.shape)
+    w = s > tol
+    cov = (Vh[w].T/s[w]**2) @ Vh[w]  # robust covariance matrix
+    chi2dof = np.sum(result.fun**2)/(result.fun.size - result.x.size)
+    cov *= chi2dof
+    return np.sqrt(np.diag(cov))
+
+
+def Wei_fit(r, V, re=None, De=None, Te=None, b=1., h=0., verbose=False):
+    def residual(pars, r, V):
+        re, De, Te, b, h = pars
+        return Wei(r, re, De, Te, b, h) - V
+
+    if re is None:
+        re = r[V.argmin()]
+    if Te is None:
+        Te = V.min()
+    if De is None:
+        De = V[-1] - Te
+    pars = [re, De, Te, b, h]
+    result = least_squares(residual, pars, args=(r, V),
+                           bounds=([0.1, 100., -100., 0.1, -0.1],
+                                   [5., 1.e5, 1.e5, 5., 0.1]))
+    result.stderr = fiterrors(result)
+    if verbose:
+        print(f'Wei_fit: [re, De, Te, b, h] = {pars}')
+        print('parameter error estimates: '
+              f'[δre, δDe, δTe, δb, δh] = {results.err}')
+    return result
+
+def Julienne_fit(r, V, mx=None, rx=None, vx=None, voo=None):
     def residual(pars, r, V):
         mx, rx, vx, voo = pars
         return Julienne(r, mx, rx, vx, voo) - V
 
+    if voo is None:
+        voo = V[-1]
+    if vx is None:
+        vx = 1.1*voo
+    if rx is None:
+        rx = r[np.abs(V - vx).argmin()]
+    if mx is None:
+        mx = 1e4
+
     pars = [mx, rx, vx, voo]
-    result = least_squares(residual, pars, args=(r, V))
+    result = least_squares(residual, pars, args=(r, V),
+                           bounds=([1, 0.1, 0, 0], [1e8, 5, 1e5, 1e5])) 
+    result.stderr = fiterrors(result)
     return result

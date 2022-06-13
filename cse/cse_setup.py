@@ -85,6 +85,8 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
         filename:
          (2S+1)[S,P,D,F]Ω  vs (2S+1)[S,P,D,F](2Ω+1)  e.g. X2S2.dat Ω=½
 
+    ignore_grid: bool
+        
 
     Returns
     -------
@@ -212,11 +214,9 @@ def coupling_function(R, VT, μ, pecfs, coup=None):
     coup : list
         list potential curve couplings (in cm-1)
     """
-    # hbar^2/2μ in eV (once /R^2)
-    centrifugal_factor = (const.hbar*1.0e20/μ/2/const.e)*const.hbar
     n, m, oo = VT.shape
 
-    coupling_function = np.ones(np.size(R), dtype='float')
+    coupling_function = np.ones(np.size(R), dtype=float)
     coupling_function[R > 5] = np.exp(-(R[R > 5] - 5)**2)
 
     # cm-1 couplings between PECs

@@ -24,7 +24,7 @@ morse = cse.Cse('O2', VT=[(R, VM)])
 
 plt.plot(R, VM, label="Morse PEC")
 
-for en in [1000, 2000, 30000]:
+for en in [1000, 2500, 30000]:
     morse.solve(en)
 
     plt.plot(R, morse.wavefunction[:, 0, 0]/2+morse.energy,
