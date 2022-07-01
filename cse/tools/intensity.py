@@ -23,7 +23,7 @@ def Boltzmann(en, J, T):
     return (2*J + 1)*np.exp(-en*const.h*const.c*100/const.k/T)
 
 
-def honl(Jd, Jdd, Ωd, Ωdd):
+def honl(Jd, Jdd, Ωd, Ωdd, q=None):
     """ Honl-London factor.
 
     Parameters
@@ -36,14 +36,18 @@ def honl(Jd, Jdd, Ωd, Ωdd):
         upperstate Omega, projection of Jd
     Ωdd : int
         lowerstate Omega, projection of Jdd
+    q : int
+        0 - parallel or ±1 perpendicular transitions
 
     Returns
     -------
     Honl-London factor : float
     """
      
+    if q is None:
+        q = Ωd - Ωdd
     # (2J'+1)(2J"+1)*Wig**2/(2J"+1)
-    return (2*Jd+1)*Wigner3j(Jd, 1, Jdd, -Ωd, 0, Ωdd)**2
+    return (2*Jd+1)*Wigner3j(Jd, 1, Jdd, -Ωd, q, Ωdd)**2
 
 
 def Wigner3j(j1, j2, j3, m1, m2, m3):
