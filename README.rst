@@ -278,8 +278,7 @@ Applications
 ------------
 The following publications have made use of `PyDiatomic`:
 
-[1] `Z. Xu, N. Luo, S. R. Federman, W. M. Jackson, C-Y. Ng, L-P. Wang, and
-     K. N. Crabtree "Ab Initio Study of Ground-state CS Photodissociation via Highly Excited Electronic States" Astrophy. J. 86, 882 (2019) <http://doi.org/10.3847/1538-4357/ab35ea>`_
+[1] `Z. Xu, N. Luo, S. R. Federman, W. M. Jackson, C-Y. Ng, L-P. Wang, and K. N. Crabtree "Ab Initio Study of Ground-state CS Photodissociation via Highly Excited Electronic States" Astrophy. J. 86, 882 (2019) <http://doi.org/10.3847/1538-4357/ab35ea>`_
 
 [2] `Z. Xu, S. R. Federman, W. M. Jackson, C-Y. Ng, L-P. Wang, and K. N. Crabtree "Multireference configuration interaction study of the predissociation of C₂ via its F¹Πu state" J. Chem. Phys. (2022) <http://doi.org/10.1063/5.0097451>`_
 
