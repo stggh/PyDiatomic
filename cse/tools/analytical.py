@@ -120,9 +120,9 @@ def fiterrors(result):
     return np.sqrt(np.diag(cov))
 
 
-def Wei_fit(r, V, re=None, De=None, Te=None, b=1., h=0., verbose=False):
-    def residual(pars, r, V):
-        re, De, Te, b, h = pars
+def Wei_fit(r, V, re=None, De=None, Te=None, b=1., h=0.1, verbose=False):
+    def residual(pars, De, r, V):
+        re, Te, b, h = pars
         return Wei(r, re, De, Te, b, h) - V
 
     if re is None:
@@ -131,15 +131,19 @@ def Wei_fit(r, V, re=None, De=None, Te=None, b=1., h=0., verbose=False):
         Te = V.min()
     if De is None:
         De = V[-1] - Te
-    pars = [re, De, Te, b, h]
-    result = least_squares(residual, pars, args=(r, V),
-                           bounds=([0.1, 100., -100., 0.1, -0.1],
-                                   [5., 1.e5, 1.e5, 5., 0.1]))
+
+    pars = [re, Te, b, h]
+    result = least_squares(residual, pars, args=(De, r, V),
+                           bounds=([0.1, -100., 0.1, -0.1],
+                                   [5., 1.e5, 5., 0.1]))
     result.stderr = fiterrors(result)
     if verbose:
-        print(f'Wei_fit: [re, De, Te, b, h] = {pars}')
-        print('parameter error estimates: '
-              f'[δre, δDe, δTe, δb, δh] = {results.err}')
+        print('Wei_fit:')
+        print(f'  re = {result.x[0]:5.3f}±{result.stderr[0]:.3f} Å')
+        print(f'  Te = {result.x[1]:7.3f}±{result.stderr[1]:.3f} cm⁻¹')
+        print(f'  De = {De:7.3f} (fixed) cm⁻¹')
+        print(f'  b = {result.x[2]:5.3f}±{result.stderr[2]:.3f}')
+        print(f'  h = {result.x[3]:5.3f}±{result.stderr[3]:.3f}')
     return result
 
 def Julienne_fit(r, V, mx=None, rx=None, vx=None, voo=None):
