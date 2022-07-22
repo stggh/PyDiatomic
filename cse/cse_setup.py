@@ -136,8 +136,9 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
             radialcoord, potential = np.loadtxt(dirpath+'/'+fn+suffix,
                                                 unpack=True)
             fn = fn.split('/')[-1].upper()
-            code = re.findall('\d{1}[SPDF]-*\d{1}', fn)[0]
+            code = re.findall('\d{1}[SPDF]-*\d{1}', fn)
             if len(code) > 0:
+                code = code[0]
                 degen = int(code[0])
                 S = (degen - 1)//2
 
