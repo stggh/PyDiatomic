@@ -4,7 +4,7 @@ from scipy.special import genlaguerre, gamma
 from scipy.linalg import svd
 
 
-def Wei(r, re, De, Te, b, h=0.):
+def Wei(r, re, De, voo, b, h=0.):
     """ Modified Wei potential curve
            Jai et al. J Chem Phys 137, 014101 (2012).
 
@@ -14,10 +14,10 @@ def Wei(r, re, De, Te, b, h=0.):
         internuclear distance grid
     re : float
         internuclear distance at equilibrium
+    voo : float
+        dissociation energy
     De : float
-        Dissociation energy
-    Te : float
-        equilibrium energy (potential minimum)
+        potential well depth
     b : float
         anharmonicity parameter
     h : float
@@ -36,6 +36,7 @@ def Wei(r, re, De, Te, b, h=0.):
 
     ebre = np.exp(b*re)
     ebr = np.exp(b*r)
+    Te = voo - De
 
     return De*(1 - ebre*(1 - h)/(ebr - h*ebre))**2 + Te
 
@@ -64,7 +65,8 @@ def Morse(r, re=2, De=40000, Te=0, beta=1):
 
     """
 
-    return Wei(r, re, De, Te, beta, h=0)
+    voo = De + Te
+    return Wei(r, re, De, voo, beta, h=0)
 
 
 def Morse_wavefunction(r, re=2, v=1, alpha=1, A=68.8885):
@@ -120,30 +122,53 @@ def fiterrors(result):
     return np.sqrt(np.diag(cov))
 
 
-def Wei_fit(r, V, re=None, De=None, Te=None, b=1., h=0.1, verbose=False):
-    def residual(pars, De, r, V):
-        re, Te, b, h = pars
-        return Wei(r, re, De, Te, b, h) - V
+def Wei_fit(r, V, re=None, De=None, voo=None, b=1., h=0.1, 
+            adjust=['re', 'De', 'b', 'h'], verbose=False):
+
+    def residual(pars, adjust, paramdict, r, V):
+        for i, x in enumerate(adjust):
+            paramdict[x] = pars[i]
+
+        return Wei(r, *list(paramdict.values())) - V
 
     if re is None:
         re = r[V.argmin()]
-    if Te is None:
-        Te = V.min()
+    if voo is None:
+        voo = V[-1]
     if De is None:
-        De = V[-1] - Te
+        De = voo - V.min()
 
-    pars = [re, Te, b, h]
-    result = least_squares(residual, pars, args=(De, r, V),
-                           bounds=([0.1, -100., 0.1, -0.1],
-                                   [5., 1.e5, 5., 0.1]))
+    paramdict = {'re':re, 'De':De, 'voo':voo, 'b':b, 'h':h}
+    unit = {'re':'Å', 'De':'cm⁻¹', 'voo':'cm⁻¹', 'b':'', 'h':''}
+    lower_bound = {'re':0.1, 'De':0, 'voo':-100, 'b':0.1, 'h':-1}
+    upper_bound = {'re':5, 'De':1e5, 'voo':1e5, 'b':5, 'h':1}
+
+    pars = [paramdict[x] for x in adjust]
+    lb = [lower_bound[x] for x in adjust]
+    ub = [upper_bound[x] for x in adjust]
+
+    result = least_squares(residual, pars, args=(adjust, paramdict, r, V),
+                           bounds=(lb, ub))
+
     result.stderr = fiterrors(result)
+    for i, x in enumerate(adjust):
+        paramdict[x] = result.x[i]
+
+        i = 0
+        fitstr = ''
+        for k, v in paramdict.items():
+            fitstr += f'Wei_fit:  {k:>5s} = {v:8.3f}'
+            if k in adjust:
+                fitstr += f' ± {result.stderr[i]:.3f} {unit[k]}\n'
+                i += 1
+            else:
+                fitstr += f' {unit[k]} (fixed)\n'
+        result.fitstr = fitstr
+
     if verbose:
-        print('Wei_fit:')
-        print(f'  re = {result.x[0]:5.3f}±{result.stderr[0]:.3f} Å')
-        print(f'  Te = {result.x[1]:7.3f}±{result.stderr[1]:.3f} cm⁻¹')
-        print(f'  De = {De:7.3f} (fixed) cm⁻¹')
-        print(f'  b = {result.x[2]:5.3f}±{result.stderr[2]:.3f}')
-        print(f'  h = {result.x[3]:5.3f}±{result.stderr[3]:.3f}')
+        print(fitstr)
+
+    result.paramdict = paramdict
     return result
 
 def Julienne_fit(r, V, mx=None, rx=None, vx=None, voo=None):
