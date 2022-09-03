@@ -178,7 +178,8 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
     Vm = min([Vin[i].min() for i in range(n)])  # lowest potential energy
     Vx = min([Vin[i][-1] for i in range(n)])  # lowest dissociation limit
 
-    # common internuclear distance grid
+    # common internuclear distance grid - maps first PEC input, limited by
+    # highest Rmin and lowest Rmax of the range
     if R is None:
         R = Rin[0]
         fracdR = (R[1] - R[0])/4  # fractional separation
@@ -190,9 +191,8 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
     oo = len(R)
     VT = np.zeros((n, n, oo))
     for j in range(n):
-        # spline representation
-        spl = splrep(Rin[j], Vin[j]) 
-        VT[j, j] = splev(R, spl)
+        spl = splrep(Rin[j], Vin[j])  # spline representation
+        VT[j, j] = splev(R, spl)  # interpolate to common grid - R
 
     limits = (oo, n, Rm, Rx, Vm, Vx)
 
