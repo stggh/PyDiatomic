@@ -178,21 +178,21 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
     Vm = min([Vin[i].min() for i in range(n)])  # lowest potential energy
     Vx = min([Vin[i][-1] for i in range(n)])  # lowest dissociation limit
 
-    # common internuclear distance grid, that requires no potential
-    # curve is extrapolated
+    # common internuclear distance grid
     if R is None:
-        dR = Rin[0][-1] - Rin[0][-2]
-        dR = round(dR, 1-int(np.floor(np.log10(dR)))-1)
-        R = np.arange(Rm, Rx+dR/2, dR)
-
-    oo = len(R)
+        R = Rin[0]
+        fracdR = (R[1] - R[0])/4  # fractional separation
+        # select input internuclear distance between Rm .. Rx
+        subR = np.logical_and(R > Rm-fracdR, R < Rx+fracdR)
+        R = R[subR]
 
     # create V matrix, as transpose
+    oo = len(R)
     VT = np.zeros((n, n, oo))
     for j in range(n):
-        dRx = (Rin[j][1] - Rin[j][0])/4
-        subr = np.logical_and(Rin[j] >= Rm-dRx, Rin[j] <= R[-1]+dRx)
-        VT[j, j] = Vin[j][subr]
+        # spline representation
+        spl = splrep(Rin[j], Vin[j]) 
+        VT[j, j] = splev(R, spl)
 
     limits = (oo, n, Rm, Rx, Vm, Vx)
 
