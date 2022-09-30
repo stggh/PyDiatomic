@@ -1,0 +1,11 @@
+-M S32
+-P *X3s-1.dat B3s-1.dat B3p1.dat 5s1.dat 1p1.dat
+-D dB-X.dat dBpp-X.dat 0.0 0.0
+-C 40 100 90
+       0   0
+           0
+-F 5 5 1
+-E 36500_42000_1 c -1_1
+-T 0_1_2_3 1_25_2
+-Rmin 1
+-o S32

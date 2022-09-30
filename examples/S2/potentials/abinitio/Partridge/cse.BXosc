@@ -1,0 +1,7 @@
+-M S32
+-P *X3S-1part.dat
+    B3S-1part.dat
+-D ../DBXA.dati
+-E 0_10_1 0
+-T 350 c 0
+-o BXoscB

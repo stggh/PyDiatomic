@@ -1,0 +1,19 @@
+O2LABL.INF                                   4/6/93
+
+ These are the title lines of the files containing the 
+ measured cross sections of oxygen between 49262 and
+ 55800 cm-1.  Yoshino, et al., Planet. Space Sci., 1992,
+ Vol. 40, No. 2/3, pp. 185-192.
+
+  O2 xsec;CfA;O2WB1X0;300 K;49362-50050 cm-1;14529 pts                    
+  O2 xsec;CfA;O2WB2X0;300 K;50050-50720 cm-1;12587 pts                    
+  O2 xsec;CfA;O2WB3X0;300 K;50720-51370 cm-1;10091 pts        
+  O2 xsec;CfA;O2WB4X0;300 K;51370-51980 cm-1;8948 pts         
+  O2 xsec;CfA;O2WB5X0;300 K;51980-52661 cm-1;9381 pts         
+  O2 xsec;CfA;O2WB6X0;300 K;52661-53250 cm-1;8292 pts         
+  O2 xsec;CfA;O2WB7X0;300 K;53250-53746 cm-1;6334 pts         
+  O2 xsec;CfA;O2WB8X0;300 K;53746-54260 cm-1;7006 pts         
+  O2 xsec;CfA;O2WB9X0;300 K;54260-54685 cm-1;5022 pts         
+  O2 xsec;CfA;O2WB10X0;300 K;54685-55115 cm-1;4816 pts        
+  O2 xsec;CfA;O2WB11X0;300 K;55115-55485 cm-1;3873 pts        
+  O2 xsec;CfA;O2WB12X0;300 K;55485-55800 cm-1;3505 pts        

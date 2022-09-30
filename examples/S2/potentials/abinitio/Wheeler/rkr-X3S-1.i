@@ -1,0 +1,1 @@
+-b 1 -noRKR X.dat  -s S2X -pot X3S-1w.dat -e -ni 8 -vmax 50 -Ri 1.71 -Ro 5.2 -dR 0.005 -o LeRoy -Re 1.8892 -De 35602 -Te 0.0

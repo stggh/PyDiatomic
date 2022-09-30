@@ -1,0 +1,17 @@
+O2README.INF                                     4/6/93
+
+There are 12 files of the cross sections of oxygen at 300 K in 
+the transmission window region 180-195 nm combined with the earlier
+oxygen cross sections published in 1983.  They consist of
+one initial title/label line; a second line labelling the two
+columns of the data; and then a number of lines of data, each line
+corresponding to a measured point, and consisting of first the
+value of the wavenumber position, and second the value of the
+cross section/molecule (sigma) of oxygen at that position.  A 
+FORTRAN format statement for reading the data lines could be:
+      FORMAT(1x,F10.3,3x,E11.3)
+There are three additional information files included: this one; 
+a file containing the publication information of the article in
+which this data was presented (including title, authors and 
+address, journal reference, and the abstract); and a file 
+listing the title lines of the data files.

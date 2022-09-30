@@ -1,0 +1,28 @@
+
+    Re      beta       De        Te        we        wexe       Be    alphae
+1.8892000 1.64041 35602.00000   0.00000 725.64000  2.83766  0.29540  0.00006
+
+Parameters evaluated from input curve Re = 3.8, De = 35060.4, Te = -2.84228
+
+ Limb     Extension                    Rmin  Rmax      Parameters
+Inner  De[1-exp(beta*(Re-R))]^2+Te    0.0000 1.7100   35602(De)  1.88920(Re)
+                                                      1.94662(beta) 0(Te)
+
+Outer  De - Cn/R^n + Te               5.2000 10.0000   35602(De) 0(Te)
+                                                     0.5326(n) 1.326128e+03(Cn)
+
+Potential energy curve written to 'X3S-1w.dat'
+
+Eigenvalues from -
+    energy-levels -n 8 -P X3S-1w.dat -M s32 -exact > /dev/null
+
+Files written - X3S-1w.dat - potential energy curve
+              -   rkr.diff - Gv Bv differences
+              -         GB - Gv Bv calculated from input data
+
+RKR potential energy curve computed using -
+
+   rkr -file rkr-X3S-1.i 
+
+     where 'rkr-X3S-1.i' contained
+        -b 1 -noRKR X.dat -s S2X -pot X3S-1w.dat -e -ni 8 -vmax 50 -Ri 1.71 -Ro 5.2 -dR 0.005 -o LeRoy -Re 1.8892 -De 35602 -Te 0.0 
