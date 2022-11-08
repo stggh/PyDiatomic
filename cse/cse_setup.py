@@ -105,7 +105,10 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
                  [  0  0  ... Vn]
 
     pecfs: list of str
-        as inputted
+        potential curve file names, as inputted
+
+    statelabel : list of str
+        symbolic state label for potential curves, (2S+1)ΛΩ e.g. ³Σ₁
 
     limits : tuple
         (oo, n, Rmin, Rmax, Vm, Voo)
@@ -129,6 +132,7 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
 
     n = len(pecfs)
     AM = []
+    statelabel = []  # unicode state label 
     Rin = []
     Vin = []
     for i, fn in enumerate(pecfs):
@@ -136,8 +140,16 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
             radialcoord, potential = np.loadtxt(dirpath+'/'+fn+suffix,
                                                 unpack=True)
             fn = fn.split('/')[-1].upper()
-            code = re.findall('\d{1}[SPDF]-*\d{1}', fn)
+            
+            code = re.findall('\d{1}[SPDF]\S*[+-]*\d{1}', fn)
             if len(code) > 0:
+                first_digit = re.search(r'\d', fn)
+                if first_digit:
+                    prefix = fn[:first_digit.start()]
+                    label = prefix
+                else:
+                    label = ''
+                    
                 code = code[0]
                 degen = int(code[0])
                 S = (degen - 1)//2
@@ -152,16 +164,25 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
 
                 Σ = Ω - Λ
                 AM.append((Ω, S, Λ, Σ, pm))
+                
+                # state label
+                label += ['', '¹', '²', '³'][degen] + ['Σ', 'Π', 'Δ', 'Φ'][Λ] +\
+                         ['₀', '₁', '₂'][Ω]
+                if Λ == 0:
+                    label += ['⁺', '⁻'][pm]
+                statelabel.append(label)
             else:
                 AM.append((0, 0, 0, 0, 0))
+                statelabel.append('')
 
         else:
             radialcoord, potential = fn
             AM.append((0, 0, 0, 0))
+            statelabel.append('')
 
         if potential[-1] > 100:
             potential = potential.copy()  # leave original untouched
-            potential /= 8065.541   # convert cm-1 to eV
+            potential /= 8065.541   # convert cm⁻¹ to eV
 
         Rin.append(radialcoord)
         Vin.append(potential)
@@ -196,7 +217,7 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
 
     limits = (oo, n, Rm, Rx, Vm, Vx)
 
-    return R, VT, pecfs, limits, AM
+    return R, VT, pecfs, limits, AM, statelabel
 
 
 def coupling_function(R, VT, μ, pecfs, coup=None):
