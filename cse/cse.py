@@ -245,7 +245,11 @@ class Cse():
         about += f'  mass: {self.μ:g} kg, {self.μ/const.u:g} amu\n'
         about += f"Electronic state{'s' if n > 1 else '':s}:"
         if isinstance(self.pecfs[0], str):
-            for lbl in self.statelabel:
+            for plbl, slbl in zip(self.pecfs, self.statelabel):
+                if len(slbl) > 0:
+                    lbl = slbl
+                else:
+                    lbl = plbl
                 about += f'   {lbl:s}'
             about += '\n'
         if n > 1:

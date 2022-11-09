@@ -139,7 +139,7 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
         if isinstance(fn, (str)):
             radialcoord, potential = np.loadtxt(dirpath+'/'+fn+suffix,
                                                 unpack=True)
-            fn = fn.split('/')[-1].upper()
+            fn = fn.split('/')[-1] #  .upper()
             
             code = re.findall('\d{1}[SPDF]\S*[+-]*\d{1}', fn)
             if len(code) > 0:
@@ -166,19 +166,23 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
                 AM.append((Ω, S, Λ, Σ, pm))
                 
                 # state label
-                label += ['', '¹', '²', '³'][degen] + ['Σ', 'Π', 'Δ', 'Φ'][Λ] +\
-                         ['₀', '₁', '₂'][Ω]
+                if degen in range(1, 6):
+                    label += ['', '¹', '²', '³', '⁴', '⁵'][degen]
+                if Λ in range(4):
+                    label += ['Σ', 'Π', 'Δ', 'Φ'][Λ]
+                if Ω in range(3):
+                    label += ['₀', '₁', '₂'][Ω]
                 if Λ == 0:
                     label += ['⁺', '⁻'][pm]
                 statelabel.append(label)
             else:
                 AM.append((0, 0, 0, 0, 0))
-                statelabel.append('')
+                statelabel.append('?')
 
         else:
             radialcoord, potential = fn
-            AM.append((0, 0, 0, 0))
-            statelabel.append('')
+            AM.append((0, 0, 0, 0, 0))
+            statelabel.append('?')
 
         if potential[-1] > 100:
             potential = potential.copy()  # leave original untouched
