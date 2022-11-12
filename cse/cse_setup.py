@@ -166,12 +166,16 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
                 AM.append((Ω, S, Λ, Σ, pm))
                 
                 # state label
-                if degen in range(1, 6):
-                    label += ['', '¹', '²', '³', '⁴', '⁵'][degen]
-                if Λ in range(4):
+                match degen:  # superscipt (2S+1)
+                    case 1: i = 185
+                    case 2 | 3: i = 176 + degen
+                    case _: i = 8304 + degen
+                label += chr(i)
+
+                if Λ in range(4):  
                     label += ['Σ', 'Π', 'Δ', 'Φ'][Λ]
-                if Ω in range(3):
-                    label += ['₀', '₁', '₂'][Ω]
+                label += chr(8320+Ω)
+
                 if Λ == 0:
                     label += ['⁺', '⁻'][pm]
                 statelabel.append(label)
