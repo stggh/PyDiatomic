@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 import numpy as np
 import matplotlib.pylab as plt
 import time
 
 import cse
 
-evcm = 8065.541   # conversion factor eV -> cm-1
+evcm = 8065.541   # conversion factor eV to cm-1
 
 wavelength = np.arange(110, 174.1, 0.1)  # nm
 
@@ -79,7 +78,5 @@ ax1.set_xlabel("R ($\AA$)")
 # ax1.set_ylabel("V (eV)")
 ax1.axes.get_yaxis().set_visible(False)
 
-plt.suptitle('ex_xs.py', fontsize=12)
-
-plt.savefig('figures/xs.svg')
+plt.savefig('figures/O2_xs.svg')
 plt.show()

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import numpy as np
 import matplotlib.pylab as plt
 import time
@@ -29,37 +28,42 @@ bands = np.array([31675, 32102, 32526, 32945, 33358, 33768, 34173, 34567,
 
 transition_energies = np.append(bands, continuum)
 
-print(r"S2 B-X continuum")
+print('S₂ B-X continuum ---------------------')
 
 lb = len(bands)
 v = np.arange(lb)
 
-S2 = cse.Xs('S2', VTi=['S2/X/X3S-1.dat'], eni=400,
-                     VTf=['S2/B/B3S-1.dat'],
-                     dipolemoment=['S2/abinitio/DBXA.dat'])
+# ground X-state instance
+S2X = cse.Cse('S2', dirpath='potentials', VT=['X3S-1.dat'], en=400)
+print(f' E(v"=0, J"=0) = {S2X.cm:8.2f} (cm⁻¹)\n')
 
+# excited B-state instance
+S2B = cse.Cse('S2', dirpath='potentials', VT=['B3S-1.dat'])
+
+# transition
 tstart = time.time()
-S2.calculate_xs(transition_energy=transition_energies)
+S2BX = cse.Transition(S2B, S2X, dirpath='transitionmoments',
+                      dipolemoment=['abinitio/DBXA.dat'],
+                      transition_energy=transition_energies)
 tend = time.time()
-print("    in {:.1f} seconds\n".format(tend-tstart))
-print(" E(v\"=0) = {:8.2f} (cm-1)\n".format(S2.gs.cm))
+print(f'    in {tend - tstart:.1f} seconds\n')
 
-fosc = S2.xs[:lb, 0]
+fosc = S2BX.xs[:lb, 0]
 
 spl = InterpolatedUnivariateSpline(bands, v, k=1)
 dvdEB = spl.derivative()(bands)
 
 plt.semilogy(bands, fosc*dvdEB/1.13e12, '+', color='C0')
-plt.semilogy(continuum, S2.xs[lb:], color='C0', label=r'$B ^3\Sigma_u^-$')
+plt.semilogy(continuum, S2BX.xs[lb:], color='C0', label=r'$B ^3\Sigma_u^-$')
 plt.semilogy((44476.3, 44476.3), (1.0e-22, 2.0e-16), '--', color='C0',
              lw=1)
-plt.xlabel(r"wavenumber (cm$^{-1}$)")
-plt.ylabel(r"cross section (cm$^{2}$)")
-plt.title(r"S$_{2}$  $B{ }^{3}\Sigma_{u}^{-}, B^{\prime\prime}{}^{3}\Pi_{u} - X{}^{3}\Sigma_{g}^{-}$")
+plt.xlabel(r'wavenumber (cm$^{-1}$)')
+plt.ylabel(r'cross section (cm$^{2}$)')
+plt.title(r'S$_{2}$  $B{ }^{3}\Sigma_{u}^{-}, B^{\prime\prime}{}^{3}\Pi_{u} - X{}^{3}\Sigma_{g}^{-}$')
 
-plt.annotate(r"$f_{v^{\prime}0} \frac{dv^{\prime}}{dE}/1.13 \times"
-             " 10^{12}$", (32000, 1.2e-25), fontsize=12)
-plt.annotate(r"$\sigma(^{3}\Sigma)$", (46500, 1.0e-19),
+plt.annotate(r'$f_{v^{\prime}0} \frac{dv^{\prime}}{dE}/1.13 \times'
+             ' 10^{12}$', (32000, 1.2e-25), fontsize=12)
+plt.annotate(r'$\sigma(^{3}\Sigma)$', (46500, 1.0e-19),
              color='#1f77b4', fontsize=12)
 
 # B"-X ------------------
@@ -72,64 +76,66 @@ bands = np.array([31075, 31404, 31725, 32038, 32343, 32641, 32931, 33213, 33485,
 
 transition_energies = np.append(bands, continuum)
 
-S2 = cse.Xs('S2', VTi=['S2/X/X3S-1.dat'], eni=400,
-                     VTf=['S2/P/Bpp3P1.dat'],
-                     dipolemoment=['S2/abinitio/DBppXA.dat'])
+S2P = cse.Cse('S2', dirpath='potentials', VT=['Bpp3P1.dat'])
 
-print(r"S2 Bpp-X continuum")
+print('S₂ B"-X continuum ---------------------')
 lb = len(bands)
 v = np.arange(lb)
 
 tstart = time.time()
-S2.calculate_xs(transition_energy=transition_energies)
+S2PX = cse.Transition(S2P, S2X, dirpath='transitionmoments',
+                      dipolemoment=['abinitio/DBppXA.dat'],
+                      transition_energy=transition_energies)
 tend = time.time()
-print("    in {:.1f} seconds\n".format(tend-tstart))
-print(" E(v\"=0) = {:8.2f} (cm-1)\n".format(S2.gs.cm))
+print(f'    in {tend - tstart:.1f} seconds\n')
 
 
-fosc = S2.xs[:lb, 0]
+fosc = S2PX.xs[:lb, 0]
 
 spl = InterpolatedUnivariateSpline(bands, v, k=1)
 
 dvdE = spl.derivative()(bands)
 
 plt.semilogy(bands, fosc*dvdE/1.13e12, 'o', color='C3', mfc='none', ms=4)
-plt.semilogy(continuum, S2.xs[lb:], color='C3', label=r"$B^{\prime\prime}{}^{3}\Pi_{u}$")
+plt.semilogy(continuum, S2PX.xs[lb:], color='C3',
+             label=r'$B^{\prime\prime}{}^{3}\Pi_{u}$')
 plt.semilogy((35812.63, 35812.63), (1.0e-22, 2.0e-16), '--', color='C3',
              lw=1)
-plt.annotate(r"$\sigma(^{3}\Pi)$", (41500, 2.0e-23),
+plt.annotate(r'$\sigma(^{3}\Pi)$', (41500, 2.0e-23),
              color='C3', fontsize=12)
 
 #---------- B-B"-X -----------------------
 continuum = np.arange(35815, 40000, 1)
 
-S2 = cse.Xs('S2', VTi=['S2/X/X3S-1.dat'], eni=400,
-                     VTf=['S2/B/B_3S-1_temp14.dat', 'S2/P/Bpp3P1.dat',
-                          'S2/C/C3S-1.dat', 'S2/D/D3P1.dat'],
-                     coupf=[60, 4000, 0, 0, 0, 7000],
-                     dipolemoment=['S2/abinitio/DBXA.dat',
-                                   'S2/abinitio/DBXA.dat',
-                                   0, 0])
+S2BP = cse.Cse('S2', dirpath='potentials',
+                VT=['B_3S-1_temp14.dat', 'Bpp3P1.dat', 'C3S-1.dat', 'D3P1.dat'],
+                coup=[60, 4000, 0, 0, 0, 7000])
 
 print()
-print(r"S2 B-Bpp-X continuum {:d} to {:d}, step {:d} (cm-1) ..."
-      .format(continuum[0], continuum[-1], continuum[1]-continuum[0]))
+print(f'S₂ (B-B")-X continuum  ---------------------')
+print(f'  {continuum[0]:d} to {continuum[-1]:d}, '
+      f'step {continuum[1] - continuum[0]:d} (cm⁻¹) ...')
       
 tstart = time.time()
-S2.calculate_xs(transition_energy=continuum)
-tend = time.time()
-print("    in {:.1f} seconds\n".format(tend-tstart))
+S2BPX = cse.Transition(S2BP, S2X, dirpath='transitionmoments',
+                       dipolemoment=['abinitio/DBXA.dat', 'abinitio/DBXA.dat',
+                                      0, 0],
+                       transition_energy=continuum)
 
-totalxs = S2.xs[:, 0] # + 2*S2.xs[:, 1]
-np.savetxt("S2total.dat", np.column_stack((continuum, totalxs)))
+tend = time.time()
+print(f'    in {tend - tstart:.1f} seconds\n')
+
+totalxs = S2BPX.xs.sum(axis=1)
+# np.savetxt('data/S2total.dat', np.column_stack((continuum, totalxs)))
 
 subE = totalxs > 2.0e-19
-plt.semilogy(continuum[subE], totalxs[subE], color='C8', label=r'$B-B^{\prime\prime}$')
-plt.annotate(r"$\sigma(^{3}\Sigma\leftrightarrow^{3}\Pi)$", (40000, 4.0e-25),
+plt.semilogy(continuum[subE], totalxs[subE], color='C8',
+             label=r'$B-B^{\prime\prime}$')
+plt.annotate(r'$\sigma(^{3}\Sigma\leftrightarrow^{3}\Pi)$', (40000, 4.0e-25),
              color='C8', fontsize=12)
 
-xs370Kdis = np.loadtxt("xs_370K_discrete.dat", unpack=True)
-xs370Kpre = np.loadtxt("xs_370K_prediss.dat", unpack=True)
+xs370Kdis = np.loadtxt('data/Wellesley/xs_370K_discrete.dat', unpack=True)
+xs370Kpre = np.loadtxt('data/Wellesley/xs_370K_prediss.dat', unpack=True)
 
 bandlimits = [33900, 34254, 34673, 35050, 35400]
 
@@ -165,8 +171,7 @@ f.append(simps(xs370Kdis[1][Er], xs370Kdis[0][Er]))
 v = np.array(v)
 fexp = np.array(f)
 for i, vi in enumerate(v):
-    print(' {:d}  {:8.3f}  {:5.2g}  {:5.2g}'\
-          .format(i+5, vi, fexp[i]*1.0e4, dvdE[i]))
+    print(f' {i+5:d}  {vi:8.3f}  {fexp[i]*1.0e4:5.2g}  {dvdE[i]:5.2g}')
 
 fexp *= 18.9e-4*dvdEB[5:11]/fexp[0]/1.13e12
 
@@ -178,5 +183,5 @@ plt.semilogy(*xs370Kpre, 'C1', label=r'Stark')
 plt.legend(fontsize='smaller', labelspacing=0.1)
 
 
-plt.savefig("S2.svg")
+plt.savefig('figures/S2_continuity.svg')
 plt.show()

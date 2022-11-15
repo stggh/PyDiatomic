@@ -128,5 +128,5 @@ plt.annotate(r'$f_{v^{\prime}0} \frac{dv^{\prime}}{dE}/1.13 \times'
 plt.annotate(r'$\sigma$', (70000, 5.0e-19), fontsize=12)
 plt.legend(loc=8)
 
-plt.savefig('figures/continuity.svg')
+plt.savefig('figures/O2_continuity.svg')
 plt.show()

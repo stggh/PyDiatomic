@@ -82,5 +82,5 @@ plt.suptitle(r'O$_2$ $B\, ^3\Sigma_{u}^{-} - X\, ^3\Sigma_{g}^{-}$ $(v^\prime,'
              r' v^{\prime\prime}=0)$')
 
 plt.tight_layout()
-plt.savefig('figures/BX_FCF_osc.svg')
+plt.savefig('figures/O2_BX_FCF_osc.svg')
 plt.show()

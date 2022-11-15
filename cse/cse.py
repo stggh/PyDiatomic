@@ -95,7 +95,8 @@ class Cse():
             self.limits = (oo, n, R[0], R[-1], VT[0][0].min(), VT[0][0][-1])
         else:
             # list of file names provided in VT
-            self.R, self.VT, self.pecfs, self.limits, self.AM =\
+            self.R, self.VT, self.pecfs, self.limits, self.AM,\
+            self.statelabel =\
                     cse_setup.potential_energy_curves(VT, dirpath=dirpath,
                                                       suffix=suffix,
                                                       frac_Omega=frac_Omega)
@@ -244,14 +245,30 @@ class Cse():
         about += f'  mass: {self.μ:g} kg, {self.μ/const.u:g} amu\n'
         about += f"Electronic state{'s' if n > 1 else '':s}:"
         if isinstance(self.pecfs[0], str):
-            for fn in self.pecfs:
-                about += f' {fn:s}'
+            for plbl, slbl in zip(self.pecfs, self.statelabel):
+                if len(slbl) > 0:
+                    lbl = slbl
+                else:
+                    lbl = plbl
+                about += f'   {lbl:s}'
             about += '\n'
         if n > 1:
-            about += f'Coupling at R = {self.R[240]:g} Angstroms (cm-1):'
+            about += f'Coupling (cm⁻¹) at crossing point (Rx(Å)):\n'
+            about += '        '
+            for lbl in self.statelabel:
+                about += lbl+' '*6
+            about += '\n'
+            about += ' '*2
             for i in range(n):
+                for j in range(i+1):
+                    about += ' '*12
                 for j in range(i+1, n):
-                    about += f' {self.VT[i, j, 240]*8065.541:g}'
+                    rx = np.argmin(np.abs(self.VT[i, i] - self.VT[j, j]))
+                    if rx.size > 1:
+                        rx = rx[-1]  # multiple crossings - take last one
+                    about += f' {self.VT[i, j, rx]*8065.541:g}'
+                    about += f'({self.R[rx]:.3f})'
+                about += '\n'
 
         if len(self.results) > 0:
             about += "eigenvalues (that have been evaluated for this state):\n"

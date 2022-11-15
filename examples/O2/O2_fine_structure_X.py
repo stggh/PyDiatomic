@@ -20,9 +20,10 @@ O2e = cse.Cse('O2', dirpath='potentials', suffix='.dat',
 O2f.solve(en=800)
 E0 = O2f.cm
 
-print("PyDiatomic O2 X-state fine-structure levels")
-print("  energy diffences (cm-1): Rouille - PyDiatomic")
-print(" N        F1          F2          F3")
+print('PyDiatomic O₂ X-state fine-structure levels')
+print('  energy diffences (cm⁻¹): Rouille - PyDiatomic')
+print(' N        F₁          F₂          F₃')
+
 F = np.zeros(4)
 f = np.zeros(4)
 for N in range(1, 51, 2):

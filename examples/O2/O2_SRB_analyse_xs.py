@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 #  to provide transition energies, linewidths.
 #   cf with Harvard/Vijre data where available.
 #
-#  Stephen.Gibson@anu.edu.au - Dec 2021
+#  Stephen.Gibson@anu.edu.au - Nov 2022
 #
 ######################################################################
 
@@ -41,25 +41,26 @@ def decode(br):   # evaluate quantum number changes from branch label
         Fdd = int(br[-1])
     return ΔN, ΔJ, Fd, Fdd
 
-def analyse(dirpath, suffix='.dat.gz', lambda23=10, wn_offset=3):
+def analyse(dirpath, suffix='.dat.gz', lambda23=3, wn_offset=3):
     Ncol = np.zeros(20, dtype=int)
     wn_table = np.zeros((20, 6))
     fwhm_table = np.zeros((20, 6))
     xs_table = np.zeros((20, 6))
 
     xsfiles = os.path.join(dirpath, 'xs*'+suffix)
-    for xsf in sorted(glob.glob(xsfiles),
+    for xsfile in sorted(glob.glob(xsfiles),
                       key=lambda f:int(f.strip(dirpath).split('_')[1])):
 
-        with gzip.open(xsf, 'r') as f:  # header E" pec0 pec1 pec2 ...
+        with gzip.open(xsfile, 'r') as f:  # header E" pec0 pec1 pec2 ...
             header = f.readline().decode('utf8').strip()
 
-        wn, *xs = np.loadtxt(xsf, unpack=True, dtype=float)  # partial xs
-        wn -= wn_offset 
+        wn, *xs = np.loadtxt(xsfile, unpack=True, dtype=float)  # partial xs
+        wn -= wn_offset   # gobal wavenumber shift of the calculated spectrum
+
         xs = np.array(xs).T
         xst = xs.sum(axis=1)
         # shift f-levels by an additional 2λᵥ/3
-        if '2.dat' in xsf and abs(lambda23) > 0:
+        if '2.dat' in xsfile and abs(lambda23) > 0:
             spl = splrep(wn+lambda23, xst)
             xst = splev(wn, spl)
         dw = wn[1] - wn[0]
@@ -67,7 +68,7 @@ def analyse(dirpath, suffix='.dat.gz', lambda23=10, wn_offset=3):
         # extract energy of J" level
         en = float(re.findall("\d+\.\d+", header)[0])
 
-        Jd, Jdd, branch = xsf.split('_')[-3:]
+        Jd, Jdd, branch = xsfile.split('_')[-3:]
         branch = branch.strip(suffix)
         ΔN, ΔJ, Fd, Fdd = decode(branch)
         Ndd = int(Jdd) + Fdd - 2
@@ -94,12 +95,13 @@ def analyse(dirpath, suffix='.dat.gz', lambda23=10, wn_offset=3):
 def print_out(title, Ncol, table,
               branches=['R1', 'R2', 'R3', 'P1', 'P2', 'P3']):
 
-    title_str = (title+' (cm-1) '+'-'*70)[:80]
+    title_str = (title+' (cm⁻¹) '+'-'*70)[:80]
     print(title_str)
-    print('         ', end='')
-    
+    print('N"\\branch', end='')
+
+    pretty = lambda br: br[0] + ['₀', '₁', '₂', '₃'][int(br[1])]
     for br in branches:
-        print(f'{br:^11s}', end='')
+        print(f'{pretty(br):^11s}', end='')
     print()
 
     for N, x in zip(Ncol, table):
@@ -151,7 +153,7 @@ def print_stats(table):
     print()
 
 
-def cross_section(dirpath, iso, vd, wnf_offset=3):
+def cross_section(dirpath, iso, vd, lambda23=3, wn_offset=3):
     fig, (ax0, ax1) = plt.subplots(2, 1, sharex=True, sharey=True)
 
     if vd in range(1, 13):
@@ -184,14 +186,18 @@ def cross_section(dirpath, iso, vd, wnf_offset=3):
         else:
             xsy = None
 
-        # f-levels shift by 2λ/3 ~ f_offset
-        spl = splrep(wn['f'], xs['f'][0])
-        wn['f'] -= wnf_offset
-        wavenumber = wn['e'] + 0
+        # e-levels global offset
+        wn['e'] -= wn_offset
+        xse = xs['e'][0]
+
+        # shift f-levels by an additional 2λᵥ/3
+        wn['f'] -= wn_offset
+        wavenumber = wn['e']
+        spl = splrep(wn['f']+lambda23, xs['f'][0])
         xsf = splev(wavenumber, spl)
 
-        xst = xs['e'][0]+xsf
-        np.savetxt(f'{dirpath}/{T}K', np.column_stack((wn['f'], xst)),
+        xst = xse + xsf
+        np.savetxt(f'{dirpath}/{T}K', np.column_stack((wavenumber, xst)),
                    fmt='%8.3f %10.5e')
 
         if xsy is not None:
@@ -200,30 +206,31 @@ def cross_section(dirpath, iso, vd, wnf_offset=3):
             print(f'scaling factor = {sf:g}\n')
             xst *= sf
 
-        ax.plot(wavenumber, xst, label='PyDia.')
+        ax.plot(wavenumber, xst, label='PyDiatomic')
         #  ax.plot(wn['f'], xs['f'][0], '--', label='f')
         #  ax.plot(wn['e'], xs['e'][0], '--', label='e')
 
-        ax.set_title(f'v\'={vd} {T}K {f_offset}')
+        ax.set_title(f'v\'={vd} {T}K')
         ax.set_ylabel(r'cross section (cm$^{2}$)')
         ax.legend(fontsize='small', labelspacing=0.1)
 
     ax1.set_xlabel(r'transition energy (wavenumber cm$^{-1}$)')
 
-    plt.savefig('figures/SRB_analyse_xs.svg')
+    plt.savefig('figures/O2_SRB_analyse_xs.svg')
     plt.show()
 
 # main --------------------------------------
-dirpath = 'Ax16O2_5'
-global f_offset
-f_offset = 3
+dirpath = 'Ax16O2_12'
+wn_offset = 3
+lambda23 = 3 
 
 iso, vd = parse(dirpath)
 branches = ['R1', 'R2', 'R3', 'P1', 'P2', 'P3']
 
-Ncol, wn_table, fwhm_table, xs_table  = analyse(dirpath)
+Ncol, wn_table, fwhm_table, xs_table  = analyse(dirpath, lambda23=lambda23,
+                                                wn_offset=wn_offset)
 
-print_out(f'({vd},0) transition energies', Ncol, wn_table)
+print_out(f'({vd}, 0) transition energies', Ncol, wn_table)
 
 expt = {12:'data/Harvard/Yosh_120.dat', 0:'data/Vijre/Ubachs_00.dat',
          2:'data/Vijre/Ubachs_20.dat'}
@@ -237,4 +244,4 @@ print_out(f'({vd},0) linewidths', Ncol, fwhm_table)
 
 print_out(f'({vd},0) integrated cross section', Ncol, xs_table*1e19)
 
-cross_section(dirpath, iso, vd=vd)
+cross_section(dirpath, iso, vd=vd, lambda23=lambda23, wn_offset=wn_offset)

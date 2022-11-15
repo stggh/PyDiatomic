@@ -88,7 +88,7 @@ def plot(R, PEC, vdv, RTP, PTP, vint, dG, dB):
 
     plt.suptitle(r'O$_2$ $X^3\Sigma_g^-$')
 
-    plt.savefig('figures/RKR_X.svg')
+    plt.savefig('figures/O2_RKR_Xstate.svg')
     plt.show()
 
 # main ----------------------------------------------

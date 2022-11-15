@@ -46,5 +46,5 @@ plt.annotate(rf'$B_{{v=0}}$ = {B0:5.3f}'+r' cm$^{-1}$', (415, EJ.mean()-100))
 plt.axis(xmin=-1)
 
 plt.tight_layout()
-plt.savefig('figures/rotation_X.svg')
+plt.savefig('figures/O2_rotation_X.svg')
 plt.show()

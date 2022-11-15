@@ -77,5 +77,5 @@ ax['d'].set_ylim(-0.5, 0.2)
 
 plt.suptitle(r'O$_2$ $B^3\Sigma_u^-$')
 
-plt.savefig('figures/RKR_B.svg')
+plt.savefig('figures/O2_RKR_Bstate.svg')
 plt.show()
