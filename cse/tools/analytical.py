@@ -171,10 +171,13 @@ def Wei_fit(r, V, re=None, De=None, voo=None, b=1., h=0.1,
     result.paramdict = paramdict
     return result
 
-def Julienne_fit(r, V, mx=None, rx=None, vx=None, voo=None):
-    def residual(pars, r, V):
-        mx, rx, vx, voo = pars
-        return Julienne(r, mx, rx, vx, voo) - V
+def Julienne_fit(r, V, mx=None, rx=None, vx=None, voo=None,
+                 adjust=['mx', 'rx', 'vx'], verbose=False):
+    def residual(pars, adjust, paramdict, r, V):
+        for i, x in enumerate(adjust):
+            paramdict[x] = pars[i]
+
+        return Julienne(r, *list(paramdict.values())) - V
 
     if voo is None:
         voo = V[-1]
@@ -185,8 +188,35 @@ def Julienne_fit(r, V, mx=None, rx=None, vx=None, voo=None):
     if mx is None:
         mx = 1e4
 
-    pars = [mx, rx, vx, voo]
-    result = least_squares(residual, pars, args=(r, V),
-                           bounds=([1, 0.1, 0, 0], [1e8, 5, 1e5, 1e5])) 
+    paramdict = {'mx':mx, 'rx':rx, 'vx':vx, 'voo':voo}
+    unit = {'mx':'cm⁻¹/Å', 'rx':'Å', 'vx':'cm⁻¹', 'voo':'cm⁻¹'}
+    lower_bound = {'mx':1e2, 'rx':0.5, 'vx':-100, 'voo':-100}
+    upper_bound = {'mx':1e5, 'rx':5, 'vx':1e5, 'voo':1e5}
+
+    pars = [paramdict[x] for x in adjust]
+    lb = [lower_bound[x] for x in adjust]
+    ub = [upper_bound[x] for x in adjust]
+
+    result = least_squares(residual, pars, args=(adjust, paramdict, r, V),
+                           bounds=(lb, ub))
+
     result.stderr = fiterrors(result)
+    for i, x in enumerate(adjust):
+        paramdict[x] = result.x[i]
+
+        i = 0
+        fitstr = ''
+        for k, v in paramdict.items():
+            fitstr += f'Julienne_fit:  {k:>5s} = {v:8.3f}'
+            if k in adjust:
+                fitstr += f' ± {result.stderr[i]:.3f} {unit[k]}\n'
+                i += 1
+            else:
+                fitstr += f' {unit[k]} (fixed)\n'
+        result.fitstr = fitstr
+
+    if verbose:
+        print(fitstr)
+
+    result.paramdict = paramdict
     return result

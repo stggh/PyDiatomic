@@ -8,6 +8,7 @@ evcm = 8065.541   # conversion factor eV to cm-1
 
 wavelength = np.arange(110, 174.1, 0.1)  # nm
 
+# Model ------------------------------
 # O2 ground state X
 X = cse.Cse('O2', VT=['potentials/X3S-1.dat'], en=800)
 
@@ -17,15 +18,15 @@ B = cse.Cse('O2', dirpath='potentials', suffix='.dat',
             coup=[40, 4000, 0, 0, 7000, 0])
 
 # transition
-BX = cse.Transition(B, X, dipolemoment=[1, 0, 0, 0.3])
+t0 = time.time()
+BX = cse.Transition(B, X, dipolemoment=[1, 0, 0, 0.3],
+                    transition_energy=wavelength)
 
 print('CSE: calculating cross section speeded by Python multiprocessing'
       ' Pool.map')
 print(f'     from {wavelength[0]:.0f} to {wavelength[-1]:.0f} in '
       f'{wavelength[1]-wavelength[0]:.2f} nm steps ... ')
 
-t0 = time.time()
-BX.calculate_xs(transition_energy=wavelength)
 print(f'CSE: ...  in {time.time()-t0:.2g} seconds')
 
 print(f'CSE: E(v"={BX.gs.vib:d}) = {BX.gs.cm:.2f} cm-1, {BX.gs.energy:.3g} eV')
