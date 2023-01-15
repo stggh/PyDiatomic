@@ -16,7 +16,7 @@ Jp = []
 EJ = []
 Jrange = np.arange(0, 30, 5)
 
-print('    J"      E"(cm-1)')
+print('    J"      E"(cm⁻¹)')
 for J in Jrange:
     en_guess = E0 + B0*J*(J+1)
     X.solve(en_guess, J)

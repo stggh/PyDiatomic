@@ -27,7 +27,7 @@ xst = (1.0e8/xst[0], xst[1]*1e-19)
 #  doi: 10.1016/0032-0633(83)90085-5
 fexp = np.loadtxt('data/Harvard/O2osc-Yoshino.dat', unpack=True)
 
-# energy ranges for calculation in cm-1
+# energy ranges for calculation in cm⁻¹
 bands = np.array([49357.4, 50044.9, 50710, 51351.5, 51968.4, 52559.6,
                   53122.6, 53655.3, 54156.5, 54622.1, 55051, 55439.5,
                   55784.8, 56085.6, 56340.7, 56551.1, 56720.1, 56852.7,
@@ -65,7 +65,7 @@ O2P = cse.Transition(O2Pcoup, O2X, dirpath='transitionmoments',
                      dipolemoment=['dvPX.dat', 'drPX.dat', 'dr2PX.dat'])
 
 # ground X³Σg⁻ state energy
-print(f' E(v"=0, J=0) = {O2S.gs.cm:8.2f} (cm-1)\n')
+print(f' E(v"=0, J=0) = {O2S.gs.cm:8.2f} (cm⁻¹)\n')
 
 # (1) band oscillator strengths - uncoupled
 print('band oscillator strengths (v\', 0), v\' = 0-21: ...')
@@ -83,7 +83,7 @@ for v, fosc in enumerate(O2bands.xs):
 
 print('\nO₂ ³Σᵤ⁻ ← X³Σg⁻ coupled continuum photodissociation cross section:')
 print(f'  {continuum[0]:5.0f} to {continuum[-1]:5.0f} in '
-      f'{continuum[1]-continuum[0]:.0f} cm-1 steps ...')
+      f'{continuum[1]-continuum[0]:.0f} cm⁻¹ steps ...')
 tstart = time.time()
 
 O2S.calculate_xs(transition_energy=continuum)
@@ -92,7 +92,7 @@ print(f'  in {time.time()-tstart:.1f} seconds\n')
 
 print('\nO₂ ³Πᵤ ← X³Σg⁻ coupled continuum photodissociation cross section:')
 print(f'  {continuum[0]:5.0f} to {continuum[-1]:5.0f} in '
-      f'{continuum[1]-continuum[0]:.0f} cm-1 steps ...')
+      f'{continuum[1]-continuum[0]:.0f} cm⁻¹ steps ...')
 tstart = time.time()
 
 O2P.calculate_xs(transition_energy=continuum)

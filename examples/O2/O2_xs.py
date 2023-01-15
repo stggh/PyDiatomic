@@ -4,7 +4,7 @@ import time
 
 import cse
 
-evcm = 8065.541   # conversion factor eV to cm-1
+evcm = 8065.541   # conversion factor eV to cm⁻¹
 
 wavelength = np.arange(110, 174.1, 0.1)  # nm
 
@@ -29,7 +29,7 @@ print(f'     from {wavelength[0]:.0f} to {wavelength[-1]:.0f} in '
 
 print(f'CSE: ...  in {time.time()-t0:.2g} seconds')
 
-print(f'CSE: E(v"={BX.gs.vib:d}) = {BX.gs.cm:.2f} cm-1, {BX.gs.energy:.3g} eV')
+print(f'CSE: E(v"={BX.gs.vib:d}) = {BX.gs.cm:.2f} cm⁻¹, {BX.gs.energy:.3g} eV')
 
 # graphics ---------------------------------------
 ax0 = plt.subplot2grid((2, 4), (0, 0), colspan=2, rowspan=2)
