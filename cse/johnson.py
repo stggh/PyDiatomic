@@ -324,9 +324,9 @@ def normalize(wf, R):
 
 
 def amplitude(wf, R, edash, μ):
+    from math import pi as π
     # Mies    F ~ JA + NB       J ~ sin(kR),  N ~ cos(kR)
     # normalization √(2μ/π)/ħ = zz
-    π = const.pi
     zz = np.sqrt(2*μ/π)/const.hbar
 
     oo, n, nopen = wf.shape
