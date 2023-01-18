@@ -167,8 +167,8 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
                 
                 # state label
                 if degen == 1:
-                    i =185
-                elif degen == 2:
+                    i = 185
+                elif degen == 3:
                     i = 176 + degen
                 else:
                     i = i = 8304 + degen
