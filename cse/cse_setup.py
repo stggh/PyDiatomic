@@ -171,7 +171,7 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
                 elif degen == 3:
                     i = 176 + degen
                 else:
-                    i = i = 8304 + degen
+                    i = 8304 + degen
                 label += chr(i)
 
                 if Λ in range(4):  
