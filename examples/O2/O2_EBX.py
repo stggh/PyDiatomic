@@ -30,7 +30,7 @@ t0 = time.time()
 BX = cse.Transition(B, X, dipolemoment=[1, 0, 0, 0.3], transition_energy=wn)
 t1 = time.time()
 
-print(f' ...  in {time.time()-t0:.2g} seconds')
+print(f' ...  in {time.time()-t0:.2f} seconds')
 print('finished - see plot')
 
 # experimental data - ANU - J Elect Spectrosc and Rel Phenom 80. 9-12 (1996)

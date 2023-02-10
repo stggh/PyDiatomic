@@ -4,7 +4,7 @@ from scipy.special import genlaguerre, gamma
 from scipy.linalg import svd
 
 
-def Wei(r, re, De, voo, b, h=0.):
+def Wei(r, re, De, voo, b, h=0., **ignore):
     """ Modified Wei potential curve
            Jai et al. J Chem Phys 137, 014101 (2012).
 
@@ -78,7 +78,7 @@ def Morse_wavefunction(r, re=2, v=1, alpha=1, A=68.8885):
     return wf
 
 
-def Julienne(r, mx, rx, vx, voo):
+def Julienne(r, mx, rx, vx, voo, **ignore):
     """Julienne (and Krauss) dissociative potential energy curve.
 
     math:
@@ -122,7 +122,7 @@ def fiterrors(result):
     return np.sqrt(np.diag(cov))
 
 
-def Wei_fit(r, V, re=None, De=None, voo=None, b=1., h=0.1, 
+def Wei_fit(r, V, re=None, De=None, voo=None, b=1., h=0.1,
             adjust=['re', 'De', 'b', 'h'], verbose=False):
 
     def residual(pars, adjust, paramdict, r, V):

@@ -2,6 +2,7 @@ from ._version import __version__
 
 from . import cse
 from .tools import analytical
+from .tools import model_fit
 from .tools.rouille import rouille
 from .tools.xsT import total_cross_section
 from .tools.RKR import rkr

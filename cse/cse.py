@@ -272,7 +272,7 @@ class Cse():
 
         if len(self.results) > 0:
             about += "eigenvalues (that have been evaluated for this state):\n"
-            about += " v  rot   energy(cm-1)    Bv(cm-1)     Dv(cm-1)\n"
+            about += " v  rot   energy(cm⁻¹)    Bv(cm⁻¹)     Dv(cm⁻¹)\n"
             vib = sorted(list(self.results.keys()))
             for v in vib:
                 about += f'{v:2d}  {self.results[v][3]:2d}   '

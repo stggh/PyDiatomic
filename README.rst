@@ -26,11 +26,11 @@ Download the latest version from github ::
 
 `cd`  to the PyDiatomic directory, and use ::
 
-    python setup.py install --user
+    pip install .
 
 Or, if you wish to edit the PyDiatomic source code without re-installing each time ::
 
-    python setup.py develop --user
+    pip install -e . 
 
 
 periodictable ::
