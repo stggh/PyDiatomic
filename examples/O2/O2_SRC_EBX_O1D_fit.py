@@ -33,28 +33,33 @@ EBX = cse.Transition(EB, X, dipolemoment=[1, 0])
 evcm = X._evcm
 R = EB.R
 
-'''
 # PEC analytical
+'''
 subR = np.logical_and(R > 1.3, R < 2.8)
 Bfit = cse.tools.analytical.Wei_fit(R[subR], EB.VT[0, 0][subR]*evcm,
                                     voo=EB.VT[0, 0, -1]*evcm,
                                     adjust=['re', 'De', 'b', 'h'])
 Bp = Bfit.paramdict
 '''
+subR = np.logical_and(R > 0.98, R < 1.31)
+Efit = cse.tools.analytical.Wei_fit(R[subR], EB.VT[1, 1][subR]*evcm,
+                                    voo=EB.VT[1, 1, -1]*evcm,
+                                    adjust=['re', 'De', 'b', 'h'])
+Ep = Efit.paramdict
 
+# least-squares fit -----------------------------------------------
 lb0 = EB.statelabel[0]
 lb1 = EB.statelabel[1]
 
-# least-squares fit -----------------
 t0 = time.time()
 fit = cse.tools.model_fit.Model_fit(EBX,
-          data2fit={'xs':(wn, expt)},
-          VT_adj={lb1:{'ΔV':(-50, -60, -40)}},
-                  #'ΔR':(0.1, -0.5, 0.5)}},
-                  # lb0:{'Wei':Bp | {'Rm':0.8, 'Rn':1.35}}},
-                  # lb0:{'spline':np.arange(1, 1.4, 0.1)},
-          coup_adj={lb1+'_'+lb0:(1, 0.7, 1.3)},
-          etdm_adj={lb0+'_'+X.statelabel[0]:(0.5, 0.1, 1.5)},
+          data2fit={lb0:{'xs':(wn, expt)}}, # , lb1:{'peak': 80415}},
+          VT_adj={# lb1:{'ΔV':(-50, -60, -40)},
+                  # lb1:{'ΔR':(0.1, -0.5, 0.5)}},
+                  lb1:{'Wei':Ep | {'Rm':0.98, 'Rn':1.31}},
+                  lb0:{'spline':np.arange(0.9, 1.4, 0.1)}},
+          coup_adj={lb1+'<->'+lb0:(1, 0.7, 1.3)},
+          etdm_adj={lb0+'<-'+X.statelabel[0]:(0.5, 0.1, 1.5)},
           verbose=False)
 
 dt = time.time() - t0
@@ -79,7 +84,7 @@ for i, p in enumerate(fit.csemodel.us.statelabel):
 axp.legend()
 axp.set_xlabel(r'internuclear distance ($\AA$)')
 axp.set_ylabel(r'wavenumber (cm$^{-1}$)')
-axp.set_xlim(0.9, 4.9)
+axp.set_xlim(0.8, 2.9)
 
 plt.suptitle(r'O$_2$ Schumann-Runge continuum $EB^3\Sigma_u^- $'
              r'$\leftarrow X^3\Sigma_g^-$')

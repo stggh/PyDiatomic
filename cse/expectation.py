@@ -95,7 +95,7 @@ def xs_vs_wav(Xs):
     pool = multiprocessing.Pool()
     func = partial(xs, Xs)
 
-    xsp = pool.map(func, Xs.wavenumber)
+    xsp = pool.map(func, Xs.wavenumber)  #, chunksize=len(Xs.wavenumber)//3)
     pool.close()
     pool.join()
 

@@ -1,5 +1,6 @@
 import numpy as np
 import cse
+import re
 from scipy.interpolate import splrep, splev
 from scipy.optimize import least_squares
 from scipy.linalg import svd
@@ -109,7 +110,7 @@ class Model_fit():
                             if k not in ['Rm', 'Rn']:
                                 addparam(v)
                     case 'spline':
-                        for i in len(param_dict):  # actually an array
+                        for x in param_dict:  # actually an array
                             addparam(1.)
 
         for v in self.coup_adj.values():
@@ -126,7 +127,8 @@ class Model_fit():
 
         """
         lsqpars = list(self.lsqpars)
-        lsqpars.reverse()  # parameter list from least-squares
+
+        R = self.R
         VTd = self.VTd_orig.copy()
 
         # potential energy curve adjustments --------------------
@@ -136,39 +138,45 @@ class Model_fit():
                 match param:
                     # single value
                     case 'ΔR':
-                        value = lsqpars.pop()
-                        spl = splrep(self.R-value, VTd[indx])
-                        VTd[indx] = splev(self.R, spl)
+                        value = lsqpars.pop(0)
+                        spl = splrep(R-value, VTd[indx])
+                        VTd[indx] = splev(R, spl)
+
                     case 'ΔV':
-                        value = lsqpars.pop()
+                        value = lsqpars.pop(0)
                         VTd[indx] += value
+
                     # multi-value
                     case 'Wei':
-                        subR = np.logical_and(self.R >= value['Rm'],
-                                              self.R <= value['Rn'])
-                        VTd[indx][subR] = cse.tools.analytical.Wei(self.R[subR],
+                        subR = np.logical_and(R >= value['Rm'],
+                                              R <= value['Rn'])
+                        VTd[indx][subR] = cse.tools.analytical.Wei(R[subR],
                                                                    **value)
-                    case 'Julienne':
-                        subR = np.logical_and(self.R >= value['Rm'],
-                                              self.R <= value['Rn'])
+                        lsqpars = lsqpars[len(value)-2:]
 
-                        VTd[indx] = cse.tools.analytical.Julienne(self.R[subR],
+                    case 'Julienne':
+                        subR = np.logical_and(R >= value['Rm'],
+                                              R <= value['Rn'])
+
+                        VTd[indx] = cse.tools.analytical.Julienne(R[subR],
                                                                   **value)
+                        lsqpars = lsqpars[len(value)-2:]
+
                     case 'spline':
-                        knots = value
-                        rk = np.logical_and(self.R >= knots[0],
-                                            self.R <= knots[-1])
-                        indices = np.searchsorted(self.R[rk], knots)
-                        spl = splrep(self.R[indices], VTd[indx])
-                        VTd[indx] *= splev(self.R[rk], spl)
+                        spl = splrep(value, lsqpars[:len(value)])
+
+                        subR = np.logical_and(R >= value[0], R <= value[-1])
+                        VTd[indx][subR] *= splev(R[subR], spl)
+
+                        lsqpars = lsqpars[len(value):]
 
             # returned modified PECs to csemodel
             self.csemodel.us.VT[indx, indx] = VTd[indx]/self._evcm  # diagonal
 
         # coupling -----------------------------------------
         for lbl, scaling in self.coup_adj.items():
-            scaling = lsqpars.pop()
-            state1, state2 = lbl.split('_')
+            scaling = lsqpars.pop(0)
+            state1, state2 = re.split('<->', lbl)
             i = self.csemodel.us.statelabel.index(state1)
             j = self.csemodel.us.statelabel.index(state2)
             coupling = self.VT_orig[i][j]
@@ -179,8 +187,8 @@ class Model_fit():
         dipolemoment = self.dipolemoment_orig.copy()
 
         for lbl, scaling in self.etdm_adj.items():
-            scaling = lsqpars.pop()
-            f, i = lbl.split('_')
+            scaling = lsqpars.pop(0)
+            f, i = re.split('<-', lbl)
             indxf = self.csemodel.us.statelabel.index(f)
             indxi = self.csemodel.gs.statelabel.index(i)
             dipolemoment[:, indxi, indxf] *= scaling
@@ -191,46 +199,47 @@ class Model_fit():
     def print_result(self):
         lsqpars = list(self.result.x)
         stderr = list(self.result.stderr)
-        lsqpars.reverse()
-        stderr.reverse()
 
-        print('\n\nmodel fitted parameters')
-        print('Potential energy curves --------')
+        print('\n\nModel fitted parameters')
+        print('Potential energy curves ----------------------------')
         for state, state_dict in self.VT_adj.items():
             print(f'{state:10s} ', end='')
             for param, param_dict in state_dict.items():
-                print(f'{param:>10s} ', end='')
                 match param:
                     # single value
                     case 'ΔR' | 'ΔV':
-                        print(f'{lsqpars.pop():5.3g}±{stderr.pop():.3g}')
+                        print(f'{param:10s} ', end='')
+                        print(f'{lsqpars.pop(0):5.3g}±{stderr.pop(0):.3g} cm⁻¹')
                         print(f'{" ":10s}', end='')
                     # multi-value - To do store parameters
                     case 'Wei' | 'Julienne':
+                        print(f'{param:5s} ', end='')
                         for k, v in param_dict.items():
                             if k not in ['Rm', 'Rn']:
-                                print(f'{lsqpars.pop():5.3g}±'
-                                      f'{stderr.pop():.3g}')
+                                print(f'{k:5s}: {lsqpars.pop(0):5.3g}±'
+                                      f'{stderr.pop(0):.3g}')
                                 print(f'{" ":10s}', end='')
                     case 'spline':
-                        for i in len(param_dict):  # actually an array
-                            print(f'{lsqpars.pop():5.3g}±{stderr.pop():.3g}',
-                                  end='')
+                        print(f'{param:6s} r(Å)  scaling')
+                        for r in param_dict:  # actually an array
+                            print(f'{" ":16s}', end='')
+                            print(f'{r:5.3g} ', end='')
+                            print(f'{lsqpars.pop(0):5.3f}±{stderr.pop(0):.3f}')
             print()
 
         if self.coup_adj:
             print('\nCoupling - ------------------------- (x) scaling factor'
                   '--')
             for lbl, v in self.coup_adj.items():
-                print(f'{lbl:>10s} {" ":10s} '
-                      f'{lsqpars.pop():5.3g}±{stderr.pop():.3g}')
+                print(f'{lbl:>10s} {" ":6s} '
+                      f'{lsqpars.pop(0):5.3g}±{stderr.pop(0):.3g}')
 
         if self.etdm_adj:
             print('\nElectronic transition dipole moment '
                   '- (x) scaling factor --')
             for lbl, v in self.etdm_adj.items():
-                print(f'{lbl:>10s} {" ":10s} '
-                      f'{lsqpars.pop():5.3g}±{stderr.pop():.3g}')
+                print(f'{lbl:>10s} {" ":8s} '
+                      f'{lsqpars.pop(0):5.3g}±{stderr.pop(0):.3g}')
 
         print()
 
@@ -250,19 +259,28 @@ class Model_fit():
         self.result.stderr = np.sqrt(np.diag(cov))
 
     def residual(self, pars):
-        self.lsqpars = pars
+        self.lsqpars = pars.copy()
         self.parameter_unpack()  # resets csemodel with modified parameters
 
         self.diff = []
-        for data_type, data in self.data2fit.items():
-            match data_type:
-                case 'xs':
-                    wavenumber, xs = data
-                    self.csemodel.calculate_xs(transition_energy=wavenumber)
-                    self.csexs = self.csemodel.xs[:, 0]
-                    self.diff.append((self.csexs - xs)*1e19)
+        for channel, data_dict in self.data2fit.items():
+            chnl_indx = self.csemodel.us.statelabel.index(channel)
+            for data_type, data in data_dict.items():
+                match data_type:
+                    case 'xs':
+                        wavenumber, xs = data
+                        self.csemodel.calculate_xs(transition_energy=wavenumber)
+                        self.csexs = self.csemodel.xs[:, chnl_indx]
+                        self.diff.append((self.csexs-xs)*1e19)
+                    case 'peak':
+                        pos = data
+                        wavenumber = np.arange(pos-10, pos+10, 0.1)
+                        self.csemodel.calculate_xs(transition_energy=wavenumber)
+                        self.peakxs = self.csemodel.xs[:, chnl_indx]
+                        self.peak = wavenumber[self.peakxs.argmax()]
+                        self.diff.append(np.array((self.peak-pos)*100))
 
-        self.diff = np.ndarray.flatten(np.array(self.diff))
+        self.diff = np.ndarray.flatten(np.asarray(self.diff))
         self.sum = self.diff.sum()
 
         if self.verbose:
