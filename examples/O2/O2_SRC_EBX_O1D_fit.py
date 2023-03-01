@@ -10,16 +10,7 @@ wavenumber = 1e8/wavelength  # wavelength convert Å to cm⁻¹
 wavenumber, xsO1D = wavenumber[::-1], xsO1D[::-1]*1e-19  # reverse order
 
 # limit experimental data for fit, to regions of significant cross section
-limit = xsO1D > 10e-19
-
-'''
-# interpolate experimental data on a smaller grid
-spl = splrep(wavenumber[limit], xsO1D[limit])
-dw = 1
-wn = np.arange(int(wavenumber[limit][0]/dw)*dw,
-               int(wavenumber[limit][-1]/dw)*dw, dw)
-expt = splev(wn, spl)
-'''
+limit = xsO1D > 7e-19
 
 wn = wavenumber[limit]
 expt = xsO1D[limit]
@@ -28,38 +19,35 @@ expt = xsO1D[limit]
 X = cse.Cse('O2', VT=['potentials/X3S-1.dat'], en=800)
 EB = cse.Cse('O2', dirpath='potentials', suffix='.dat',
              VT=['B3S-1', 'E3S-1'], coup=[4000])
+EB.VT[1, 1] -= 200/8065.541
 EBX = cse.Transition(EB, X, dipolemoment=[1, 0])
 
-evcm = X._evcm
-R = EB.R
+# handy variables
+lb0 = EB.statelabel[0]  # state label string (unicode) B³Σ₁⁻
+lb1 = EB.statelabel[1]  # E³Σ₁⁻
+evcm = X._evcm  # conversion eV to cm⁻¹
+R = EB.R  # common internuclear distance grid
 
-# PEC analytical
-'''
-subR = np.logical_and(R > 1.3, R < 2.8)
-Bfit = cse.tools.analytical.Wei_fit(R[subR], EB.VT[0, 0][subR]*evcm,
-                                    voo=EB.VT[0, 0, -1]*evcm,
-                                    adjust=['re', 'De', 'b', 'h'])
-Bp = Bfit.paramdict
-'''
+# PEC(s) - paramaterise from fitted Wei analytical curves
+print(f'Wei fit to {lb1}')
 subR = np.logical_and(R > 0.98, R < 1.31)
 Efit = cse.tools.analytical.Wei_fit(R[subR], EB.VT[1, 1][subR]*evcm,
                                     voo=EB.VT[1, 1, -1]*evcm,
                                     adjust=['re', 'De', 'b', 'h'])
-Ep = Efit.paramdict
+print(Efit.fitstr)
 
 # least-squares fit -----------------------------------------------
-lb0 = EB.statelabel[0]
-lb1 = EB.statelabel[1]
-
 t0 = time.time()
 fit = cse.tools.model_fit.Model_fit(EBX,
-          data2fit={lb0:{'xs':(wn, expt)}}, # , lb1:{'peak': 80415}},
-          VT_adj={# lb1:{'ΔV':(-50, -60, -40)},
+          data2fit={lb0:{'xs':(wn, expt)}
+                    #lb1:{'position': 82945}},
+                    },
+          VT_adj={#lb1:{'ΔV':-1000},
                   # lb1:{'ΔR':(0.1, -0.5, 0.5)}},
-                  lb1:{'Wei':Ep | {'Rm':0.98, 'Rn':1.31}},
-                  lb0:{'spline':np.arange(0.9, 1.4, 0.1)}},
-          coup_adj={lb1+'<->'+lb0:(1, 0.7, 1.3)},
-          etdm_adj={lb0+'<-'+X.statelabel[0]:(0.5, 0.1, 1.5)},
+                  lb0:{'spline':np.arange(0.9, 1.4, 0.1)},
+                  lb1:{'Wei':Efit.paramdict | {'Rm':0.98, 'Rn':1.31}}},
+          coup_adj={lb1+'<->'+lb0:1},
+          etdm_adj={lb0+'<-'+X.statelabel[0]:0.5},
           verbose=False)
 
 dt = time.time() - t0
@@ -72,7 +60,10 @@ fit.residual(fit.result.x)
 
 fig, (axp, axx) = plt.subplots(1, 2, sharey=True)
 axx.plot(xsO1D, wavenumber, 'C2', label=r'expt. O($^1D_2$)')
-axx.plot(fit.csexs, wn, 'C3o', ms=2, label='cse')
+try:
+    axx.plot(fit.csexs, wn, 'C3o', ms=2, label='cse')
+except:
+    pass
 axx.set_xlabel(r'photodissociation cross section (cm$^2$)')
 axx.set_ylim(49000, 85000)
 axx.legend()

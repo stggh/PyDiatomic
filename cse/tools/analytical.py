@@ -191,7 +191,7 @@ def Julienne_fit(r, V, mx=None, rx=None, vx=None, voo=None,
     paramdict = {'mx':mx, 'rx':rx, 'vx':vx, 'voo':voo}
     unit = {'mx':'cm⁻¹/Å', 'rx':'Å', 'vx':'cm⁻¹', 'voo':'cm⁻¹'}
     lower_bound = {'mx':1e2, 'rx':0.5, 'vx':-100, 'voo':-100}
-    upper_bound = {'mx':1e5, 'rx':5, 'vx':1e5, 'voo':1e5}
+    upper_bound = {'mx':1e5, 'rx':5, 'vx':1e6, 'voo':1e5}
 
     pars = [paramdict[x] for x in adjust]
     lb = [lower_bound[x] for x in adjust]
