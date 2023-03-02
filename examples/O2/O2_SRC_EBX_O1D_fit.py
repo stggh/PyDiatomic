@@ -56,12 +56,13 @@ mins, secs = dt // 60, dt % 60
 print(f'\nCalculation time: {int(mins):d} minutes and {int(secs)} seconds\n')
 
 # plot -----------------------------------------------------------
-fit.residual(fit.result.x)
+fit.residual(fit.result.x, keepxs=True)
 
 fig, (axp, axx) = plt.subplots(1, 2, sharey=True)
 axx.plot(xsO1D, wavenumber, 'C2', label=r'expt. O($^1D_2$)')
 try:
-    axx.plot(fit.csexs, wn, 'C3o', ms=2, label='cse')
+    wn, xs = fit.csexs[lb0]['xs']
+    axx.plot(xs, wn, 'C3o', ms=2, label='cse')
 except:
     pass
 axx.set_xlabel(r'photodissociation cross section (cm$^2$)')
