@@ -41,8 +41,9 @@ limb = 'L'
 
 # ground state RKR
 print("X1S0 - ground state RKR ------------")
-RX, X1S0, RTP, PTP = cse.tools.RKR.rkr(μ, vv, Gv, Bv, De, Voo, limb, dv=0.1,
-                                       Rgrid=internuclear_distance)
+RX, X1S0, vib, RTP, PTP =\
+        cse.tools.RKR.rkr(μ, vv, Gv, Bv, De, Voo, limb, dv=0.1,
+                          Rgrid=internuclear_distance)
 ax0.plot(RX, X1S0, label=r'$X ^1\Sigma_g^+$')
 ax0.plot(RTP[::10], PTP[::10], 'oC9')
 ax0.set_xlabel(r'internuclear distance ($\AA$)')
@@ -55,8 +56,9 @@ Bv = B(vv, Be=1.8332, alphae=0.0196)
 
 # uppder state RKR
 print("\nD1S0 - upper state RKR -------------------")
-RD, D1S0, RTP, PTP = cse.tools.RKR.rkr(μ, vv, Gv, Bv, De, Voo, limb, dv=0.1,
-                                       Rgrid=internuclear_distance)
+RD, D1S0, vib, RTP, PTP = cse.tools.RKR.rkr(μ, vv, Gv, Bv, De, Voo, limb,
+                                            dv=0.1,
+                                            Rgrid=internuclear_distance)
 
 # Te displacement
 ax0.plot(RD, D1S0, 'C2', label=r'$D ^1\Sigma_g^+$')

@@ -20,12 +20,12 @@ class Model_fit():
         'xs' : {channel statelabel, ([wavenumber], [cross section])}
         'Bv' : {statelabel, ([v], [Bv])}
         'pos' : {statelabel, ([v], [wavenumber of peak])}
-        'width' : {any_label, (wn0, wn1, width, J)}
+        'width' : {statelabel, (wn0, wn1, width, J)}
 
     Attributes
     ----------
     result : dict
-        least_squares fit attriubutes, and stderr for each parameter
+        least_squares fit attriubutes, with stderr for each parameter
     """
 
     def __init__(self, csemodel, data2fit, VT_adj={}, coup_adj={}, etdm_adj={},
@@ -39,26 +39,29 @@ class Model_fit():
                   {'channel2':   }}
 
         # potential energy curves -------
-        VT_adj: {
-            'ΔR':float,  # radial shift
-            'ΔV':float,  # energy shift
+        VT_adj: {PEC:
+            {'ΔR':float},  # radial shift
+            {'ΔV':float},  # energy shift
 
-            # parameters for Wei analytical PEC, applied Rm...Rn
-            'Wei':{'re':re, 'De':De, 'voo':voo, 'b':b, 'h':h, 'Rm':Rm, 'Rn':Rn},
+            # parameters for Wei analytical PEC, applied between Rm...Rn
+            {'Wei':{'re':re, 'De':De, 'voo':voo, 'b':b, 'h':h, 'Rm':Rm,
+                    'Rn':Rn}},
 
             # Julienne (open channel), applied Rm...Rn
-            'Julienne':{'Mx':Mx, 'Rx':Rx, 'Vx':Vx, 'Voo':Voo, 'Rm':Rm, 'Rn':Rn),
+            {'Julienne':{'Mx':Mx, 'Rx':Rx, 'Vx':Vx, 'Voo':Voo, 'Rm':Rm,
+                         'Rn':Rn}},
 
-            'spline':(R₀, R₁, ..., R₋₁),  # radial positions of knots
+            {'spline':[R₀, R₁, ..., R₋₁]},  # radial positions of knots
+            PEC is scaled by spline between Rm..Rn 
             )
 
         # coupling scale factor -------
-        coup_adj: {'state0<->state1':float, 'state0<->state2':float}  # etc.
+        coup_adj: {'state0<->state1':scaling, 'state0<->state2':scaling}  # etc.
 
         # electric dipole transition moment -------
-        etdm_adj: {'fsl0<-isl0':float, 'fsl1<-isl0':float)  # etc.
+        etdm_adj: {'fsl0<-isl0':scaling_factor, 'fsl1<-isl0':scaling_factor} 
 
-        Each parameter is scaled relative to 1.0
+        Each parameter is a scaled relative to 1.0
         """
 
         self.verbose = verbose
@@ -89,15 +92,15 @@ class Model_fit():
         """
         self.par_count = 0
 
-        # interaction matrix - keep original value
+        # interaction matrix - keep original values
         self.VT_orig = self.csemodel.us.VT.copy()
-        # diagonal elements = PECs
+        # diagonal elements = PECs in units cm⁻¹
         self.VTd_orig = np.diagonal(self.VT_orig).T.copy()*self._evcm
 
-        # PECs ------------------------------------------------
+        # PEC parameters ------------------------------------------------
         for statelabel, par_dict in self.VT_adj.items():
             for v in par_dict.values():
-                if isinstance(v, int):
+                if isinstance(v, (int, float)):
                     self.par_count += 1
                 else:
                     self.par_count += len(v)
@@ -111,7 +114,7 @@ class Model_fit():
             state1, state2 = re.split('<->', lbl)
             i = self.csemodel.us.statelabel.index(state1)
             j = self.csemodel.us.statelabel.index(state2)
-            # keep original value
+            # keep original value as tuple
             self.coupling[lbl] = (self.VT_orig[i][j].copy(), i, j)
             self.par_count += 1
 
@@ -120,14 +123,14 @@ class Model_fit():
             lblf, lbli = re.split('<-', lbl)
             indxf = self.csemodel.us.statelabel.index(lblf)
             indxi = self.csemodel.gs.statelabel.index(lbli)
-            # keep original transition moment
+            # keep original transition moment as tuple
             self.etdm[lbl] = \
               (self.csemodel.dipolemoment[:, indxi, indxf].copy(), indxi, indxf)
             self.par_count += 1
 
         pars = np.ones(self.par_count)
         self.lsqpars = pars
-        self.bounds = (pars*0.8, pars*1.2)
+        self.bounds = (pars*0.95, pars*1.05)
 
     def parameter_unpack(self, pars):
         """ extract new CSE model parameters from values of the least_squares
@@ -181,14 +184,14 @@ class Model_fit():
         # coupling -----------------------------------------
         for lbl, scaling in self.coup_adj.items():
             scaling = lsqpars.pop(0)
-            coupling, i, j = self.coupling[lbl]
+            coupling, i, j = self.coupling[lbl]  # original value tuple
             self.csemodel.us.VT[i][j] = self.csemodel.us.VT[j][i]\
                                       = coupling*scaling
 
         # etdm -------------------------------------------------
         for lbl, scaling in self.etdm_adj.items():
             scaling = lsqpars.pop(0)
-            etdm, indxi, indxf = self.etdm[lbl] 
+            etdm, indxi, indxf = self.etdm[lbl]  # original value tuple
             self.csemodel.dipolemoment[:, indxi, indxf] = etdm*scaling
 
 
@@ -267,31 +270,51 @@ class Model_fit():
 
         print()
 
-    def residual(self, pars):
+    # least-squares fit -----------------------------------------------------
+    def residual(self, pars, keepxs=False):
         self.parameter_unpack(pars)  # resets csemodel with modified parameters
+
+        if keepxs:
+            self.csexs = {}
 
         self.diff = []
         for channel, data_dict in self.data2fit.items():
-            chnl_indx = self.csemodel.us.statelabel.index(channel)
+            if keepxs:
+                self.csexs[channel] = {}
+            if channel != 'total':
+                chnl_indx = self.csemodel.us.statelabel.index(channel)
             for data_type, data in data_dict.items():
-                match data_type:
+                match data_type[:2]:
                     case 'xs':
                         wavenumber, xs = data
                         self.csemodel.calculate_xs(transition_energy=wavenumber)
-                        self.csexs = self.csemodel.xs[:, chnl_indx]
-                        diff = (self.csexs-xs)*1e19
-                        # Tanaka = wavenumber > 78600
-                        # diff[Tanaka] *= 10  # weighting Tanaka bands
+
+                        if channel == 'total':
+                            csexs = self.csemodel.xs.sum(axis=1)
+                        else:
+                            csexs = self.csemodel.xs[:, chnl_indx]
+
+                        diff = (csexs-xs)*1e19
                         self.diff.append(diff)
-                    case 'position':
+
+                    case 'po':
                         pos = data
                         wavenumber = np.arange(pos-100, pos+100, 10)
                         self.csemodel.calculate_xs(transition_energy=wavenumber)
-                        self.peakxs = self.csemodel.xs[:, chnl_indx]
-                        self.peak = wavenumber[self.peakxs.argmax()]
+
+                        if channel == 'total':
+                            csexs = self.csemodel.xs.sum(axis=1)
+                        else:
+                            csexs = self.csemodel.xs[:, chnl_indx]
+
+                        self.peak = wavenumber[csexs.argmax()]
                         self.diff.append(np.array(self.peak-pos))
 
-        self.diff = np.ndarray.flatten(np.asarray(self.diff))
+                if keepxs:
+                    self.csexs[channel][data_type] = (wavenumber, csexs)
+
+
+        self.diff = np.concatenate(self.diff).ravel()
         self.sum = self.diff.sum()
 
         if self.verbose:
@@ -309,6 +332,6 @@ class Model_fit():
             print('Model_fit: each "." represents an iteration')
 
         self.result = least_squares(self.residual, self.lsqpars,
-                                    method='lm',
-                                    #  bounds=self.bounds, method='trf',
+                                    # method='lm',
+                                    bounds=self.bounds, method='trf',
                                     x_scale='jac', diff_step=0.1)
