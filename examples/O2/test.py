@@ -30,7 +30,7 @@ exptR = splev(wnR, spl)
 X = cse.Cse('O2', VT=['potentials/X3S-1.dat'], en=800)
 EB = cse.Cse('O2', dirpath='potentials', suffix='.dat',
              VT=['B3S-1', 'E3S-1'], coup=[4000])
-# EB.VT[1, 1] -= 400/8065.541
+EB.VT[1, 1] -= 500/8065.541
 EBX = cse.Transition(EB, X, dipolemoment=[1, 0])
 
 # handy variables
@@ -49,7 +49,7 @@ print(Efit.fitstr)
 
 # least-squares fit -----------------------------------------------
 t0 = time.time()
-fit = cse.tools.model_fit.Model_fit(EBX,
+fit = cse.tools.model_fit.Model_fit(EBX, method='trf',
           data2fit={chn0:{'xsv':(wnv, exptv), 'xsR':(wnR, exptR)}},
                     #chn1:{'position': 82945}},
           VT_adj={#chn1:{'ΔV':-1000},
@@ -91,5 +91,5 @@ plt.suptitle(r'O$_2$ Schumann-Runge continuum $EB^3\Sigma_u^- $'
              r'$\leftarrow X^3\Sigma_g^-$')
 plt.tight_layout(h_pad=0.2)
 
-plt.savefig('figures/O2_SRC_EBX_O1D_fit.svg')
+plt.savefig('figures/test.svg')
 plt.show()

@@ -29,7 +29,7 @@ class Model_fit():
     """
 
     def __init__(self, csemodel, data2fit, VT_adj={}, coup_adj={}, etdm_adj={},
-                 verbose=True):
+                 method='lsq', verbose=True):
         """
         Parameters
         ----------
@@ -65,6 +65,7 @@ class Model_fit():
         """
 
         self.verbose = verbose
+        self.method = method
 
         # CSE model -------------------------------------------
         self.csemodel = csemodel  # CSE Transition instance
@@ -331,7 +332,11 @@ class Model_fit():
         if not self.verbose:
             print('Model_fit: each "." represents an iteration')
 
-        self.result = least_squares(self.residual, self.lsqpars,
-                                    # method='lm',
-                                    bounds=self.bounds, method='trf',
-                                    x_scale='jac', diff_step=0.1)
+        if self.method == 'lm':
+            self.result = least_squares(self.residual, self.lsqpars,
+                                        method=self.method,
+                                        x_scale='jac', diff_step=0.1)
+        else:
+            self.result = least_squares(self.residual, self.lsqpars,
+                                        method=self.method, bounds=self.bounds,
+                                        x_scale='jac', diff_step=0.1)

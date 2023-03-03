@@ -7,8 +7,8 @@ import scipy.constants as const
 # Rydberg-Klein-Rees evaluation of a potential energy curve
 # from spectroscopic constants
 #
-# Note here RKR is repeated using corrected spectroscopic constants
-# ΔGv < 0.1 cm⁻¹ for v" < 35
+# Note  RKR calculation is repeated using corrected spectroscopic constants
+#  to give ΔGv < 0.1 cm⁻¹ for v" < 35
 #
 # Stephen.Gibson@anu.edu.au  March 2023
 ####################################################################
@@ -26,7 +26,7 @@ def RKR(iso, vv, Gv, Bv, Rgrid, Voo, Te=0, dv=0.1, limb='L'):
 # CSE diagnostics ---------------------------------------
 def levels(iso, fn='potentials/rkrX1S0.dat'):
     X = cse.Cse(iso, VT=[fn])
-    X.levels(ntrial=20)
+    X.levels(ntrial=10)
 
     Gcse, Bcse, Dcse, _ = np.asarray(list(X.results.values())).T
 
@@ -51,10 +51,10 @@ def compare(vv, Gv, Bv, Dv, Gcse, Bcse, Dcse, verbose=True):
         for v in vint:
             print(f'{v:2d} {Gint[v]:10.3f} {dG[v]:6.3f}   '
                   f'{Bint[v]:8.3f} {dB[v]*1e4:6.3f}   '
-                  f'{Dcse[v]*1e6:8.3f} {dD[v]*1e8:8.3f}')
+                  f'{Dint[v]*1e6:8.3f} {dD[v]*1e8:8.3f}')
         print()
 
-    return vint, dG, dB, dG
+    return vint, dG, dB, dD
 
 # plot -----------------------------------------------------
 def plot(R, PEC, vdv, RTP, PTP, vint, dG, dB):
@@ -63,13 +63,14 @@ def plot(R, PEC, vdv, RTP, PTP, vint, dG, dB):
     fig, ax = plt.subplot_mosaic('''
                                  pg
                                  pb
+                                 pd
                                  ''', constrained_layout=True)
 
     # potential energy curves
     ax['p'].plot(R, PEC, label='RKR potential curve')
     ax['p'].plot(RTP[vi], PTP[vi], 'o', mfc='w', ms=4, label='turning point')
     ax['p'].legend(fontsize='small', labelspacing=0.3)
-    ax['p'].axis(xmin=0.7, xmax=3, ymin=PEC.min()-1000, ymax=PEC[-1]+5000)
+    ax['p'].axis(xmin=0.7, xmax=4, ymin=PEC.min()-1000, ymax=PEC[-1]+5000)
     ax['p'].ticklabel_format(axis='y', style='sci', scilimits=(4, 4))
     ax['p'].set_xlabel(r'internuclear distance $/$ $\AA$')
     ax['p'].set_ylabel(r'potential energy (rel. to $X$-min.) $/$ cm$^{-1}$')
@@ -78,17 +79,25 @@ def plot(R, PEC, vdv, RTP, PTP, vint, dG, dB):
     ax['g'].plot(vint, dG, 'C2')
     ax['g'].set_ylabel(r'$\Delta G_v$ $/$ cm$^{-1}$')
     # ax['g'].ticklabel_format(axis='y', style='sci', scilimits=(-2, -2))
-    ax['g'].set_ylim(-0.3, 0.3)
+    ax['g'].set_ylim(-0.1, 0.1)
     ax['g'].tick_params('x', labelbottom=False)
 
     # ΔBv
     ax['b'].plot(vint, dB, 'C3')
-    ax['b'].set_xlabel('vibrational quantum number')
-    ax['b'].set_ylabel(r'$\Delta B_v$ $/$ cm$^{-1}$')
     ax['b'].ticklabel_format(axis='y', style='sci', scilimits=(-4, -4))
-    ax['b'].set_ylim(-2e-4, 5e-4)
+    ax['b'].set_ylabel(r'$\Delta B_v$ $/$ cm$^{-1}$')
+    ax['b'].set_ylim(-3e-4, 5e-5)
+    ax['b'].tick_params('x', labelbottom=False)
 
-    plt.suptitle(r'CO $X^1\Sigma^+$')
+    # ΔDv
+    ax['d'].plot(vint, dD, 'C4')
+    ax['d'].set_xlabel('vibrational quantum number')
+    ax['d'].set_ylabel(r'$\Delta D_v$ $/$ cm$^{-1}$')
+    ax['d'].ticklabel_format(axis='y', style='sci', scilimits=(-8, -8))
+    ax['d'].set_ylim(-1e-9, 4e-8)
+    ax['d'].set_xlim(0, 35)
+
+    plt.suptitle(r'CO $X^1\Sigma^+$ $-$ Rydberg-Klein-Rees')
 
     plt.savefig('figures/CO_RKR_Xstate.svg')
     plt.show()
@@ -103,31 +112,36 @@ Rgrid = np.arange(0.005, 10.004, 0.005)
 Voo = 90674+Gv[0]  # cm⁻¹ Coxon+Hajigeorgiou JPC121 2992 (2004)
 
 # RKR potential energy curve from spectroscopic constants Gv, Bv
+print('\nRKR curve - initial calculation ...')
 R, PEC, vdv, RTP, PTP = RKR(iso, vv, Gv, Bv, Rgrid, Voo)
 
 # save curve
 fn = 'potentials/rkrX1S0.dat'
 np.savetxt(fn, np.column_stack((R.T, PEC.T)), fmt='%8.5f %15.8e')
 
-# evaluate spectroscopic constanst from the potential energy curve
+print('\nEvaluate spectroscopic constants for RKR PEC: Cse.levels() ...')
 Gcse, Bcse, Dcse = levels(iso, fn) 
 vint, dG, dB, dD = compare(vv, Gv, Bv, Dv, Gcse, Bcse, Dcse)
 
 # Repeat RKR calculation correcting spectroscopic constants by first order
 # difference: P Pajunen J Chem Phys 92(12) 7484-7487 (1990) 
+print('\nPajuen - RKR calculation using corrected spectroscopic constants ...')
 Gc = Gv.copy()
 Bc = Bv.copy()
-Gc += dG
-Bc += dB
+Gc += dG  # correction to input Gv
+Bc += dB  # Bv
 
-print('RKR PEC from corrected input Gv, Bv values')
 R, PEC, vdv, RTP, PTP = RKR(iso, vv, Gc, Bc, Rgrid, Voo)
 
 # save curve - final
 fn = 'potentials/rkrX1S0.dat'
 np.savetxt(fn, np.column_stack((R.T, PEC.T)), fmt='%8.5f %15.8e')
+print(f'\nRKR PEC written to "{fn}"')
 
+print('\nRe-evaluate spectroscopic constants for new RKR PEC: Cse.levels() ...')
 Gcse, Bcse, Dcse = levels(iso, fn) 
+print('\nCompare input with calculated ...')
 vint, dG, dB, dD = compare(vv, Gv, Bv, Dv, Gcse, Bcse, Dcse)
 
+print('All done! See plot')
 plot(R, PEC, vdv, RTP, PTP, vint, dG, dB)

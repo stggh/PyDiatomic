@@ -38,7 +38,7 @@ print(Efit.fitstr)
 
 # least-squares fit -----------------------------------------------
 t0 = time.time()
-fit = cse.tools.model_fit.Model_fit(EBX,
+fit = cse.tools.model_fit.Model_fit(EBX, method='lm',
           data2fit={lb0:{'xs':(wn, expt)}
                     #lb1:{'position': 82945}},
                     },
