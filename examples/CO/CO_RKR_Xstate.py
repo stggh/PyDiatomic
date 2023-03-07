@@ -14,8 +14,9 @@ import scipy.constants as const
 ####################################################################
 
 # RKR potential energy curve --------------
-def RKR(iso, vv, Gv, Bv, Rgrid, Voo, Te=0, dv=0.1, limb='L'):
-    μ = cse.cse_setup.reduced_mass(iso)[0]/const.m_u
+def RKR(molecule, vv, Gv, Bv, Rgrid, Voo, Te=0, dv=0.1, limb='L'):
+    μ = cse.cse_setup.reduced_mass(molecule)[0]/const.m_u
+
     De = Voo - Te  # potential well depth
 
     R, PEC, vib, RTP, PTP = cse.tools.RKR.rkr(μ, vv, Gv, Bv, De, Voo=Voo,
@@ -24,8 +25,8 @@ def RKR(iso, vv, Gv, Bv, Rgrid, Voo, Te=0, dv=0.1, limb='L'):
     return R, PEC, vib, RTP, PTP  # potential curve, turning points
 
 # CSE diagnostics ---------------------------------------
-def levels(iso, fn='potentials/rkrX1S0.dat'):
-    X = cse.Cse(iso, VT=[fn])
+def levels(molecule, fn='potentials/rkrX1S0.dat'):
+    X = cse.Cse(molecule, VT=[fn])
     X.levels(ntrial=10)
 
     Gcse, Bcse, Dcse, _ = np.asarray(list(X.results.values())).T
@@ -104,7 +105,7 @@ def plot(R, PEC, vdv, RTP, PTP, vint, dG, dB):
 
 # main ----------------------------------------------
 # spectroscopic constants
-iso = 'CO'
+molecule = 'CO'
 vv, Gv, Bv, Dv = np.loadtxt('data/vGBD-X.dat', unpack=True)
 Dv *= 1e-6
 
@@ -113,14 +114,14 @@ Voo = 90674+Gv[0]  # cm⁻¹ Coxon+Hajigeorgiou JPC121 2992 (2004)
 
 # RKR potential energy curve from spectroscopic constants Gv, Bv
 print('\nRKR curve - initial calculation ...')
-R, PEC, vdv, RTP, PTP = RKR(iso, vv, Gv, Bv, Rgrid, Voo)
+R, PEC, vdv, RTP, PTP = RKR(molecule, vv, Gv, Bv, Rgrid, Voo)
 
 # save curve
 fn = 'potentials/rkrX1S0.dat'
 np.savetxt(fn, np.column_stack((R.T, PEC.T)), fmt='%8.5f %15.8e')
 
 print('\nEvaluate spectroscopic constants for RKR PEC: Cse.levels() ...')
-Gcse, Bcse, Dcse = levels(iso, fn) 
+Gcse, Bcse, Dcse = levels(molecule, fn) 
 vint, dG, dB, dD = compare(vv, Gv, Bv, Dv, Gcse, Bcse, Dcse)
 
 # Repeat RKR calculation correcting spectroscopic constants by first order
@@ -131,7 +132,7 @@ Bc = Bv.copy()
 Gc += dG  # correction to input Gv
 Bc += dB  # Bv
 
-R, PEC, vdv, RTP, PTP = RKR(iso, vv, Gc, Bc, Rgrid, Voo)
+R, PEC, vdv, RTP, PTP = RKR(molecule, vv, Gc, Bc, Rgrid, Voo)
 
 # save curve - final
 fn = 'potentials/rkrX1S0.dat'
@@ -139,7 +140,7 @@ np.savetxt(fn, np.column_stack((R.T, PEC.T)), fmt='%8.5f %15.8e')
 print(f'\nRKR PEC written to "{fn}"')
 
 print('\nRe-evaluate spectroscopic constants for new RKR PEC: Cse.levels() ...')
-Gcse, Bcse, Dcse = levels(iso, fn) 
+Gcse, Bcse, Dcse = levels(molecule, fn) 
 print('\nCompare input with calculated ...')
 vint, dG, dB, dD = compare(vv, Gv, Bv, Dv, Gcse, Bcse, Dcse)
 

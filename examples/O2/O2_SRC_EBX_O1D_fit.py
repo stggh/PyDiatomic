@@ -4,6 +4,21 @@ from scipy.interpolate import splrep, splev
 import matplotlib.pyplot as plt
 import time
 
+######################################################################
+#
+# O2_SRC_EBX_O1D_fit.py 
+#
+#   E↔B ³Σ₁⁻ ← X ³Σ₁⁻ photodissociation yielding O(¹D₂) atoms
+#
+#   Optimisation of the CSE model parameters through least-squares fitting
+#   the calculated cross section to an experimental photodissociation
+#   cross section
+#
+# Stephen.Gibson@anu.edu.au - March 2023
+#
+######################################################################
+
+
 # experimental data - O₂ photodissociation cross section yielding O(¹D₂)
 wavelength, xsO1D, xsO1Dstderr = np.loadtxt('data/ANU/xsf.dat',  unpack=True)
 wavenumber = 1e8/wavelength  # wavelength convert Å to cm⁻¹

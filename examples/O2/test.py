@@ -22,7 +22,7 @@ wnv = wn[valence]
 exptv = expt[valence]
 
 spl = splrep(wn[Rydberg], expt[Rydberg])
-dt = 2
+dt = 3
 wnR = np.arange(int(wn[Rydberg][0]/dt)*dt, int(wn[Rydberg][-1]/dt)*dt, dt)
 exptR = splev(wnR, spl)
 
@@ -30,7 +30,7 @@ exptR = splev(wnR, spl)
 X = cse.Cse('O2', VT=['potentials/X3S-1.dat'], en=800)
 EB = cse.Cse('O2', dirpath='potentials', suffix='.dat',
              VT=['B3S-1', 'E3S-1'], coup=[4000])
-EB.VT[1, 1] -= 500/8065.541
+EB.VT[1, 1] -= 400/8065.541
 EBX = cse.Transition(EB, X, dipolemoment=[1, 0])
 
 # handy variables
@@ -40,7 +40,7 @@ evcm = X._evcm  # conversion eV to cm⁻¹
 R = EB.R  # common internuclear distance grid
 
 # PEC(s) - paramaterise from fitted Wei analytical curves
-print(f'Wei fit to {chn1}')
+print(f'Wei fit to {chn1}, to determine initial estimate parameters')
 subR = np.logical_and(R > 0.98, R < 1.31)
 Efit = cse.tools.analytical.Wei_fit(R[subR], EB.VT[1, 1][subR]*evcm,
                                     voo=EB.VT[1, 1, -1]*evcm,
@@ -50,7 +50,8 @@ print(Efit.fitstr)
 # least-squares fit -----------------------------------------------
 t0 = time.time()
 fit = cse.tools.model_fit.Model_fit(EBX, method='trf',
-          data2fit={chn0:{'xsv':(wnv, exptv), 'xsR':(wnR, exptR)}},
+          data2fit={#chn0:{'xs':(wn, expt)}},
+                    chn0:{'xsv':(wnv, exptv), 'xsR':(wnR, exptR)}},
                     #chn1:{'position': 82945}},
           VT_adj={#chn1:{'ΔV':-1000},
                   # chn1:{'ΔR':(0.1, -0.5, 0.5)}},

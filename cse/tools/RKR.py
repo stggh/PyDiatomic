@@ -12,7 +12,7 @@ from scipy.optimize import curve_fit
 
 def rkr(μ, vv, Gv, Bv, De, Voo=0, limb='L', dv=0.1,
         Rgrid=np.arange(0.005, 10.004, 0.005), ineV=False, verbose=True):
-    """ Rydberg-Klien-Rees potential energy curve.
+    """ Rydberg-Klein-Rees potential energy curve.
 
     Parameters
     ---------
