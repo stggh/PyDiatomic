@@ -79,7 +79,7 @@ class Cse():
 
     """
 
-    def __init__(self, μ=None, VT=None, R=None, coup=None, en=None, rot=0,
+    def __init__(self, μ=None, VT=None, en=None, R=None, coup=None, rot=0,
                  mx=None, dirpath='./', suffix='', frac_Omega=False):
 
         self._evcm = 8065.541
