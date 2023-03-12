@@ -170,7 +170,7 @@ def Morse(x, β, Re, De, Voo):
     return De*(1 - np.exp(-β*(x-Re)))**2 + Te
 
 # analytical functions
-def inner_limb_Morse(R, P, RTP, PTP, Re, De, Voo, inner=None, verbose=True):
+def inner_limb_Morse(R, P, RTP, PTP, Re, De, Voo, verbose=True):
     # Dₑ[1 - exp(-β(R-Rₑ))]² + Tₑ
     Te = Voo - De
 
@@ -179,10 +179,11 @@ def inner_limb_Morse(R, P, RTP, PTP, Re, De, Voo, inner=None, verbose=True):
     β = ln0/(Re - RTP[0])
 
     # fit Morse to inner turning points - adjusting β, Re, De; fixed Voo
-    if not inner:
-        inner = len(PTP) // 2
+    # inner = len(PTP) // 2
+    inner = RTP < Re*0.9
+
     popt, pcov = curve_fit(lambda x, β, Re, De: Morse(x, β, Re, De, Voo),
-                           RTP[:inner], PTP[:inner], p0=[β, Re, De])
+                           RTP[inner], PTP[inner], p0=[β, Re, De])
     err = np.sqrt(np.diag(pcov))
 
     subR = R < RTP[0]
@@ -205,9 +206,10 @@ def outer_limb_Morse(R, P, RTP, PTP, Re, De, Voo, verbose=True):
     β = l1/(Re - RTP[-1])
 
     # fit Morse to outer turning points - adjusting β, Re, De; fixed Voo
-    outer = len(PTP) // 2
+    outer = len(PTP) // 6
+
     popt, pcov = curve_fit(lambda x, β, Re, De: Morse(x, β, Re, De, Voo), 
-                           RTP[outer:], PTP[outer:], p0=[β, Re, De])
+                           RTP[-outer:], PTP[-outer:], p0=[β, Re, De])
     err = np.sqrt(np.diag(pcov))
 
     subR = R > RTP[-1]
@@ -230,9 +232,10 @@ def outer_limb_LeRoy(R, P, RTP, PTP, De, Voo, verbose=True):
 
     # fit long-range potential curve to outer turning points - adjust Cn;
     #                                                        - fixed n, Voo
-    outer = len(PTP)*2 // 3   # choose last 1/3 of points
+    outer = len(PTP) // 6
+
     popt, pcov = curve_fit(lambda x, Cn: LeRoy(x, Cn, n, Voo), 
-                           RTP[outer:], PTP[outer:], p0=[Cn])
+                           RTP[-outer:], PTP[-outer:], p0=[Cn])
     err = np.sqrt(np.diag(pcov))
 
     subR = R > RTP[-1]

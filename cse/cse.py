@@ -9,7 +9,6 @@ from . import expectation
 from . import cse_setup
 from . import tools
 
-
 class Cse():
     """ Class to setup and solve the TISE via the Johnson renormalized
         Numerov method i.e. drive johnson.py for a single
