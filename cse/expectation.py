@@ -5,7 +5,7 @@ import scipy.constants as const
 from scipy.optimize import leastsq
 from scipy.integrate import simps
 
-import multiprocessing
+from multiprocessing import cpu_count, get_context, Pool
 from functools import partial
 
 from . import johnson
@@ -92,7 +92,7 @@ def xs_vs_wav(Xs):
     """ multiprocessor pool function.
 
     """
-    pool = multiprocessing.Pool()
+    pool = get_context('fork').Pool(cpu_count()-1)
     func = partial(xs, Xs)
 
     xsp = pool.map(func, Xs.wavenumber, chunksize=len(Xs.wavenumber)//3)
