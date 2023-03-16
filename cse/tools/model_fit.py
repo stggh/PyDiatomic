@@ -28,8 +28,8 @@ class Model_fit():
         least_squares fit attriubutes, with stderr for each parameter
     """
 
-    def __init__(self, csemodel, data2fit, VT_adj={}, coup_adj={}, etdm_adj={},
-                 method='lsq', verbose=True):
+    def __init__(self, csemodel, data2fit, VT_adj={}, coup_adj={},
+                 etdm_adj={}, method='lsq', verbose=True):
         """
         Parameters
         ----------
@@ -51,8 +51,13 @@ class Model_fit():
             {'Julienne':{'Mx':Mx, 'Rx':Rx, 'Vx':Vx, 'Voo':Voo, 'Rm':Rm,
                          'Rn':Rn}},
 
+            # stretching
+            {'Rstr': {'left':left, 'right':right}},  # about Rₑ
+            {'Vstr': float},  # about V∞
+
+            # scaling
             {'spline':[R₀, R₁, ..., R₋₁]},  # radial positions of knots
-            PEC is scaled by spline between Rm..Rn 
+            PEC is scaled by spline between R₀..R₋₁
             )
 
         # coupling scale factor -------
@@ -87,8 +92,8 @@ class Model_fit():
         self.result.stderr = fiterrors(self.result)  # parameter error estimates
         self.print_result()
 
-    def parameter_set(self):
-        """ set parameter list for least-squares fitting.
+    def parameter_pack(self):
+        """ parameter list for least-squares fitting.
 
         """
         self.par_count = 0
@@ -157,7 +162,26 @@ class Model_fit():
                         scaling = lsqpars.pop(0)
                         VTd[indx] += value*scaling
 
+                    case 'Vstr':
+                        scaling = lsqpars.pop(0)
+                        Voo = VTd[indx][-1]
+                        VTd[indx] = (VTd[indx] - Voo)*scaling + Voo
+
                     # multi-value
+                    case 'Rstr':
+                        left, right = lsqpars[:2]
+                        Rscaled = R.copy()
+                        Re = R[VTd[indx].argmin()]
+
+                        rl = R < Re
+                        Rscaled[rl] = (R[rl] - Re)*left + Re
+                        rr = R >= Re
+                        Rscaled[rr] = (R[rr] - Re)*right + Re
+
+                        spl = splrep(Rscaled, VTd[indx])
+                        VTd[indx] = splev(R, spl)
+                        lsqpars = lsqpars[2:]
+
                     case 'Wei' | 'Julienne':
                         analyt_dict = state_dict[param].copy()
 
@@ -201,7 +225,9 @@ class Model_fit():
         stderr = list(self.result.stderr)
 
         unit = {'Wei': {'re':'Å', 'De':'cm⁻¹', 'voo':'cm⁻¹', 'b':'', 'h':''},
-                'Julienne': {'mx':'cm⁻¹/Å', 'rx':'Å', 'vx':'cm⁻¹', 'voo':'cm⁻¹'}
+                'Julienne': {'mx':'cm⁻¹/Å', 'rx':'Å', 'vx':'cm⁻¹',
+                             'voo':'cm⁻¹'},
+                'Rstr':{'left':'', 'right':''}
                }
 
         print('\n\nModel fitted parameters')
@@ -213,12 +239,12 @@ class Model_fit():
                 for param, value in state_dict.items():
                     match param:
                         # single value
-                        case 'ΔR' | 'ΔV':
+                        case 'ΔR' | 'ΔV' | 'Vstr':
                             print(f'{param:15s} '
                                   f'{value*lsqpars.pop(0):8.3f}±'
                                   f'{value*stderr.pop(0):.3f} cm⁻¹') 
                         # multi-value
-                        case 'Wei' | 'Julienne':
+                        case 'Wei' | 'Julienne' | 'Rstr':
                             print(f'{param:25s} ')
                             for k, v in value.items():
                                 if k in ['Rm', 'Rn']:
@@ -327,7 +353,7 @@ class Model_fit():
 
     def fit(self):
 
-        self.parameter_set()
+        self.parameter_pack()
 
         if not self.verbose:
             print('Model_fit: each "." represents an iteration')
