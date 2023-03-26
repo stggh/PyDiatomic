@@ -43,8 +43,8 @@ R = EB.R  # common internuclear distance grid
 print(f'Wei fit to {chn1}, to determine initial estimate parameters')
 subR = np.logical_and(R > 0.98, R < 1.31)
 Efit = cse.tools.analytical.Wei_fit(R[subR], EB.VT[1, 1][subR]*evcm,
-                                    voo=EB.VT[1, 1, -1]*evcm,
-                                    adjust=['re', 'De', 'b', 'h'])
+                                    Voo=EB.VT[1, 1, -1]*evcm,
+                                    adjust=['Re', 'De', 'b', 'h'])
 print(Efit.fitstr)
 
 # least-squares fit -----------------------------------------------

@@ -27,17 +27,17 @@ def test_Morse_art():
 
     De = 40000  # cm⁻¹
     m0 = 1*C.m_u
-    μ = m0/2  # Da
-    re = 2  # Å
+    μ = m0/2  # amu
+    Re = 2  # Å
     alpha = 1  # Å⁻¹
     we = 2323.5942  # cm⁻¹
     xe = we/4/De
     A = 68.8885
 
     r = np.arange(0.8, 8, 0.01)
-    mwf = cse.tools.analytical.Morse_wavefunction(r, re, 0, alpha, A)
+    mwf = cse.tools.analytical.Morse_wavefunction(r, Re, 0, alpha, A)
 
-    V = cse.tools.analytical.Morse(r, re=re, De=De, Te=0, beta=alpha)
+    V = cse.tools.analytical.Morse(r, Re=Re, De=De, Te=0, beta=alpha)
 
     morse = cse.Cse(μ=μ, VT=[(r, V)])
     morse.solve(1153)

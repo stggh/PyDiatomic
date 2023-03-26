@@ -4,7 +4,7 @@ from scipy.special import genlaguerre, gamma
 from scipy.linalg import svd
 
 
-def Wei(r, re, De, voo, b, h=0., **ignore):
+def Wei(r, Re, De, Voo, b, h=0., **ignore):
     """ Modified Wei potential curve
            Jai et al. J Chem Phys 137, 014101 (2012).
 
@@ -12,9 +12,9 @@ def Wei(r, re, De, voo, b, h=0., **ignore):
     ----------
     r : numpy 1d-array
         internuclear distance grid
-    re : float
+    Re : float
         internuclear distance at equilibrium
-    voo : float
+    Voo : float
         dissociation energy
     De : float
         potential well depth
@@ -31,17 +31,17 @@ def Wei(r, re, De, voo, b, h=0., **ignore):
     """
 
     # if abs(h) > 1:
-    #     raise SystemExit(f'Wei(r, re, De, Te, b, h): error h={h}, '
+    #     raise SystemExit(f'Wei(r, Re, De, Te, b, h): error h={h}, '
     #                       'require |h| < 1')
 
-    ebre = np.exp(b*re)
+    ebRe = np.exp(b*Re)
     ebr = np.exp(b*r)
-    Te = voo - De
+    Te = Voo - De
 
-    return De*(1 - ebre*(1 - h)/(ebr - h*ebre))**2 + Te
+    return De*(1 - ebRe*(1 - h)/(ebr - h*ebRe))**2 + Te
 
 
-def Morse(r, re=2, De=40000, Te=0, beta=1):
+def Morse(r, Re=2, De=40000, Te=0, beta=1):
     # default parameters Morse oscillator 1. 10.1016/j.jms.2022.111621
     """Morse potential energy curve.
 
@@ -49,7 +49,7 @@ def Morse(r, re=2, De=40000, Te=0, beta=1):
     ----------
     r : numpy 1d-array
         internuclear distance grid
-    re : float
+    Re : float
         internuclear distance at equilibrium
     De : float
         Dissociation energy
@@ -65,24 +65,24 @@ def Morse(r, re=2, De=40000, Te=0, beta=1):
 
     """
 
-    voo = De + Te
-    return Wei(r, re, De, voo, beta, h=0)
+    Voo = De + Te
+    return Wei(r, Re, De, Voo, beta, h=0)
 
 
-def Morse_wavefunction(r, re=2, v=1, alpha=1, A=68.8885):
+def Morse_wavefunction(r, Re=2, v=1, alpha=1, A=68.8885):
     # default parameters Morse oscillator 1. 10.1016/j.jms.2022.111621
-    y = A*np.exp(-alpha*(r-re))
+    y = A*np.exp(-alpha*(r-Re))
     beta = A - 2*v - 1
     Nv = np.sqrt(alpha*beta*np.math.factorial(v)/gamma(A - v))
     wf = Nv*np.exp(-y/2)*y**(beta/2)*genlaguerre(v, beta)(y)
     return wf
 
 
-def Julienne(r, mx, rx, vx, voo, **ignore):
+def Julienne(r, Mx, Rx, Vx, Voo, **ignore):
     """Julienne (and Krauss) dissociative potential energy curve.
 
     math:
-          v(r) = v_x \exp[-(m_x/v_x)(r - r_x)] + v_\infy
+          V(r) = Vₓ exp[-(Mₓ/Vₓ)(r - Rₓ)] + V∞
 
     Eq. (45) J. Mol. Spect. 56, 270-308 (1975)
 
@@ -90,13 +90,13 @@ def Julienne(r, mx, rx, vx, voo, **ignore):
     ----------
     r : numpy 1d-array
         internuclear distance grid.
-    rx : float
+    Rx : float
         crossing point with a bound curve.
-    mx : float
-        slope at crossing point (rx).
-    vx : float
+    Mx : float
+        slope at crossing point (Rx).
+    Vx : float
         energy at crossing point.
-    voo : float
+    Voo : float
         disociation limit energy.
 
     Returns
@@ -105,7 +105,7 @@ def Julienne(r, mx, rx, vx, voo, **ignore):
         potenial energy curve
     """
 
-    return vx*np.exp(-(mx/vx)*(r-rx)) + voo
+    return Vx*np.exp(-(Mx/Vx)*(r-Rx)) + Voo
 
 
 def fiterrors(result):
@@ -122,8 +122,8 @@ def fiterrors(result):
     return np.sqrt(np.diag(cov))
 
 
-def Wei_fit(r, V, re=None, De=None, voo=None, b=1., h=0.1,
-            adjust=['re', 'De', 'b', 'h'], verbose=False):
+def Wei_fit(r, V, Re=None, De=None, Voo=None, b=1., h=0.1,
+            adjust=['Re', 'De', 'b', 'h'], verbose=False):
 
     def residual(pars, adjust, paramdict, r, V):
         for i, x in enumerate(adjust):
@@ -131,17 +131,17 @@ def Wei_fit(r, V, re=None, De=None, voo=None, b=1., h=0.1,
 
         return Wei(r, *list(paramdict.values())) - V
 
-    if re is None:
-        re = r[V.argmin()]
-    if voo is None:
-        voo = V[-1]
+    if Re is None:
+        Re = r[V.argmin()]
+    if Voo is None:
+        Voo = V[-1]
     if De is None:
-        De = voo - V.min()
+        De = Voo - V.min()
 
-    paramdict = {'re':re, 'De':De, 'voo':voo, 'b':b, 'h':h}
-    unit = {'re':'Å', 'De':'cm⁻¹', 'voo':'cm⁻¹', 'b':'', 'h':''}
-    lower_bound = {'re':0.1, 'De':0, 'voo':-100, 'b':0.1, 'h':-1}
-    upper_bound = {'re':5, 'De':1e5, 'voo':1e5, 'b':5, 'h':1}
+    paramdict = {'Re':Re, 'De':De, 'Voo':Voo, 'b':b, 'h':h}
+    unit = {'Re':'Å', 'De':'cm⁻¹', 'Voo':'cm⁻¹', 'b':'', 'h':''}
+    lower_bound = {'Re':0.1, 'De':0, 'Voo':-100, 'b':0.1, 'h':-1}
+    upper_bound = {'Re':5, 'De':1e5, 'Voo':1e5, 'b':5, 'h':1}
 
     pars = [paramdict[x] for x in adjust]
     lb = [lower_bound[x] for x in adjust]
@@ -171,27 +171,27 @@ def Wei_fit(r, V, re=None, De=None, voo=None, b=1., h=0.1,
     result.paramdict = paramdict
     return result
 
-def Julienne_fit(r, V, mx=None, rx=None, vx=None, voo=None,
-                 adjust=['mx', 'rx', 'vx'], verbose=False):
+def Julienne_fit(r, V, Mx=None, Rx=None, Vx=None, Voo=None,
+                 adjust=['Mx', 'Rx', 'Vx'], verbose=False):
     def residual(pars, adjust, paramdict, r, V):
         for i, x in enumerate(adjust):
             paramdict[x] = pars[i]
 
         return Julienne(r, *list(paramdict.values())) - V
 
-    if voo is None:
-        voo = V[-1]
-    if vx is None:
-        vx = 1.1*voo
-    if rx is None:
-        rx = r[np.abs(V - vx).argmin()]
-    if mx is None:
-        mx = 1e4
+    if Voo is None:
+        Voo = V[-1]
+    if Vx is None:
+        Vx = 1.1*voo
+    if Rx is None:
+        Rx = r[np.abs(V - Vx).argmin()]
+    if Mx is None:
+        Mx = 1e4
 
-    paramdict = {'mx':mx, 'rx':rx, 'vx':vx, 'voo':voo}
-    unit = {'mx':'cm⁻¹/Å', 'rx':'Å', 'vx':'cm⁻¹', 'voo':'cm⁻¹'}
-    lower_bound = {'mx':1e2, 'rx':0.5, 'vx':-100, 'voo':-100}
-    upper_bound = {'mx':1e5, 'rx':5, 'vx':1e6, 'voo':1e5}
+    paramdict = {'Mx':Mx, 'Rx':Rx, 'Vx':Vx, 'Voo':Voo}
+    unit = {'Mx':'cm⁻¹/Å', 'Rx':'Å', 'Vx':'cm⁻¹', 'Voo':'cm⁻¹'}
+    lower_bound = {'Mx':1e2, 'Rx':0.5, 'Vx':-100, 'Voo':-100}
+    upper_bound = {'Mx':1e5, 'Rx':5, 'Vx':1e6, 'Voo':1e5}
 
     pars = [paramdict[x] for x in adjust]
     lb = [lower_bound[x] for x in adjust]

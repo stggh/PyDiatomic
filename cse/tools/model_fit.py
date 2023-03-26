@@ -44,7 +44,7 @@ class Model_fit():
             {'ΔV':float},  # energy shift
 
             # parameters for Wei analytical PEC, applied between Rm...Rn
-            {'Wei':{'re':re, 'De':De, 'voo':voo, 'b':b, 'h':h, 'Rm':Rm,
+            {'Wei':{'Re':Re, 'De':De, 'Voo':Voo, 'b':b, 'h':h, 'Rm':Rm,
                     'Rn':Rn}},
 
             # Julienne (open channel), applied Rm...Rn
@@ -224,9 +224,9 @@ class Model_fit():
         lsqpars = list(self.result.x)
         stderr = list(self.result.stderr)
 
-        unit = {'Wei': {'re':'Å', 'De':'cm⁻¹', 'voo':'cm⁻¹', 'b':'', 'h':''},
-                'Julienne': {'mx':'cm⁻¹/Å', 'rx':'Å', 'vx':'cm⁻¹',
-                             'voo':'cm⁻¹'},
+        unit = {'Wei': {'Re':'Å', 'De':'cm⁻¹', 'Voo':'cm⁻¹', 'b':'', 'h':''},
+                'Julienne': {'Mx':'cm⁻¹/Å', 'Rx':'Å', 'Vx':'cm⁻¹',
+                             'Voo':'cm⁻¹'},
                 'Rstr':{'left':'', 'right':''}
                }
 
@@ -310,6 +310,7 @@ class Model_fit():
                 self.csexs[channel] = {}
             if channel != 'total':
                 chnl_indx = self.csemodel.us.statelabel.index(channel)
+
             for data_type, data in data_dict.items():
                 match data_type[:2]:
                     case 'xs':
@@ -321,12 +322,18 @@ class Model_fit():
                         else:
                             csexs = self.csemodel.xs[:, chnl_indx]
 
-                        diff = (csexs-xs)*1e19
+                        diff = (csexs - xs)*1e19
                         self.diff.append(diff)
 
                     case 'po':
-                        pos = data
-                        wavenumber = np.arange(pos-100, pos+100, 10)
+                        self.peak = {}
+                        vib, pos = data
+
+                        dwn = 1000
+                        wavenumber = []
+                        for p in pos:
+                            wavenumber.append(np.arange(p-dwn, p+dwn, dwn/1000))
+                        wavenumber = np.ravel(wavenumber)
                         self.csemodel.calculate_xs(transition_energy=wavenumber)
 
                         if channel == 'total':
@@ -334,14 +341,20 @@ class Model_fit():
                         else:
                             csexs = self.csemodel.xs[:, chnl_indx]
 
-                        self.peak = wavenumber[csexs.argmax()]
-                        self.diff.append(np.array(self.peak-pos))
+                        # peak position for each input value
+                        for v, p in zip(vib, pos):
+                            subr = np.logical_and(wavenumber > p-dwn, 
+                                                  wavenumber < p+dwn)
+                            self.peak[v] = wavenumber[subr][\
+                                                csexs[subr].argmax()]
+                            print(f'{v:1d} {p:6.2f} {self.peak[v]:6.2f}'
+                                  f' {p - self.peak[v]:6.2f}')
+                            self.diff.append(np.array(self.peak[v]-p))
 
                 if keepxs:
                     self.csexs[channel][data_type] = (wavenumber, csexs)
 
-
-        self.diff = np.concatenate(self.diff).ravel()
+        self.diff = np.hstack((self.diff))
         self.sum = self.diff.sum()
 
         if self.verbose:
