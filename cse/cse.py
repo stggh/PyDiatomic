@@ -61,8 +61,8 @@ class Cse():
     limits : tuple
         array sizes: (oo, n, Rmin, Rmax, Vmin, Te)
 
-    μ : str or float
-        molecule formula str or reduced mass in amu or kg
+    μ : float
+        reduced mass in amu or kg
 
     rot : int
         total angular momentum quantum number
@@ -295,6 +295,8 @@ class Xs():
         wavenumber range of calculation
     xs : numpy float array
         photodissociation cross section for each open channel
+    nopen : int
+        number of open channels
 
 
     :note: coupled-channel attributes for initial (gs) and final (us)

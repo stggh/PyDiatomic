@@ -95,7 +95,7 @@ def xs_vs_wav(Xs):
     pool = get_context('fork').Pool(cpu_count()-1)
     func = partial(xs, Xs)
 
-    xsp = pool.map(func, Xs.wavenumber, chunksize=len(Xs.wavenumber)//3)
+    xsp = pool.map(func, Xs.wavenumber)  #, chunksize=len(Xs.wavenumber)//3)
     pool.close()
     pool.join()
 
