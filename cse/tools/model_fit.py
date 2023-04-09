@@ -19,7 +19,7 @@ class Model_fit():
         data2fit: data dict to fit:
         'xs' : {channel statelabel, ([wavenumber], [cross section])}
         'Bv' : {statelabel, ([v], [Bv])}
-        'pos' : {statelabel, ([v], [wavenumber of peak])}
+        'position' : {statelabel, ([v], [wavenumber of peak])}
         'width' : {statelabel, (wn0, wn1, width, J)}
 
     Attributes
@@ -161,6 +161,7 @@ class Model_fit():
                     case 'ΔV':
                         scaling = lsqpars.pop(0)
                         VTd[indx] += value*scaling
+                        print(f'ΔV: {scaling:.3f}')
 
                     case 'Vstr':
                         scaling = lsqpars.pop(0)
@@ -172,6 +173,7 @@ class Model_fit():
                         left, right = lsqpars[:2]
                         Rscaled = R.copy()
                         Re = R[VTd[indx].argmin()]
+                        print(f'left={left:.3f}, right={right:.3f}')
 
                         rl = R < Re
                         Rscaled[rl] = (R[rl] - Re)*left + Re
@@ -212,6 +214,8 @@ class Model_fit():
             coupling, i, j = self.coupling[lbl]  # original value tuple
             self.csemodel.us.VT[i][j] = self.csemodel.us.VT[j][i]\
                                       = coupling*scaling
+            print(f'coupling {i}{j} = '
+                  f'{(coupling*self._evcm*scaling).max():8.2f}')
 
         # etdm -------------------------------------------------
         for lbl, scaling in self.etdm_adj.items():
@@ -297,62 +301,63 @@ class Model_fit():
 
         print()
 
+
+    def cross_section(self, data, channel, eni=1100, roti=0, rotf=0):
+        if data[0][0] < 100:
+            dwn = 1000
+            wavenumber = []
+            self.peak = np.zeros_like(data[1])
+            for p in data[1]:
+                wavenumber.append(np.arange(p-dwn, p+dwn, 5))
+            wavenumber = np.ravel(wavenumber)
+        else:
+            wavenumber = data[0]
+
+        self.csemodel.calculate_xs(transition_energy=wavenumber,
+                                   eni=eni, rotf=rotf, roti=roti)
+
+        if channel == 'total':
+            self.csexs = self.csemodel.xs.sum(axis=1)
+        else:
+            self.csexs = self.csemodel.xs[:, chnl_indx]
+
+        if data[0][0] < 100:
+            # peak position for each input value
+            for i, p in enumerate(data[1]):
+                subr = np.logical_and(wavenumber > p-dwn, wavenumber < p+dwn)
+                self.peak[i] = wavenumber[subr][self.csexs[subr].argmax()]
+            
+
     # least-squares fit -----------------------------------------------------
-    def residual(self, pars, keepxs=False):
+    def residual(self, pars):
         self.parameter_unpack(pars)  # resets csemodel with modified parameters
 
-        if keepxs:
-            self.csexs = {}
-
         self.diff = []
+
         for channel, data_dict in self.data2fit.items():
-            if keepxs:
-                self.csexs[channel] = {}
             if channel != 'total':
                 chnl_indx = self.csemodel.us.statelabel.index(channel)
 
             for data_type, data in data_dict.items():
                 match data_type[:2]:
                     case 'xs':
-                        wavenumber, xs = data
-                        self.csemodel.calculate_xs(transition_energy=wavenumber)
-
-                        if channel == 'total':
-                            csexs = self.csemodel.xs.sum(axis=1)
-                        else:
-                            csexs = self.csemodel.xs[:, chnl_indx]
-
-                        diff = (csexs - xs)*1e19
+                        self.cross_section(data, channel)
+                        diff = (csexs - data[1])*1e19
                         self.diff.append(diff)
 
                     case 'po':
-                        self.peak = {}
-                        vib, pos = data
+                        self.cross_section(data, channel, eni=1100)
+                        self.diff.append(self.peak - data[1])
+                        print('position: ', self.diff[-1])
 
-                        dwn = 1000
-                        wavenumber = []
-                        for p in pos:
-                            wavenumber.append(np.arange(p-dwn, p+dwn, dwn/1000))
-                        wavenumber = np.ravel(wavenumber)
-                        self.csemodel.calculate_xs(transition_energy=wavenumber)
-
-                        if channel == 'total':
-                            csexs = self.csemodel.xs.sum(axis=1)
-                        else:
-                            csexs = self.csemodel.xs[:, chnl_indx]
-
-                        # peak position for each input value
-                        for v, p in zip(vib, pos):
-                            subr = np.logical_and(wavenumber > p-dwn, 
-                                                  wavenumber < p+dwn)
-                            self.peak[v] = wavenumber[subr][\
-                                                csexs[subr].argmax()]
-                            print(f'{v:1d} {p:6.2f} {self.peak[v]:6.2f}'
-                                  f' {p - self.peak[v]:6.2f}')
-                            self.diff.append(np.array(self.peak[v]-p))
-
-                if keepxs:
-                    self.csexs[channel][data_type] = (wavenumber, csexs)
+                    case 'Bv':
+                        self.cross_section(data, channel, eni=1100)
+                        self.peak0 = self.peak
+                        self.cross_section(data, channel, eni=1200,
+                                           roti=10, rotf=10)
+                        Bv = np.abs(self.peak0 - self.peak)/10/11
+                        self.diff.append(Bv - data[1])
+                        print('Bv: ', self.diff[-1])
 
         self.diff = np.hstack((self.diff))
         self.sum = self.diff.sum()
