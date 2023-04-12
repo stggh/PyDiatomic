@@ -8,7 +8,7 @@ vv, Gv, Bv = np.loadtxt('data/vGB-A1P.dat', unpack=True)
 
 iso = 'CO'
 μ = cse.cse_setup.reduced_mass(iso)[0]/const.m_u
-Voo = 90674+1081.776  # rel. to X-min.
+Voo = 90674 # rel. to X-min.
 Te = 63992.2875 # from Dunham fit
 De = Voo - Te  # potential well depth
 dv = 0.1

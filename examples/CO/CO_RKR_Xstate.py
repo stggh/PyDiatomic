@@ -110,7 +110,7 @@ vv, Gv, Bv, Dv = np.loadtxt('data/vGBD-X.dat', unpack=True)
 Dv *= 1e-6
 
 Rgrid = np.arange(0.005, 10.004, 0.005)
-Voo = 90674+Gv[0]  # cm⁻¹ Coxon+Hajigeorgiou JPC121 2992 (2004)
+Voo = 90674  # cm⁻¹ Eidelsberg J Molec Spect 121, 309-336 (1987)
 
 # RKR potential energy curve from spectroscopic constants Gv, Bv
 print('\nRKR curve - initial calculation ...')

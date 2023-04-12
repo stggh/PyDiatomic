@@ -213,7 +213,8 @@ def outer_limb_Morse(R, P, RTP, PTP, Re, De, Voo, verbose=True):
     err = np.sqrt(np.diag(pcov))
 
     subR = R > RTP[-1]
-    P[subR] = Morse(R[subR], *popt, Voo) 
+    # Morse function extrapolation + offset to correct R[-1] != ∞
+    P[subR] = Morse(R[subR], *popt, Voo) + Morse(R[-1], *popt, Voo)
 
     if verbose:
         print('\nRKR: Outer limb Morse: Dₑ[1 - exp(-β(R-Rₑ))]² + Tₑ')
@@ -239,7 +240,8 @@ def outer_limb_LeRoy(R, P, RTP, PTP, De, Voo, verbose=True):
     err = np.sqrt(np.diag(pcov))
 
     subR = R > RTP[-1]
-    P[subR] = LeRoy(R[subR], Cn, n, Voo)
+    # LeRoy function extrapolation + offset to correct R[-1] != ∞
+    P[subR] = LeRoy(R[subR], Cn, n, Voo) + Cn/R[-1]**n
 
     if verbose:
         print('\nRKR: Outer limb  LeRoy: V∞ - Cₙ/Rⁿ')
