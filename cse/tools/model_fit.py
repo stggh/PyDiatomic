@@ -319,7 +319,7 @@ class Model_fit():
         if channel == 'total':
             self.csexs = self.csemodel.xs.sum(axis=1)
         else:
-            self.csexs = self.csemodel.xs[:, chnl_indx]
+            self.csexs = self.csemodel.xs[:, channel]
 
         if data[0][0] < 100:
             # peak position for each input value
