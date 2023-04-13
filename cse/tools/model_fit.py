@@ -316,10 +316,11 @@ class Model_fit():
         self.csemodel.calculate_xs(transition_energy=wavenumber,
                                    eni=eni, rotf=rotf, roti=roti)
 
-        if channel == 'total':
+        if channel != 'total':
             self.csexs = self.csemodel.xs.sum(axis=1)
         else:
-            self.csexs = self.csemodel.xs[:, channel]
+            chnl_indx = self.csemodel.us.statelabel.index(channel)
+            self.csexs = self.csemodel.xs[:, chnl_indx]
 
         if data[0][0] < 100:
             # peak position for each input value
@@ -335,9 +336,6 @@ class Model_fit():
         self.diff = []
 
         for channel, data_dict in self.data2fit.items():
-            if channel != 'total':
-                chnl_indx = self.csemodel.us.statelabel.index(channel)
-
             for data_type, data in data_dict.items():
                 match data_type[:2]:
                     case 'xs':
