@@ -316,7 +316,7 @@ class Model_fit():
         self.csemodel.calculate_xs(transition_energy=wavenumber,
                                    eni=eni, rotf=rotf, roti=roti)
 
-        if channel != 'total':
+        if channel == 'total':
             self.csexs = self.csemodel.xs.sum(axis=1)
         else:
             chnl_indx = self.csemodel.us.statelabel.index(channel)
