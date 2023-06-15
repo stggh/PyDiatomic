@@ -117,7 +117,7 @@ class Cse():
         self.VT = cse_setup.coupling_function(self.R, self.VT, self.μ,
                                               self.pecfs, coup=coup)
 
-    def solve(self, en, rot=None, mx=None):
+    def solve(self, en, rot=None, mx=None, bounds=None):
         """ solve the Schrodinger equation for the (coupled) potential(s).
 
         Parameters
@@ -134,7 +134,7 @@ class Cse():
         if rot is not None:
             self.rot = rot   # in case called separately
 
-        johnson.solveCSE(self, en, mx=mx)
+        johnson.solveCSE(self, en, mx=mx, bounds=bounds)
 
         self.cm = self.energy*self._evcm
 
@@ -148,10 +148,14 @@ class Cse():
             else:
                 self.vib = None
 
-    def node_count(self):
-        V = self.VT[0][0][:np.shape(self.wavefunction)[0]]
+    def node_count(self, channel=0, indx=None):
+        if indx is None:
+            indx = self.limits[0]
 
-        wfx = self.wavefunction[self.energy > V]  # inside well
+        V = self.VT[channel, channel, :indx]
+
+        # inside well
+        wfx = self.wavefunction[:indx, channel, 0][self.energy > V]
 
         vib = (wfx[1:]*wfx[:-1] < 0).sum(dtype=int)
 

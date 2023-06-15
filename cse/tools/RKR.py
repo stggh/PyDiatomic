@@ -180,7 +180,7 @@ def inner_limb_Morse(R, P, RTP, PTP, Re, De, Voo, verbose=True):
 
     # fit Morse to inner turning points - adjusting β, Re, De; fixed Voo
     # inner = len(PTP) // 2
-    inner = RTP < Re*0.9
+    inner = RTP < Re*0.95
 
     popt, pcov = curve_fit(lambda x, β, Re, De: Morse(x, β, Re, De, Voo),
                            RTP[inner], PTP[inner], p0=[β, Re, De])
@@ -204,6 +204,8 @@ def outer_limb_Morse(R, P, RTP, PTP, Re, De, Voo, verbose=True):
     l2 = np.log(1 - np.sqrt((PTP[-2] - Te)/De))
     Re = (l2*RTP[-1] - l1*RTP[-2])/(l2 - l1)
     β = l1/(Re - RTP[-1])
+    print(PTP[-1], Te, De)
+    print('-----------', β, l1, l2, Re)
 
     # fit Morse to outer turning points - adjusting β, Re, De; fixed Voo
     outer = len(PTP) // 6

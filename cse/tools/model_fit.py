@@ -161,7 +161,8 @@ class Model_fit():
                     case 'ΔV':
                         scaling = lsqpars.pop(0)
                         VTd[indx] += value*scaling
-                        print(f'ΔV: {scaling:.3f}')
+                        if self.verbose:
+                            print(f'ΔV: {scaling:.3f}')
 
                     case 'Vstr':
                         scaling = lsqpars.pop(0)
@@ -173,7 +174,8 @@ class Model_fit():
                         left, right = lsqpars[:2]
                         Rscaled = R.copy()
                         Re = R[VTd[indx].argmin()]
-                        print(f'left={left:.3f}, right={right:.3f}')
+                        if self.verbose:
+                            print(f'left={left:.3f}, right={right:.3f}')
 
                         rl = R < Re
                         Rscaled[rl] = (R[rl] - Re)*left + Re
@@ -214,8 +216,9 @@ class Model_fit():
             coupling, i, j = self.coupling[lbl]  # original value tuple
             self.csemodel.us.VT[i][j] = self.csemodel.us.VT[j][i]\
                                       = coupling*scaling
-            print(f'coupling {i}{j} = '
-                  f'{(coupling*self._evcm*scaling).max():8.2f}')
+            if self.verbose:
+                print(f'coupling {i}{j} = '
+                      f'{(coupling*self._evcm*scaling).max():8.2f}')
 
         # etdm -------------------------------------------------
         for lbl, scaling in self.etdm_adj.items():
@@ -302,7 +305,7 @@ class Model_fit():
         print()
 
 
-    def cross_section(self, data, channel, eni=1100, roti=0, rotf=0):
+    def cross_section(self, data, channel='total', eni=1100, roti=0, rotf=0):
         if data[0][0] < 100:
             dwn = 1000
             wavenumber = []
@@ -340,13 +343,14 @@ class Model_fit():
                 match data_type[:2]:
                     case 'xs':
                         self.cross_section(data, channel)
-                        diff = (csexs - data[1])*1e19
+                        diff = (self.csexs - data[1])*1e19
                         self.diff.append(diff)
 
                     case 'po':
                         self.cross_section(data, channel, eni=1100)
                         self.diff.append(self.peak - data[1])
-                        print('position: ', self.diff[-1])
+                        if self.verbose:
+                            print('position: ', self.diff[-1])
 
                     case 'Bv':
                         self.cross_section(data, channel, eni=1100)
@@ -355,7 +359,8 @@ class Model_fit():
                                            roti=10, rotf=10)
                         Bv = np.abs(self.peak0 - self.peak)/10/11
                         self.diff.append(Bv - data[1])
-                        print('Bv: ', self.diff[-1])
+                        if self.verbose:
+                            print('Bv: ', self.diff[-1])
 
         self.diff = np.hstack((self.diff))
         self.sum = self.diff.sum()

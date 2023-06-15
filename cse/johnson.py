@@ -369,7 +369,7 @@ def amplitude(wf, R, edash, μ):
     return K, AI, B
 
 
-def solveCSE(Cse, en, mx=None):
+def solveCSE(Cse, en, mx=None, bounds=None):
 
     rot = Cse.rot
     μ = Cse.μ
@@ -389,8 +389,12 @@ def solveCSE(Cse, en, mx=None):
         mx, Cse.inner, Cse.outer = matching_point(en, rot, V, R, μ, AM)
 
     if mx < oo-5:
-        out = least_squares(eigen, (en, ), method='lm',
-                            args=(rot, mx, V, R, μ, AM))
+        if bounds is None:
+            out = least_squares(eigen, (en, ), method='lm', 
+                                args=(rot, mx, V, R, μ, AM))
+        else:
+            out = least_squares(eigen, (en,), method='trf', bounds=bounds, 
+                                args=(rot, mx, V, R, μ, AM))
         en = float(out.x[0])
 
     # solve CSE according to Johnson renormalized Numerov method

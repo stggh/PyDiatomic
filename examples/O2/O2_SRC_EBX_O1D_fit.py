@@ -47,20 +47,21 @@ R = EB.R  # common internuclear distance grid
 print(f'Wei fit to {lb1}')
 subR = np.logical_and(R > 0.98, R < 1.31)
 Efit = cse.tools.analytical.Wei_fit(R[subR], EB.VT[1, 1][subR]*evcm,
-                                    voo=EB.VT[1, 1, -1]*evcm,
-                                    adjust=['re', 'De', 'b', 'h'])
+                                    Voo=EB.VT[1, 1, -1]*evcm,
+                                    adjust=['Re', 'De', 'b', 'h'])
 print(Efit.fitstr)
 
 # least-squares fit -----------------------------------------------
 t0 = time.time()
 fit = cse.tools.model_fit.Model_fit(EBX, method='lm',
-          data2fit={lb0:{'xs':(wn, expt)}
+          data2fit={'total':{'xs':(wn, expt)}
                     #lb1:{'position': 82945}},
                     },
-          VT_adj={#lb1:{'ΔV':-1000},
+          VT_adj={# lb1:{'ΔV':-1000},
                   # lb1:{'ΔR':(0.1, -0.5, 0.5)}},
                   lb0:{'spline':np.arange(0.9, 1.4, 0.1)},
-                  lb1:{'Wei':Efit.paramdict | {'Rm':0.98, 'Rn':1.31}}},
+                  lb1:{'Wei':Efit.paramdict | {'Rm':0.98, 'Rn':1.31}}
+                  },
           coup_adj={lb1+'<->'+lb0:1},
           etdm_adj={lb0+'<-'+X.statelabel[0]:0.5},
           verbose=False)
@@ -71,13 +72,12 @@ mins, secs = dt // 60, dt % 60
 print(f'\nCalculation time: {int(mins):d} minutes and {int(secs)} seconds\n')
 
 # plot -----------------------------------------------------------
-fit.residual(fit.result.x, keepxs=True)
+fit.residual(fit.result.x)
 
 fig, (axp, axx) = plt.subplots(1, 2, sharey=True)
 axx.plot(xsO1D, wavenumber, 'C2', label=r'expt. O($^1D_2$)')
 try:
-    wn, xs = fit.csexs[lb0]['xs']
-    axx.plot(xs, wn, 'C3o', ms=2, label='cse')
+    axx.plot(fit.csexs, wn, 'C3o', ms=2, label='cse')
 except:
     pass
 axx.set_xlabel(r'photodissociation cross section (cm$^2$)')
