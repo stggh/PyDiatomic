@@ -2,13 +2,13 @@ language: python
 sudo: false
 matrix:
   include:
-  - python: '3.9'
+  - python: '3.11'
     env: DEPS="numpy scipy periodictable"
-    dist: xenial
+    dist: jammy
 install:
   - pip install --upgrade pip setuptools wheel
   - pip install ${DEPS}
   - pip install coveralls pytest pytest-cov
-  - python setup.py install
+  - pip install . -v
 script:
   - pytest -v --cov=cse --pyargs cse
