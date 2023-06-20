@@ -17,19 +17,19 @@ class Model_fit():
           etdm_adj : electric transition dipole moment
            
         data2fit: data dict to fit:
-        'xs' : {channel statelabel, ([wavenumber], [cross section])}
-        'Bv' : {statelabel, ([v], [Bv])}
-        'position' : {statelabel, ([v], [wavenumber of peak])}
-        'width' : {statelabel, (wn0, wn1, width, J)}
+        'xs' : {channel statelabel: ([wavenumber], [cross section])}
+        'Bv' : {statelabel: ([v], [Bv])}
+        'position' : {statelabel: ([v], [wavenumber of peak])}
+        'width' : {statelabel: (wn0, wn1, width, J)}
 
     Attributes
     ----------
     result : dict
-        least_squares fit attriubutes, with stderr for each parameter
+        least_squares fit attributes, with stderr for each parameter
     """
 
     def __init__(self, csemodel, data2fit, VT_adj={}, coup_adj={},
-                 etdm_adj={}, method='lsq', verbose=True):
+                 etdm_adj={}, method='lm', verbose=True):
         """
         Parameters
         ----------
