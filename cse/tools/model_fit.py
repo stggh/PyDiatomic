@@ -29,7 +29,7 @@ class Model_fit():
     """
 
     def __init__(self, csemodel, data2fit, VT_adj={}, coup_adj={},
-                 etdm_adj={}, method='lm', verbose=True):
+                 etdm_adj={}, method='lm', bounds_factor=0.1, verbose=True):
         """
         Parameters
         ----------
@@ -51,8 +51,8 @@ class Model_fit():
             {'Julienne':{'Mx':Mx, 'Rx':Rx, 'Vx':Vx, 'Voo':Voo, 'Rm':Rm,
                          'Rn':Rn}},
 
-            # stretching
-            {'Rstr': {'left':left, 'right':right}},  # about Rₑ
+            # R-stretching about Rₑ
+            {'Rstr': {'inner':inner_scaling, 'outer':outer_scaling}},
             {'Vstr': float},  # about V∞
 
             # scaling
@@ -70,7 +70,9 @@ class Model_fit():
         """
 
         self.verbose = verbose
+        # least_squares parameters
         self.method = method
+        self.bf = bounds_factor
 
         # CSE model -------------------------------------------
         self.csemodel = csemodel  # CSE Transition instance
@@ -90,7 +92,8 @@ class Model_fit():
         # least-squares fitting ------------------------------
         self.fit()  # least-squares fit
         self.result.stderr = fiterrors(self.result)  # parameter error estimates
-        self.print_result()
+        if verbose:
+            self.print_result()
 
     def parameter_pack(self):
         """ parameter list for least-squares fitting.
@@ -136,7 +139,7 @@ class Model_fit():
 
         pars = np.ones(self.par_count)
         self.lsqpars = pars
-        self.bounds = (pars*0.95, pars*1.05)
+        self.bounds = (pars*(1-self.bf), pars*(1+self.bf))
 
     def parameter_unpack(self, pars):
         """ extract new CSE model parameters from values of the least_squares
@@ -151,40 +154,46 @@ class Model_fit():
         # potential energy curve adjustments --------------------
         for state, state_dict in self.VT_adj.items():
             indx = self.csemodel.us.statelabel.index(state)
+
             for param, value in state_dict.items():
                 match param:
                     # single value
                     case 'ΔR':
-                        spl = splrep(R-value*lsqpars.pop(0), VTd[indx])
+                        shift = value*lsqpars.pop(0)
+                        spl = splrep(R-shift, VTd[indx])
                         VTd[indx] = splev(R, spl)
+                        if self.verbose:
+                            print(f'ΔR: {shift:.3f}')
 
                     case 'ΔV':
-                        scaling = lsqpars.pop(0)
-                        VTd[indx] += value*scaling
+                        shift = value*lsqpars.pop(0)
+                        VTd[indx] += shift
                         if self.verbose:
-                            print(f'ΔV: {scaling:.3f}')
+                            print(f'ΔV: {shift:.3f}')
 
                     case 'Vstr':
-                        scaling = lsqpars.pop(0)
-                        Voo = VTd[indx][-1]
+                        scaling = value*lsqpars.pop(0)
+                        Voo = VTd[indx][-1]  # dissociation limit
                         VTd[indx] = (VTd[indx] - Voo)*scaling + Voo
+                        if self.verbose:
+                            print(f'Vstr: {scaling:.3f}')
 
                     # multi-value
                     case 'Rstr':
-                        left, right = lsqpars[:2]
+                        inner = value['inner']*lsqpars.pop(0)
+                        outer = value['outer']*lsqpars.pop(0)
                         Rscaled = R.copy()
                         Re = R[VTd[indx].argmin()]
                         if self.verbose:
-                            print(f'left={left:.3f}, right={right:.3f}')
+                            print(f'Rstr: inner={inner:.3f}, outer={outer:.3f}')
 
-                        rl = R < Re
-                        Rscaled[rl] = (R[rl] - Re)*left + Re
-                        rr = R >= Re
-                        Rscaled[rr] = (R[rr] - Re)*right + Re
+                        ri = R < Re
+                        Rscaled[ri] = (R[ri] - Re)*inner + Re
+                        ro = R >= Re
+                        Rscaled[ro] = (R[ro] - Re)*outer + Re
 
                         spl = splrep(Rscaled, VTd[indx])
                         VTd[indx] = splev(R, spl)
-                        lsqpars = lsqpars[2:]
 
                     case 'Wei' | 'Julienne':
                         analyt_dict = state_dict[param].copy()
@@ -234,7 +243,7 @@ class Model_fit():
         unit = {'Wei': {'Re':'Å', 'De':'cm⁻¹', 'Voo':'cm⁻¹', 'b':'', 'h':''},
                 'Julienne': {'Mx':'cm⁻¹/Å', 'Rx':'Å', 'Vx':'cm⁻¹',
                              'Voo':'cm⁻¹'},
-                'Rstr':{'left':'', 'right':''}
+                'Rstr':{'inner':'', 'outer':''}
                }
 
         print('\n\nModel fitted parameters')
@@ -247,9 +256,11 @@ class Model_fit():
                     match param:
                         # single value
                         case 'ΔR' | 'ΔV' | 'Vstr':
-                            print(f'{param:15s} '
-                                  f'{value*lsqpars.pop(0):8.3f}±'
-                                  f'{value*stderr.pop(0):.3f} cm⁻¹') 
+                            shift = lsqpars.pop(0)
+                            stderr = float(stderr.pop(0))
+                            print(f'{param:15s} {shift:5.3f}±{stderr:.3f} '
+                                  f'{value*shift:8.3f}±'
+                                  f'{value*stderr:.3f} cm⁻¹') 
                         # multi-value
                         case 'Wei' | 'Julienne' | 'Rstr':
                             print(f'{param:25s} ')
@@ -259,7 +270,7 @@ class Model_fit():
                                 scaling = lsqpars.pop(0)
                                 scaling_err = stderr.pop(0)
                                 print(f'{" ":27s} ',
-                                      f'{scaling:8.3f}±{scaling_err:.3f}'
+                                      f'{scaling:5.3f}±{scaling_err:.3f}'
                                       f'{k:>5s} = {v*scaling:12.3f}±'
                                       f'{v*scaling_err:.3f} '
                                       f'{unit[param][k]}')
@@ -347,10 +358,17 @@ class Model_fit():
                         self.diff.append(diff)
 
                     case 'po':
-                        self.cross_section(data, channel, eni=1100)
-                        self.diff.append(self.peak - data[1])
+                        if self.csemodel.us.limits[1] == 1:
+                            # single PEC
+                            self.csemodel.us.levels(data[0].max()+2)
+                            for v, Tv in zip(*data):
+                                self.diff.append(
+                                  self.csemodel.us.results[v][0] - Tv)
+                        else:
+                            self.cross_section(data, channel, eni=1100)
+                            self.diff.append(self.peak - data[1])
                         if self.verbose:
-                            print('position: ', self.diff[-1])
+                            print('position: ', self.diff[-len(data[0]):])
 
                     case 'Bv':
                         self.cross_section(data, channel, eni=1100)
@@ -367,8 +385,6 @@ class Model_fit():
 
         if self.verbose:
             print(f'{pars} {self.sum:g}')
-        else:
-            print('.', end='')
 
         return self.diff
 
@@ -376,12 +392,9 @@ class Model_fit():
 
         self.parameter_pack()
 
-        if not self.verbose:
-            print('Model_fit: each "." represents an iteration')
-
         if self.method == 'lm':
             self.result = least_squares(self.residual, self.lsqpars,
-                                        method=self.method,
+                                        method=self.method, 
                                         x_scale='jac', diff_step=0.1)
         else:
             self.result = least_squares(self.residual, self.lsqpars,
