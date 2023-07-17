@@ -26,6 +26,8 @@ class Model_fit():
     ----------
     result : dict
         least_squares fit attributes, with stderr for each parameter
+    csemodel : cse.Transition class
+        as input, with optimised parameters
     """
 
     def __init__(self, csemodel, data2fit, VT_adj={}, coup_adj={},
@@ -66,7 +68,7 @@ class Model_fit():
         # electric dipole transition moment -------
         etdm_adj: {'fsl0<-isl0':scaling_factor, 'fsl1<-isl0':scaling_factor} 
 
-        Each parameter is a scaled relative to 1.0
+        NB: Each parameter is a scaled relative to 1.0
         """
 
         self.verbose = verbose
@@ -92,6 +94,9 @@ class Model_fit():
         # least-squares fitting ------------------------------
         self.fit()  # least-squares fit
         self.result.stderr = fiterrors(self.result)  # parameter error estimates
+
+        # update csemodel
+        self.residual(self.result.x)
         if verbose:
             self.print_result()
 
