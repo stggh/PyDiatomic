@@ -98,7 +98,7 @@ class Model_fit():
         # update csemodel
         self.residual(self.result.x)
         if verbose:
-            self.print_result()
+            print(self)
 
     def parameter_pack(self):
         """ parameter list for least-squares fitting.
@@ -241,7 +241,7 @@ class Model_fit():
             self.csemodel.dipolemoment[:, indxi, indxf] = etdm*scaling
 
 
-    def print_result(self):
+    def __repr__(self):
         lsqpars = list(self.result.x)
         stderr = list(self.result.stderr)
 
@@ -251,44 +251,44 @@ class Model_fit():
                 'Rstr':{'inner':'', 'outer':''}
                }
 
-        print('\n\nModel fitted parameters')
+        about = '\n\nModel fitted parameters\n'
 
         if self.VT_adj:
-            print('Potential energy curves ----------------------------')
+            about += 'Potential energy curves ----------------------------\n'
             for state, state_dict in self.VT_adj.items():
-                print(f'{state:10s} ', end='')
+                about += f'{state:10s} '
                 for param, value in state_dict.items():
                     match param:
                         # single value
                         case 'ΔR' | 'ΔV' | 'Vstr':
                             shift = lsqpars.pop(0)
                             stderr = float(stderr.pop(0))
-                            print(f'{param:15s} {shift:5.3f}±{stderr:.3f} '
-                                  f'{value*shift:8.3f}±'
-                                  f'{value*stderr:.3f} cm⁻¹') 
+                            about += f'{param:15s} {shift:5.3f}±{stderr:.3f}' +\
+                                     f' {value*shift:8.3f}±' +\
+                                     f'{value*stderr:.3f} cm⁻¹\n'
                         # multi-value
                         case 'Wei' | 'Julienne' | 'Rstr':
-                            print(f'{param:25s} ')
+                            about += f'{param:5s} '
                             for k, v in value.items():
                                 if k in ['Rm', 'Rn']:
                                     continue
                                 scaling = lsqpars.pop(0)
                                 scaling_err = stderr.pop(0)
-                                print(f'{" ":27s} ',
-                                      f'{scaling:5.3f}±{scaling_err:.3f}'
-                                      f'{k:>5s} = {v*scaling:12.3f}±'
-                                      f'{v*scaling_err:.3f} '
-                                      f'{unit[param][k]}')
+                                about += f'{" ":7s} ' +\
+                                      f'{scaling:5.3f}±{scaling_err:.3f}  ' +\
+                                      f'{k:>15s} = {v*scaling:12.3f}±' +\
+                                      f'{v*scaling_err:.3f} ' +\
+                                      f'{unit[param][k]}\n'
                         case 'spline':
-                            print(f'{param:6s}   r(Å)         scaling')
+                            about += f'{param:6s}   r(Å)         scaling\n'
                             for r in value:  # here an array
-                                print(f'{" ":16s} {r:8.3f}  '
-                                      f'{lsqpars.pop(0):12.3f}±'
-                                      f'{stderr.pop(0):.3f}')
-                print()
+                                about += f'{" ":16s} {r:8.3f}  ' +\
+                                      f'{lsqpars.pop(0):12.3f}±' +\
+                                      f'{stderr.pop(0):.3f}\n'
+                about += '\n'
 
         if self.coup_adj:
-            print('\nCoupling ------------------------------------')
+            about += '\nCoupling ------------------------------------\n'
             for lbl, v in self.coup_adj.items():
                 scaling = lsqpars.pop(0)
                 scaling_err = stderr.pop(0)
@@ -298,14 +298,14 @@ class Model_fit():
                             self.csemodel.us.VT[j, j]).argmin()
                 Rx = self.R[ix]
 
-                print(f'{lbl:>10s} {" ":14s} {scaling:8.3f}±{scaling_err:.3f}',
-                      end='')
-                print(f'  {coupling[ix]*scaling*self._evcm:8.3f}±'
-                      f'{coupling[ix]*scaling_err*self._evcm:.3f}'
-                      f' cm⁻¹ at {Rx:5.3f} Å')
+                about += f'{lbl:>10s} {" ":14s} {scaling:8.3f}±' +\
+                         f'{scaling_err:.3f}'
+                about += f'  {coupling[ix]*scaling*self._evcm:8.3f}±' +\
+                         f'{coupling[ix]*scaling_err*self._evcm:.3f}' +\
+                         f' cm⁻¹ at {Rx:5.3f} Å\n'
 
         if self.etdm_adj:
-            print('\nElectronic transition dipole moment ---------')
+            about += '\nElectronic transition dipole moment ---------\n'
             ire = self.csemodel.us.VT[0, 0].argmin()
             Re = self.R[ire]
             for lbl, v in self.etdm_adj.items():
@@ -313,12 +313,13 @@ class Model_fit():
                 scaling_err = stderr.pop(0)
                 etdm, i, f = self.etdm[lbl]
                 etdm = etdm[ire]
-                print(f'{lbl:>10s} {" ":15s} '
-                      f'{scaling:8.3f}±{scaling_err:.3f}'
-                      f' {etdm*scaling:8.3f}±{etdm*scaling_err:.3f} a.u.',
-                      f' at {Re:5.3f} Å')
+                about += f'{lbl:>10s} {" ":15s} ' +\
+                         f'{scaling:8.3f}±{scaling_err:.3f}' +\
+                         f' {etdm*scaling:8.3f}±{etdm*scaling_err:.3f} a.u.' +\
+                         f' at {Re:5.3f} Å\n'
 
-        print()
+        about += '\n'
+        return about
 
 
     def cross_section(self, data, channel='total', eni=1100, roti=0, rotf=0):
