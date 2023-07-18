@@ -256,32 +256,33 @@ class Model_fit():
         if self.VT_adj:
             about += 'Potential energy curves ----------------------------\n'
             for state, state_dict in self.VT_adj.items():
-                about += f'{state:10s} '
+                about += f'{state:10s}\n'
                 for param, value in state_dict.items():
+                    about += f'{param:5s}\n'
                     match param:
                         # single value
                         case 'ΔR' | 'ΔV' | 'Vstr':
-                            shift = lsqpars.pop(0)
-                            stderr = float(stderr.pop(0))
-                            about += f'{param:15s} {shift:5.3f}±{stderr:.3f}' +\
-                                     f' {value*shift:8.3f}±' +\
-                                     f'{value*stderr:.3f} cm⁻¹\n'
+                            scaling = lsqpars.pop(0)
+                            scal_err = float(stderr.pop(0))
+                            about += ' scaling    value*scaling\n'
+                            about += f' {scaling:5.3f}±{scal_err:.3f}' +\
+                                     f' {value*scaling:8.3f}±' +\
+                                     f'{value*scal_err:.3f} cm⁻¹\n'
                         # multi-value
                         case 'Wei' | 'Julienne' | 'Rstr':
-                            about += f'{param:5s} '
                             for k, v in value.items():
                                 if k in ['Rm', 'Rn']:
                                     continue
                                 scaling = lsqpars.pop(0)
-                                scaling_err = stderr.pop(0)
+                                scal_err = stderr.pop(0)
                                 about += f'{" ":7s} ' +\
-                                      f'{scaling:5.3f}±{scaling_err:.3f}  ' +\
-                                      f'{k:>15s} = {v*scaling:12.3f}±' +\
-                                      f'{v*scaling_err:.3f} ' +\
+                                      f'{scaling:5.3f}±{scal_err:.3f}  ' +\
+                                      f'{k:>5s} = {v*scaling:12.3f}±' +\
+                                      f'{v*scal_err:.3f} ' +\
                                       f'{unit[param][k]}\n'
                         case 'spline':
-                            about += f'{param:6s}   r(Å)         scaling\n'
-                            for r in value:  # here an array
+                            about += f'  r(Å)         scaling\n'
+                            for r in value:  # here is an array
                                 about += f'{" ":16s} {r:8.3f}  ' +\
                                       f'{lsqpars.pop(0):12.3f}±' +\
                                       f'{stderr.pop(0):.3f}\n'
