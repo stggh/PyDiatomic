@@ -33,7 +33,8 @@ if __name__ == '__main__':
 
     T = 300
     wn, xsT = O2(T)
-    Yoshino = np.loadtxt('../Yoshino/o2wb12x0.xsc', unpack=True)
+    Yoshino = np.loadtxt('../../examples/O2/data/Harvard/o2wb12x0.xsc',
+                         unpack=True)
 
     plt.semilogy(wn, xsT)
     plt.title(f'{T:d} K')
