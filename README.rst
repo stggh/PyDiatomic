@@ -4,7 +4,7 @@ PyDiatomic README
 Introduction
 ------------
 
-PyDiatomic solves the time-independent coupled-channel Schroedinger equation
+PyDiatomic solves the time-independent coupled-channel Schrödinger equation
 using the Johnson renormalized Numerov method [1]. This is very compact and stable algorithm.
 
 The code is directed to the computation of photodissociation cross sections for diatomic molecules. The coupling of electronic states results in transition profile broadening, line-shape asymmetry, and intensity sharing. A coupled-channel calculation is the only correct method compute the photodissociation cross-section.
@@ -33,7 +33,7 @@ periodictable ::
 
     pip install periodictable
 
-execution speed: There are big gains `> x8` in using the intel math kernel librayr
+execution speed: There are big gains `> x8` in using the intel math kernel library
 
    sudo apt install intel-mkl
 
@@ -50,7 +50,7 @@ PyDiatomic has a wrapper classes :class:`cse.Cse()` and
 
 :class:`cse.Cse()`  set ups the CSE problem 
 (interaction matrix of potential energy curves, and couplings) and solves 
-the coupled channel Schroedinger equation for an initial guess energy.
+the coupled channel Schrödinger equation for an initial guess energy.
 
 Input parameters may be specified in the class instance, or they will be 
 requested if required.
@@ -90,23 +90,17 @@ requested if required.
    X.levels(vmax=5)  # evaluates energy levels for v=0, .., vmax
                      # attribute .calc
    X  # class representation
-   # Molecule: O2  mass: 1.32801e-26 kg
-   # Electronic state: X3S-1.dat
-   # evaluated eigenvalues:
-   # v    energy(cm-1)    Bv(cm-1)
-   # 0       787.398      1.43768
-   # 1      2337.360      1.42051
-   # 2      3867.008      1.40407
-   # 3      5375.938      1.38823
-   # 4      6863.744      1.37288
-   # 5      8335.901      1.35919
-   # 7     11196.366      1.32867
-   # 11     16131.082      1.22378
-   # 15     21719.531      1.20443
-   # 17     24119.541      1.17186
-   # 24     31559.738      0.99627
-   # 25     32754.587      1.03787
-   # 35     40566.037      0.74300
+   # Molecule: O2  mass: 1.32801e-26 kg, 7.99746 amu
+   # Electronic state:   X³Σ₁⁻
+   # eigenvalues (that have been evaluated for this state):
+   # v  rot   energy(cm⁻¹)    Bv(cm⁻¹)     Dv(cm⁻¹)
+   # 0   0      787.399       1.43768      4.840e-06
+   # 1   0     2343.762       1.42186      4.839e-06
+   # 2   0     3876.579       1.40613      4.837e-06
+   # 3   0     5386.161       1.39043      4.839e-06
+   # 4   0     6872.504       1.37479      4.840e-06
+   # 5   0     8335.794       1.35923      4.842e-06
+   # 6   0     9776.167       1.34368      4.846e-06
 
 
 :class:`cse.Transition()` evaluates two couple channel problems, for an
@@ -117,20 +111,23 @@ cross section.
 
    import numpy as np
    import cse
-   # initial state
+   # initial state instance
    O2X = cse.Cse('O2', VT=['potentials/X3S-1.dat'], en=800)
-   # final state
+   # final state instance
    O2B = cse.Cse('O2', VT=['potentials/B3S-1.dat'])
-   # transition 
-   BX = cse.Transition(O2B, O2X)
-   # methods 
-   # BX.calculate_xs()  
-   BX.calculate_xs(transition_energy=np.arange(110, 174, 0.1), eni=800)
-   # attributes
-   # the calculated cross section BX.xs and those of the initial BX.gs and
-   # final coupled states BS.us
+   # transition instance O2B <- O2X, electric dipole transition 
+   BX = cse.Transition(O2B, O2X, dipolemoment=[1])
 
-A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg-valence coupling in O\ :sub:`2`
+   # methods
+   # evaluate cross section 57,550-90,000 cm⁻¹ step 500 cm⁻¹
+   BX.calculate_xs(transition_energy=np.arange(57550, 90000, 500))
+
+   # attributes
+   #   BX.wavenumber, BX.xs - the calculated cross section
+   #   BX.us - upper state instance, BX.gs - ground state instance
+
+
+A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg-valence coupling in O\ :sub:`2`, `examples/O2/O2_RVxs.py`:
 
 .. code-block:: python
 
@@ -138,79 +135,100 @@ A simple :math:`^{3}\Sigma_{u}^{-} \leftrightarrow {}^{3}\Sigma^{-}_{u}` Rydberg
     import cse
     import matplotlib.pyplot as plt
 
-    O2X = cse.Cse('O2', VT=['X3S-1.dat'], en=800)
-    O2B = cse.Cse('O2', VT=['B3S-1.dat', 'E3S-1.dat'], coup=[4000])
-    O2BX = cse.Transition(B, X, dipolemoment=[1, 0],
-               transition_energy=np.arange(110, 174, 0.1))
+    O2X = cse.Cse('O2', VT=['potentials/X3S-1.dat'], en=800)
+    O2B = cse.Cse('O2', dirpath='potentials', VT=['B3S-1.dat', 'E3S-1.dat'],
+                  coup=[4000])
+    O2BX = cse.Transition(O2B, O2X, dipolemoment=[1, 0],
+               transition_energy=np.arange(57550, 90000, 100))  # cm⁻¹
 
-    plt.plot(O2BX.wavenumber, O2BX.xs*1.0e16)
-    plt.xlabel("Wavenumber (cm$^{-1}$)")
-    plt.ylabel("Cross section ($10^{-16}$ cm$^{2}$)")
-    plt.axis(ymin=-0.2)
-    plt.title("O$_{2}$ $^{3}\Sigma_{u}^{-}$ Rydberg-valence interaction")
-    plt.savefig("RVxs.png", dpi=75)
+    plt.plot(O2BX.wavenumber, O2BX.xs[:, 0])  # '0' is 'B3S-1.dat' channel
+    plt.xlabel('Wavenumber (cm$^{-1}$)')
+    plt.ylabel('Cross section (cm$^{2}$)')
+    plt.ticklabel_format(axis='y', style='sci', scilimits=(-19, -19))
+    plt.title('O$_{2}$ $^{3}\Sigma_{u}^{-}$ Rydberg-valence interaction')
+
+    plt.savefig('figures/O2_RVxs.svg')
     plt.show()
 
 
-.. figure:: https://cloud.githubusercontent.com/assets/10932229/21469172/177a519c-ca91-11e6-8251-52efb7aa1a37.png
-   :width: 300px
+.. figure:: https://github.com/stggh/PyDiatomic/assets/10932229/5e466dee-3017-4414-bd01-6aeef4edab17
+   :width: 500px
    :alt: calculated cross section
+   :align: center
    
 
-`example_O2xs.py`:
+`examples/O2_xs.py`:
 
-.. figure:: https://user-images.githubusercontent.com/10932229/33101884-53a8ab68-cf6e-11e7-86f2-876d28809328.png
-   :width: 300px
-   :alt: example_O2xs
-
-
-`example_O2_continuity.py`:
-
-.. figure:: https://user-images.githubusercontent.com/10932229/30096079-b869e486-9319-11e7-8adb-3ae64bff88d4.png
-   :width: 300px
-   :alt: example_O2_continuity
+.. figure:: https://github.com/stggh/PyDiatomic/assets/10932229/e89cdfdc-7747-425a-bcf1-63c7e30376e1
+   :width: 500px
+   :alt: O2_xs
+   :align: center
 
 
-`example_O2X_fine_structure.py`:
+`examples/O2_continuity.py`:
+
+.. figure:: https://github.com/stggh/PyDiatomic/assets/10932229/87375946-ddc3-41aa-b715-3e50eed8ab2c
+   :width: 500px
+   :alt: O2_continuity
+   :align: center
+
+
+`examples/O2_fine_structure_X.py`:
 
 .. code-block:: python
 
-    PyDiatomic O2 X-state fine-structure levels
-      energy diffences (cm-1): Rouille - PyDiatomic
-     N        F1          F2          F3
-     1      -0.000       0.000       0.000
+    PyDiatomic O₂ X-state fine-structure levels
+      energy diffences (cm⁻¹): Rouille - PyDiatomic
+     N        F₁          F₂          F₃
+     1      -0.001       0.000      -0.591
      3      -0.005       0.000       0.009
      5      -0.009       0.000       0.013
      7      -0.013       0.000       0.017
-     9      -0.017       0.000       0.022
-    11      -0.021       0.000       0.026
-    13      -0.025       0.000       0.030
-    15      -0.029      -0.000       0.034
-    17      -0.033      -0.000       0.039
-    19      -0.037      -0.000       0.043
-    21      -0.041      -0.000       0.047
+     9      -0.016       0.000       0.022
+    11      -0.020       0.001       0.026
+    13      -0.024       0.001       0.031
+    15      -0.027       0.001       0.036
+    17      -0.031       0.002       0.041
+    19      -0.034       0.002       0.046
+    21      -0.037       0.003       0.051
+    23      -0.040       0.003       0.056
+    25      -0.043       0.004       0.062
+    27      -0.046       0.005       0.067
+    29      -0.049       0.007       0.073
+    31      -0.051       0.008       0.080
+    33      -0.053       0.010       0.087
+    35      -0.054       0.013       0.094
+    37      -0.055       0.016       0.103
+    39      -0.055       0.019       0.112
+    41      -0.054       0.024       0.122
+    43      -0.052       0.030       0.133
+    45      -0.049       0.037       0.145
+    47      -0.044       0.045       0.160
+    49      -0.038       0.056       0.176
 
 
+`examples/O2_SRB_analyse_xs.py` (`dirpath = 'AX16O2_12'`):
 
-`example_O2_SRB4.py`:
-
-.. figure:: https://user-images.githubusercontent.com/10932229/33054465-7094c0f0-cecd-11e7-99c1-4f14c4ffad48.png
-   :width: 300px
-   :alt: example_O2_SRB4
-
-
-`example_HO.py`:
-
-.. figure:: https://user-images.githubusercontent.com/10932229/30100890-b3195eee-932d-11e7-9480-fec2af23f6ff.png
-   :width: 300px
-   :alt: example_HO
+.. figure:: https://github.com/stggh/PyDiatomic/assets/10932229/65175c10-8097-4597-9418-fb1e31edb0f2
+   :width: 800px
+   :alt: O2_SRB_analyse_xs
+   :align: center
 
 
-`example_rkr.py`:
+`examples/general/harmonic_oscillator.py`:
 
-.. figure:: https://cloud.githubusercontent.com/assets/10932229/21469152/a33fd798-ca90-11e6-8fe3-1f3c3364de26.png
-   :width: 300px
-   :alt: example_rkr
+.. figure:: https://github.com/stggh/PyDiatomic/assets/10932229/cb4b30d7-3fa2-4ff7-8671-a438c7e592c1
+   :width: 500px
+   :alt: harmonic_oscillator
+   :align: center
+
+
+`examples/O2_RKR_Xstate.py`:
+
+.. figure:: https://github.com/stggh/PyDiatomic/assets/10932229/cf8a9f53-c923-4c11-af6f-aac9dad434af 
+   :width: 500px
+   :alt: O2_RKR_Xstate
+   :align: center
 
 
 Rotation
@@ -235,21 +253,21 @@ Rotation
 Timing
 ------
 
-Each transition energy solution to the coupled-channel Schroedinger
+Each transition energy solution to the coupled-channel Schrödinger
 equation is a separate calculation.  PyDiatomic uses :code:`multiprocessing`
 to perform these calculations in parallel, resulting in a substantial
-reduction in execution time on multiprocessor systems. e.g. for :code:`example_O2xs.py`:
+reduction in execution time on multiprocessor systems. e.g. for :code:`examples/O2_continuity.py`, Anaconda python 3.11.4, Linux OS:
 
 
-==============     ====     ======     ==========
-machine            GHz      CPU(s)     time (sec)
-==============     ====     ======     ==========
-i7-9700            4.6      8          3
-Xeon E5-2697       2.6      64         6
-i7-6700            3.4      8          17
-Macbook pro i5     2.4      4          63
-raspberry pi 3     1.35     4          127
-==============     ====     ======     ==========
+==============     ====     ======     ==============  =========
+Machine            GHz      CPU(s)     Time(sec) osc   continuum
+==============     ====     ======     ==============  =========
+i7-9700            4.7      8          0.6             4
+Orange Pi 5        1.8      8          2.1             9
+i7-6700            3.4      8          1               10
+Macbook Pro i5     2.4      4          2.5             24
+Raspberry Pi 4     1.8      4          8.0             159
+==============     ====     ======     ==============  =========
 
 
 Documentation
@@ -282,7 +300,7 @@ The following publications have made use of `PyDiatomic`:
 References
 ----------
 
-[1] `B.R. Johnson "The renormalized Numerov method applied to calculating the bound states of the coupled-channel Schroedinger equation" J. Chem. Phys. 69, 4678 (1978) <http://dx.doi.org/10.1063/1.436421>`_
+[1] `B.R. Johnson "The renormalized Numerov method applied to calculating the bound states of the coupled-channel Schrödinger equation" J. Chem. Phys. 69, 4678 (1978) <http://dx.doi.org/10.1063/1.436421>`_
 
 [2] `B.R. Lewis, S.T. Gibson, F. T. Hawes, and L. W. Torop "A new model for
 the Schumann-Runge bands of O₂" Phys. Chem. Earth(C) 26 519 (2001) <http://dx.doi.org/10.1016/S1464-1917(01)00040-X>`_

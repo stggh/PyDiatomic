@@ -35,7 +35,7 @@ class Model_fit():
         """
         Parameters
         ----------
-        data2fit: {'channel':{'position': wavenumber_of_peak,
+        data2fit: {'channel':{'position': wavenumber(s)_of_peak,
                               'Bv: [v, Bv] array,
                               'xs': [wavenumber, cross_section] array},
                   {'channel2':   }}
@@ -68,7 +68,7 @@ class Model_fit():
         # electric dipole transition moment -------
         etdm_adj: {'fsl0<-isl0':scaling_factor, 'fsl1<-isl0':scaling_factor} 
 
-        NB: Each parameter is a scaled relative to 1.0
+        NB: Each parameter is scaled relative to 1.0
         """
 
         self.verbose = verbose
@@ -90,6 +90,11 @@ class Model_fit():
 
         # experimental data to fit ---------------------------
         self.data2fit = data2fit  # data sets
+        # weight array provided? otherwise add defaults=1
+        for statedict in data2fit.values():
+            for data in statedict.values():
+                if len(data) < 3:
+                    data += np.ones_like(data[0])  # + weights to tuple
 
         # least-squares fitting ------------------------------
         self.fit()  # least-squares fit
@@ -183,7 +188,7 @@ class Model_fit():
                         if self.verbose:
                             print(f'Vstr: {scaling:.3f}')
 
-                    # multi-value
+                    # multi-value parameters
                     case 'Rstr':
                         inner = value['inner']*lsqpars.pop(0)
                         outer = value['outer']*lsqpars.pop(0)
@@ -323,7 +328,7 @@ class Model_fit():
         return about
 
 
-    def cross_section(self, data, channel='total', eni=1100, roti=0, rotf=0):
+    def cross_section(self, data, channel='total', eni=1000, roti=0, rotf=0):
         if data[0][0] < 100:
             dwn = 1000
             wavenumber = []
@@ -358,34 +363,48 @@ class Model_fit():
 
         for channel, data_dict in self.data2fit.items():
             for data_type, data in data_dict.items():
+                wgt = data[-1]
                 match data_type[:2]:
                     case 'xs':
-                        self.cross_section(data, channel)
-                        diff = (self.csexs - data[1])*1e19
+                        self.cross_section(data[:2], channel)
+                        diff = (self.csexs - data[1])*1e19*wgt
                         self.diff.append(diff)
 
                     case 'po':
-                        if self.csemodel.us.limits[1] == 1:
-                            # single PEC
-                            self.csemodel.us.levels(data[0].max()+2)
-                            for v, Tv in zip(*data):
-                                self.diff.append(
-                                  self.csemodel.us.results[v][0] - Tv)
+                        if self.csemodel.us.limits[1] == 1:  # single PEC
+                            # ensure iterable 
+                            if not hasattr(data[0], '__iter__'):
+                                data = ([data[0]], [data[1]], [wgt])
+
+                            for v, Tv in zip(*data[:2]):
+                                self.csemodel.us.solve(Tv)
+                                self.diff.append((self.csemodel.us.cm - Tv)*wgt)
                         else:
-                            self.cross_section(data, channel, eni=1100)
-                            self.diff.append(self.peak - data[1])
+                            self.cross_section(data, channel)
+                            self.diff.append((self.peak - data[1])*wgt)
+
                         if self.verbose:
-                            print('position: ', self.diff[-len(data[0]):])
+                            print('Δposition: ', self.diff[-len(data[0]):])
 
                     case 'Bv':
-                        self.cross_section(data, channel, eni=1100)
-                        self.peak0 = self.peak
-                        self.cross_section(data, channel, eni=1200,
-                                           roti=10, rotf=10)
-                        Bv = np.abs(self.peak0 - self.peak)/10/11
-                        self.diff.append(Bv - data[1])
+                        if self.csemodel.us.limits[1] == 1:  # single PEC
+                            self.csemodel.us.levels(data[0].max()+2)
+                            # ensure iterable 
+                            if not hasattr(data[0], '__iter__'):
+                                data = ([data[0]], [data[1]], [wgt])
+
+                            for v, B in zip(*data[:2]):
+                                self.diff.append(
+                                   (self.csemodel.us.results[v][1] - B)*wgt)
+                        else:
+                            self.cross_section(data, channel)
+                            self.peak0 = self.peak
+                            self.cross_section(data, channel, roti=10, rotf=10)
+                            Bv = np.abs(self.peak0 - self.peak)/10/11
+                            self.diff.append((Bv - data[1])*wgt)
+
                         if self.verbose:
-                            print('Bv: ', self.diff[-1])
+                            print('ΔBv: ', self.diff[-len(data[0]):])
 
         self.diff = np.hstack((self.diff))
         self.sum = self.diff.sum()

@@ -51,7 +51,5 @@ ax1.set_title('diffence RKR - EMO')
 
 plt.tight_layout(w_pad=0.4)
 
-plt.savefig('figures/example_expanded_Morse_oscillator.svg')
+plt.savefig('figures/expanded_Morse_oscillator.svg')
 plt.show()
-
-

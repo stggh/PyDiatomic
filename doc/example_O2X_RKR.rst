@@ -1,6 +1,6 @@
-Example: example_O2X_RKR.py
+Example: O2_RKR_Xstate.py
 ===========================
 
-.. plot:: ../examples/O2/example_O2X_RKR.py
+.. plot:: ../examples/O2/O2_RKR_Xstate.py
    :include-source:
 

@@ -43,5 +43,5 @@ plt.xlabel(r'internuclear distance ($\AA$)')
 plt.ylabel(r'potential energy (cm$^{-1}$)')
 plt.legend()
 
-plt.savefig('figures/example_Wei_fit.svg')
+plt.savefig('figures/Wei_fit.svg')
 plt.show()

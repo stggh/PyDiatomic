@@ -1,6 +1,6 @@
-Example: example_O2B_RKR.py
+Example: O2_RKR_Bstate.py
 ===========================
 
-.. plot:: ../examples/O2/example_O2B_RKR.py
+.. plot:: ../examples/O2/O2B_RKR_Bstate.py
    :include-source:
 

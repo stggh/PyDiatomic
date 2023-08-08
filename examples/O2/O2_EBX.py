@@ -4,14 +4,15 @@ import matplotlib.pylab as plt
 import time
 
 # Model ------------------------------
-# O2 ground state X
+# O₂ ground state X instance
 X = cse.Cse('O2', VT=['potentials/X3S-1.dat'], en=800)
-evcm = X._evcm  # conversion eV to cm⁻¹
+evcm = X._evcm  # conversion factor eV to cm⁻¹
 
-# O2 upper coupled B-state
+# O₂ upper coupled B-state instance
 B = cse.Cse('O2', dirpath='potentials', suffix='.dat',
             VT=['B3S-1', 'E3S-1', '3P1', '3PR1'],
             coup=[4000, 40, 0, 0, 0, 7000])
+# fine-tune vibrational energy level positions
 B.VT[1, 1] -= 1000/evcm
 B.VT[-1, -1] -= 50/evcm
 

@@ -51,8 +51,8 @@ def test_Rstr(iso='CO'):
 
     inner_perturb = 1.15
     outer_perturb = 1.1
-    BR[BR < Re] = (BR[BR < Re] - Re)*inner_perturb + Re
-    BR[BR > Re] = (BR[BR > Re] - Re)*outer_perturb + Re
+    BR[BR < Re] = (BR[BR < Re] - Re)/inner_perturb + Re
+    BR[BR > Re] = (BR[BR > Re] - Re)/outer_perturb + Re
     spl = splrep(BR, BV)
     Bpert = splev(B.R, spl)  # a widened PEC
 
@@ -66,15 +66,14 @@ def test_Rstr(iso='CO'):
     BpX = cse.Transition(Bp, X, dipolemoment=[1])
 
     # model_fit instance ------------------------------------------------
-    fit = cse.tools.model_fit.Model_fit(BpX, method='trf', bounds_factor=1,
+    fit = cse.tools.model_fit.Model_fit(BpX, method='trf', bounds_factor=0.5,
                           data2fit={lbl:{'position':(v, Tv)}},
                           VT_adj={lbl:{'Rstr': {'inner':1, 'outer':1}}},
                           verbose=False)
 
-    Bf = fit.csemodel.us
-    npt.assert_almost_equal(1/inner_perturb, inner_perturb*fit.result.x[0],
+    npt.assert_almost_equal(inner_perturb, inner_perturb*fit.result.x[0],
                             decimal=1)
-    npt.assert_almost_equal(1/outer_perturb, outer_perturb*fit.result.x[1],
+    npt.assert_almost_equal(outer_perturb, outer_perturb*fit.result.x[1],
                             decimal=1)
 
 

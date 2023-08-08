@@ -43,20 +43,21 @@ for en in [220, 300, 400, 500, 700]:  # guess energies in cm⁻¹
 
     if v in [1, 2]:
         wf = -wf
-    ax.plot(R, wf*400 + X.cm)
-    ax.annotate(f'  {X.vib:d}', (R[-1], en), ha='left', va='center',
+
+    ax.plot(R, wf*100 + X.cm)
+    ax.annotate(f'  {X.vib:d}', (R[-1], X.cm), ha='left', va='center',
                 fontsize='small')
-    ax.plot(R, phi(X.vib, R, 10)*400 + X.cm, 'k--')
+    ax.plot(R, phi(X.vib, R, 10)*100 + X.cm, 'k--')
 
 ax.plot(np.NaN, np.NaN, 'k-', label=r'PyDiatomic')
 ax.plot(np.NaN, np.NaN, 'k--', label=r'analytical')
 ax.plot(R, V*8065.541, ':', label='potential curve')
-ax.axis(xmin=-2.5, xmax=2.5, ymin=-250, ymax=2000)
+ax.axis(xmin=-2.5, xmax=2.5, ymin=-50, ymax=1000)
 ax.legend(labelspacing=0.3, fontsize='small')
 ax.set_title(r'Harmonic oscillator potential:'
              r' $\psi_v(x) = N_v H_v(x) e^{-x^2/2}$')
-ax.set_ylabel(r'potential energy (cm$^{-1}$) / wavefunction $\times 400$')
+ax.set_ylabel(r'potential energy (cm$^{-1}$) / wavefunction $\times 100$')
 ax.set_xlabel(r'$x$')
 
-plt.savefig('figures/example_HO.svg')
+plt.savefig('figures/harmonic_oscillator.svg')
 plt.show()
