@@ -138,7 +138,7 @@ def formPEC(R, vib, Rmin, Rmax, E, De, Voo, limb, ineV=False, verbose=True):
     PTP = np.append(E[::-1], E, 0)  # potential energy at turning-points
 
     # truncate inner-limb if not increasing, i.e. turns-in
-    subR = np.diff(RTP, append=1) > 0
+    subR = np.diff(RTP, prepend=2*RTP[0]-RTP[1]) > 0
     vib = vib[subR]
     RTP = RTP[subR]
     PTP = PTP[subR]
@@ -193,7 +193,7 @@ def inner_limb_Morse(R, P, RTP, PTP, Re, De, Voo, verbose=True):
         print('\nRKR: Inner limb  Morse: Dₑ[1 - exp(-β(R-Rₑ))]² + Tₑ')
         for par, val, er in zip(['β', 'Rₑ', 'Dₑ', 'V∞'], popt, err):
             print(f'RKR:  {par:3s}  {val:12.2f} ± {er:.2f}')
-        print(f'RKR:  Tₑ   {Voo - popt[-1]:12.2f} cm⁻¹')
+        print(f'RKR:  Tₑ   {Voo - popt[-1]:,.2f} cm⁻¹')
 
 
 def outer_limb_Morse(R, P, RTP, PTP, Re, De, Voo, verbose=True):
@@ -204,8 +204,6 @@ def outer_limb_Morse(R, P, RTP, PTP, Re, De, Voo, verbose=True):
     l2 = np.log(1 - np.sqrt((PTP[-2] - Te)/De))
     Re = (l2*RTP[-1] - l1*RTP[-2])/(l2 - l1)
     β = l1/(Re - RTP[-1])
-    print(PTP[-1], Te, De)
-    print('-----------', β, l1, l2, Re)
 
     # fit Morse to outer turning points - adjusting β, Re, De; fixed Voo
     outer = len(PTP) // 6
@@ -222,7 +220,7 @@ def outer_limb_Morse(R, P, RTP, PTP, Re, De, Voo, verbose=True):
         print('\nRKR: Outer limb Morse: Dₑ[1 - exp(-β(R-Rₑ))]² + Tₑ')
         for par, val, er in zip(['β', 'Rₑ', 'Dₑ', 'V∞'], popt, err):
             print(f'RKR:  {par:3s}  {val:12.2f} ± {er:.2f}')
-        print(f'RKR:  Tₑ   {Voo - popt[-1]:12.2f} cm⁻¹')
+        print(f'RKR:  Tₑ   {Voo - popt[-1]:,.2f} cm⁻¹')
 
 
 def outer_limb_LeRoy(R, P, RTP, PTP, De, Voo, verbose=True):
@@ -243,10 +241,10 @@ def outer_limb_LeRoy(R, P, RTP, PTP, De, Voo, verbose=True):
 
     subR = R > RTP[-1]
     # LeRoy function extrapolation + offset to correct R[-1] != ∞
-    P[subR] = LeRoy(R[subR], Cn, n, Voo) + Cn/R[-1]**n
+    P[subR] = LeRoy(R[subR], Cn, n, Voo) # + Cn/R[-1]**n
 
     if verbose:
         print('\nRKR: Outer limb  LeRoy: V∞ - Cₙ/Rⁿ')
         for par, val, er in zip(['Cₙ'], popt, err):
             print(f'RKR:  {par:3s}  {val:12.2f} ± {er:.2f}')
-        print(f'RKR: n = {n}, V∞ = {Voo:8.2f} cm⁻¹')
+        print(f'RKR: n = {n}, V∞ = {Voo:,.2f} cm⁻¹')

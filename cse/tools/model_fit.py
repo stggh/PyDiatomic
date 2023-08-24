@@ -122,10 +122,7 @@ class Model_fit():
                 if isinstance(v, (int, float)):
                     self.par_count += 1
                 else:
-                    self.par_count += len(v)
-
-            if 'Wei' in par_dict or 'Julienne' in par_dict:
-                self.par_count -= 2  # 'Rm' and 'Rn' limits not param
+                    self.par_count += len(v)-2  # limits not params
 
         # Coupling ---------------------------------------------
         self.coupling = {}
@@ -219,12 +216,12 @@ class Model_fit():
                         VTd[indx][subR] = eval(param)(R[subR], **analyt_dict)
 
                     case 'spline':
-                        spl = splrep(value, lsqpars[:len(value)])
+                        spl = splrep(value[1:-1], lsqpars[:len(value)-2])
 
-                        subR = np.logical_and(R >= value[0], R <= value[-1])
+                        subR = np.logical_and(R >= value[1], R <= value[-2])
                         VTd[indx][subR] *= splev(R[subR], spl)
 
-                        lsqpars = lsqpars[len(value):]
+                        lsqpars = lsqpars[len(value)-2:]
 
             # return modified PECs to csemodel
             self.csemodel.us.VT[indx, indx] = VTd[indx]/self._evcm  # diagonal
@@ -287,10 +284,12 @@ class Model_fit():
                                       f'{unit[param][k]}\n'
                         case 'spline':
                             about += f'  r(Å)         scaling\n'
-                            for r in value:  # here is an array
-                                about += f'{" ":16s} {r:8.3f}  ' +\
+                            about += f'{value[0]:8.3f} fixed = 1\n'
+                            for r in value[1:-1]:  # here is an array
+                                about += f'{r:8.3f}  ' +\
                                       f'{lsqpars.pop(0):12.3f}±' +\
                                       f'{stderr.pop(0):.3f}\n'
+                            about += f'{value[-1]:8.3f} fixed = 1\n'
                 about += '\n'
 
         if self.coup_adj:
@@ -421,8 +420,8 @@ class Model_fit():
         if self.method == 'lm':
             self.result = least_squares(self.residual, self.lsqpars,
                                         method=self.method, 
-                                        x_scale='jac', diff_step=0.1)
+                                        x_scale='jac')
         else:
             self.result = least_squares(self.residual, self.lsqpars,
                                         method=self.method, bounds=self.bounds,
-                                        x_scale='jac', diff_step=0.1)
+                                        x_scale='jac')
