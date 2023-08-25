@@ -114,8 +114,7 @@ class Cse():
         self.μ, self.molecule = cse_setup.reduced_mass(μ)
 
     def set_coupling(self, coup):
-        self.VT = cse_setup.coupling_function(self.R, self.VT, self.μ,
-                                              self.pecfs, coup=coup)
+        self.VT = cse_setup.coupling_function(self.R, self.VT, coup=coup)
 
     def solve(self, en, rot=None, mx=None, bounds=None):
         """ solve the Schrodinger equation for the (coupled) potential(s).

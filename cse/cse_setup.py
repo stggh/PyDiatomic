@@ -230,21 +230,15 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
     return R, VT, pecfs, limits, AM, statelabel
 
 
-def coupling_function(R, VT, μ, pecfs, coup=None):
+def coupling_function(R, VT, coup=None):
     """ Fill the off-diagonal coupling elements of VT.
 
     Parameters
     ----------
     R : numpy 1d array of floats
     VT : numpy 2D array size nxn of floats
-    AM : numpy 1d array of tuples
-        (Ω, S, Σ, Λ) for each electronic state
-    μ : float
-        reduced mass
-    pecfs: list
-        list or potential curve names, to enquire the coupling
-    coup : list
-        list potential curve couplings (in cm-1)
+    coup : list potential curve couplings, comprising
+        value (in cm⁻¹), filename, (R, Vij), or ('exp', const, width, Rmax)
     """
     n, m, oo = VT.shape
 
@@ -260,16 +254,34 @@ def coupling_function(R, VT, μ, pecfs, coup=None):
                 couplestr = input(
                      f'CSE: coupling {pecfs[j]:s} <-> {pecfs[k]:s} cm-1 [0]? ')
                 couple = float(couplestr) if len(couplestr) > 1 else 0.0
-            elif isinstance(coup[cnt], tuple):
-                Rcouple, couple = coup[cnt]
-                spl = splrep(Rcouple, couple)
-                couple = splev(R, spl, ext=3)
+
+            elif isinstance(coup[cnt], tuple):  # ('Gauss', Vij, width) tuple
+                                                # or (R, Vij) tuple
+                if 'Gauss' in coup[cnt]:  # Gaussian function coupling
+                    cval = coup[cnt]
+                    Vjk = cval[1]
+                    width = cval[2] if len(cval) > 2 else 1
+                    Rmax = cval[3] if len(cval) == 3 else 3
+
+                    # radial crossing point of Vjj<->Vkk PECs
+                    inner = R < Rmax
+                    Rx = R[inner]\
+                          [np.abs(VT[j, j][inner] - VT[k, k][inner]).argmin()]
+
+                    # Gaussian function at crossing
+                    couple = Vjk*np.exp(-(R - Rx)**2/2/width**2) 
+                else:
+                    Rcouple, couple = coup[cnt]
+                    spl = splrep(Rcouple, couple)
+                    couple = splev(R, spl, ext=3)
                 cnt += 1
+
             elif isinstance(coup[cnt], str):  # R-dependent file
                 Rcouple, couple = np.loadtxt(coup[cnt], unpack=True)
                 spl = splrep(Rcouple, couple)
                 couple = splev(R, spl, ext=3)
                 cnt += 1
+
             else:
                 couple = coup[cnt]
                 cnt += 1
