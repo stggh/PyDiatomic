@@ -121,7 +121,7 @@ def turning_points(μ, vv, Gv, Bv, dv=0.1, verbose=True):
         for v, rm, rx, e in zip(vib[vint], Rmin[vint], Rmax[vint], E[vint]):
             print(f'    {round(v):3d}   {rm:7.3f}   {rx:7.3f}    {e:9.2f}')
 
-        print(f'\nRKR: Rₑ = {Re:7.3f} Å, Tₑ = {E[0]:9.2f} cm⁻¹')
+        print(f'\nRKR: Rₑ = {Re:5.3f} Å, Tₑ = {E[0]:,.2f} cm⁻¹')
 
 
     return Rmin, Rmax, E, vib

@@ -255,16 +255,16 @@ def coupling_function(R, VT, coup=None):
                      f'CSE: coupling {pecfs[j]:s} <-> {pecfs[k]:s} cm-1 [0]? ')
                 couple = float(couplestr) if len(couplestr) > 1 else 0.0
 
-            elif isinstance(coup[cnt], tuple):  # ('Gauss', Vij, width) tuple
+            elif isinstance(coup[cnt], tuple):  # ('Gauss', Vij, width, Rinner)
                                                 # or (R, Vij) tuple
                 if 'Gauss' in coup[cnt]:  # Gaussian function coupling
                     cval = coup[cnt]
                     Vjk = cval[1]
-                    width = cval[2] if len(cval) > 2 else 1
-                    Rmax = cval[3] if len(cval) == 3 else 3
+                    width = cval[2] if len(cval) > 2 else 0.5
+                    Rinner = cval[3] if len(cval) == 3 else 3
 
                     # radial crossing point of Vjj<->Vkk PECs
-                    inner = R < Rmax
+                    inner = R < Rinner
                     Rx = R[inner]\
                           [np.abs(VT[j, j][inner] - VT[k, k][inner]).argmin()]
 

@@ -129,6 +129,8 @@ class Cse():
 
         if en > 20:
             en /= self._evcm   # convert to eV energy unit
+            if bounds is not None:
+                bounds = (bounds[0]/self._evcm, bounds[1]/self._evcm)
 
         if rot is not None:
             self.rot = rot   # in case called separately
