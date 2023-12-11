@@ -200,27 +200,37 @@ def outer_limb_Morse(R, P, RTP, PTP, Re, De, Voo, verbose=True):
     # Dₑ[1 - exp(-β(R-Rₑ))]² + Tₑ
     Te = Voo - De
     # estimates
-    l1 = np.log(1 - np.sqrt((PTP[-1] - Te)/De))
-    l2 = np.log(1 - np.sqrt((PTP[-2] - Te)/De))
-    Re = (l2*RTP[-1] - l1*RTP[-2])/(l2 - l1)
-    β = l1/(Re - RTP[-1])
+    ix = -1
+    l1 = np.log(1 - np.sqrt((PTP[ix] - Te)/De))
+    l2 = np.log(1 - np.sqrt((PTP[ix-1] - Te)/De))
+
+    ReM = (l2*RTP[ix] - l1*RTP[ix-1])/(l2 - l1)
+    β = l1/(ReM - RTP[ix])
 
     # fit Morse to outer turning points - adjusting β, Re, De; fixed Voo
-    outer = len(PTP) // 6
+    outer = len(PTP) // 6 
+    subR = R > RTP[ix]
 
-    popt, pcov = curve_fit(lambda x, β, Re, De: Morse(x, β, Re, De, Voo), 
-                           RTP[-outer:], PTP[-outer:], p0=[β, Re, De])
-    err = np.sqrt(np.diag(pcov))
+    try:
+        popt, pcov = curve_fit(lambda x, β, Re, De: Morse(x, β, Re, De, Voo), 
+                               RTP[-outer:], PTP[-outer:], p0=[β, ReM, De])
+        err = np.sqrt(np.diag(pcov))
 
-    subR = R > RTP[-1]
-    # Morse function extrapolation + offset to correct R[-1] != ∞
-    P[subR] = Morse(R[subR], *popt, Voo) + Morse(R[-1], *popt, Voo)
+        # Morse function extrapolation + offset to correct R[-1] != ∞
+        P[subR] = Morse(R[subR], *popt, Voo) + Morse(R[ix], *popt, Voo)
 
-    if verbose:
+        if verbose:
+            print('\nRKR: Outer limb Morse: Dₑ[1 - exp(-β(R-Rₑ))]² + Tₑ')
+            for par, val, er in zip(['β', 'Rₑ', 'Dₑ', 'V∞'], popt, err):
+                print(f'RKR:  {par:3s}  {val:12.2f} ± {er:.2f}')
+            print(f'RKR:  Tₑ   {Voo - popt[ix]:,.2f} cm⁻¹')
+
+    except:
+        P[subR] = Morse(R[subR], β, ReM, De, Voo)
         print('\nRKR: Outer limb Morse: Dₑ[1 - exp(-β(R-Rₑ))]² + Tₑ')
-        for par, val, er in zip(['β', 'Rₑ', 'Dₑ', 'V∞'], popt, err):
-            print(f'RKR:  {par:3s}  {val:12.2f} ± {er:.2f}')
-        print(f'RKR:  Tₑ   {Voo - popt[-1]:,.2f} cm⁻¹')
+        print(f'l1={l1:5.3f}, l2={l2:5.3f}')
+        print(f'Re={ReM:5.3f}, β = {β:5.3g}, Te = {Te:,.2f}, '
+              f'De = {De:,.2f}, Voo = {Voo:,.2f}')
 
 
 def outer_limb_LeRoy(R, P, RTP, PTP, De, Voo, verbose=True):
@@ -228,15 +238,19 @@ def outer_limb_LeRoy(R, P, RTP, PTP, De, Voo, verbose=True):
     def LeRoy(x, Cn, n, Voo):
         return Voo - Cn/x**n
   
-    n = int(np.log((Voo - PTP[-1])/(Voo - PTP[-2]))/np.log(RTP[-2]/RTP[-1]))
+    # estimates based on last turning point
+    n = np.log((Voo - PTP[-1])/(Voo - PTP[-2]))/np.log(RTP[-2]/RTP[-1])
+    if n < 1.1:
+        n = 1.1
     Cn = (Voo - PTP[-1])*RTP[-1]**n
 
     # fit long-range potential curve to outer turning points - adjust Cn;
     #                                                        - fixed n, Voo
     outer = len(PTP) // 6
 
-    popt, pcov = curve_fit(lambda x, Cn: LeRoy(x, Cn, n, Voo), 
-                           RTP[-outer:], PTP[-outer:], p0=[Cn])
+    popt, pcov = curve_fit(lambda x, Cn, n: LeRoy(x, Cn, n, Voo), 
+                           RTP[-outer:], PTP[-outer:], p0=[Cn, n],
+                           bounds=((1, 1.1), (np.inf, 20)))
     err = np.sqrt(np.diag(pcov))
 
     subR = R > RTP[-1]

@@ -173,6 +173,7 @@ def bandmodel(model):
                     continue   #  transition energy range has no peak
 
                 FWHM, xsx, _, _ = peak_widths(xsJ, peaks, rel_height=1/2)
+                FWHM *= dw
 
                 # closest rovibrational peak to estimated transition energy
                 pk = peaks[np.abs(wn_est - wn[peaks]).argmin()]

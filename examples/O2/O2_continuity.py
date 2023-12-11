@@ -108,7 +108,7 @@ dvdE = spl.derivative()(bands)
 
 # plot -------------------------------------
 plt.plot(continuum, O2S.xs[:, 0] + 2*O2P.xs[:, 0], 'C0--',
-         label='$\sigma$ PyDiatomic')
+         label=r'$\sigma$ PyDiatomic')
 plt.plot(bands, fosc * dvdE/1.13e12, 'C2+', label=r'$f_{osc}$ PyDiatomic')
 plt.plot((57136.2, 57136.2), (1.0e-25, 1.0e-18), 'k--', lw=1)
 

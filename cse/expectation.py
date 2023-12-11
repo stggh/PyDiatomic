@@ -3,7 +3,7 @@ import numpy as np
 import scipy.constants as const
 
 from scipy.optimize import leastsq
-from scipy.integrate import simps
+from scipy.integrate import simpson
 
 from multiprocessing import cpu_count, get_context, Pool
 from functools import partial
@@ -50,27 +50,30 @@ def cross_section(wavenumber, Xs):
     # this assumes initial (ground) states are all bound
     wfi = Xs.gs.wavefunction.reshape((oo, ni))   # oo x ni
 
-    oo, n, nopen = Xs.us.wavefunction.shape
+    oo, n, no = Xs.us.wavefunction.shape
+    nopen = Xs.us.nopen
 
     # < i | mu | f >
-    overlap = np.zeros((oo, nopen), dtype=complex)
+    overlap = np.zeros((oo, no), dtype=complex)
     for i in range(oo):
         overlap[i] = wfi[i] @ Xs.dipolemoment[i] @ Xs.us.wavefunction[i]
 
     xsp = np.zeros(n)
     oci = np.arange(n)
+
     if np.any(Xs.us.openchann):
         oci = oci[Xs.us.openchann]  # indices of open channels
 
-    for j in range(nopen):
-        Rx = simps(overlap[:, j].real, Xs.us.R)
-        Ix = simps(overlap[:, j].imag, Xs.us.R)
+    for j in range(no):
+        Rx = simpson(overlap[:, j].real, Xs.us.R)
+        Ix = simpson(overlap[:, j].imag, Xs.us.R)
         xsp[oci[j]] = Rx**2 + Ix**2
 
     if np.any(Xs.us.openchann):
         Xs.xs = xsp*wavenumber*CONST*1e-8  # cross section
     else:
         Xs.xs = xsp*wavenumber*FCONST  # oscillator strength
+
     return Xs.xs
 
 
@@ -80,7 +83,7 @@ def xs(Xs, wavenumber):
     """
     dE = wavenumber/8065.541  # convert to eV
     en = Xs.gs.energy + dE
-    Xs.us.solve(en)
+    Xs.us.solve(en, mx=Xs.us.mx)
     if Xs.us.openchann.size == 1 and Xs.us.openchann == 0:
         # bound upperstates => reset transition energy
         wavenumber = Xs.us.cm - Xs.gs.cm
@@ -110,7 +113,7 @@ def Bv(Cse):
     wavefunction = Cse.wavefunction[:, 0, 0]
     μ = Cse.μ
 
-    ex = simps((wavefunction/R)**2, R)
+    ex = simpson((wavefunction/R)**2, R)
     return ex*const.hbar*1.0e18/(4*π*const.c*μ)
 
 
@@ -146,7 +149,7 @@ def Dv(self):
         R1 = _lideo(v, g, R0, oo, e, dR, wks, R2, mid)
 
         g *= R1
-        Dv += simps(g, self.R)
+        Dv += simpson(g, self.R)
 
     return -(Dv/kk)*self._evcm
 

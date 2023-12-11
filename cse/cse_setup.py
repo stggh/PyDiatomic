@@ -139,9 +139,9 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
         if isinstance(fn, (str)):
             radialcoord, potential = np.loadtxt(dirpath+'/'+fn+suffix,
                                                 unpack=True)
-            fn = fn.split('/')[-1] #  .upper()
+            fn = fn.split('/')[-1]  #  .upper()
             
-            code = re.findall('\d{1}[SPDF]\S*[+-]*\d{1}', fn)
+            code = re.findall(r'\d{1}[SPDF]\S*[+-]*\d{1}', fn)
             if len(code) > 0:
                 first_digit = re.search(r'\d', fn)
                 if first_digit:
@@ -176,7 +176,12 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
 
                 if Λ in range(4):  
                     label += ['Σ', 'Π', 'Δ', 'Φ'][Λ]
-                label += chr(8320+Ω)
+
+                if isinstance(Ω, int):
+                    label += chr(8320+Ω)
+                else:
+                    num = int(2*Ω+0.5)
+                    label += chr(8320+num)+chr(11805)+chr(8322)
 
                 if Λ == 0:
                     label += ['⁺', '⁻'][pm]
@@ -255,21 +260,22 @@ def coupling_function(R, VT, coup=None):
                      f'CSE: coupling {pecfs[j]:s} <-> {pecfs[k]:s} cm-1 [0]? ')
                 couple = float(couplestr) if len(couplestr) > 1 else 0.0
 
-            elif isinstance(coup[cnt], tuple):  # ('Gauss', Vij, width, Rinner)
-                                                # or (R, Vij) tuple
-                if 'Gauss' in coup[cnt]:  # Gaussian function coupling
+            elif isinstance(coup[cnt], tuple):  # ('Gauss', Vij, [width, Rm, Rx
+                                                # ]) or (R, Vij) tuple
+                if 'Gauss' in coup[cnt][0]:  # Gaussian function coupling
                     cval = coup[cnt]
                     Vjk = cval[1]
                     width = cval[2] if len(cval) > 2 else 0.5
-                    Rinner = cval[3] if len(cval) == 3 else 3
+                    Rm = cval[3] if len(cval)> 3 else 3
+                    Rx = cval[4] if len(cval)> 4 else 5
 
                     # radial crossing point of Vjj<->Vkk PECs
-                    inner = R < Rinner
-                    Rx = R[inner]\
-                          [np.abs(VT[j, j][inner] - VT[k, k][inner]).argmin()]
+                    sect = np.logical_and (R > Rm, R < Rx)
+                    R0 = R[sect]\
+                          [np.abs(VT[j, j][sect] - VT[k, k][sect]).argmin()]
 
                     # Gaussian function at crossing
-                    couple = Vjk*np.exp(-(R - Rx)**2/2/width**2) 
+                    couple = Vjk*np.exp(-(R - R0)**2/2/width**2) 
                 else:
                     Rcouple, couple = coup[cnt]
                     spl = splrep(Rcouple, couple)

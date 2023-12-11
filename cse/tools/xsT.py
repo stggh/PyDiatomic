@@ -77,7 +77,7 @@ def total_cross_section(T, sym='f', outfile=None, dirpath='./',
         xs = np.array(xs)
 
         # extract energy of J" level
-        en = float(re.findall("\d+\.\d+", header)[0])
+        en = float(re.findall(r'\d+\.\d+', header)[0])
 
         Jd, Jdd, branch = xsf.split('_')[-3:]
         branch = branch.strip(suffix)

@@ -2,7 +2,7 @@ import numpy as np
 import scipy.constants as const
 
 from scipy.optimize import least_squares
-from scipy.integrate import simps
+from scipy.integrate import simpson
 from scipy.special import spherical_jn, spherical_yn
 from scipy.signal import find_peaks
 
@@ -318,7 +318,7 @@ def normalize(wf, R):
     oo, n, nopen = wf.shape
     norm = 0.0
     for j in range(n):
-        norm += simps(wf[:, j, 0]**2, R)
+        norm += simpson(wf[:, j, 0]**2, R)
 
     return wf/np.sqrt(norm)
 
@@ -446,3 +446,4 @@ def solveCSE(Cse, en, mx=None, bounds=None):
     Cse.wavefunction = wf
     Cse.energy = en
     Cse.openchann = openchann
+    Cse.nopen = nopen

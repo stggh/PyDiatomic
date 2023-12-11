@@ -182,7 +182,7 @@ def Julienne_fit(r, V, Mx=None, Rx=None, Vx=None, Voo=None,
     if Voo is None:
         Voo = V[-1]
     if Vx is None:
-        Vx = 1.1*voo
+        Vx = 1.1*Voo
     if Rx is None:
         Rx = r[np.abs(V - Vx).argmin()]
     if Mx is None:

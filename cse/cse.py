@@ -2,6 +2,7 @@
 import numpy as np
 import scipy.linalg as scla
 import scipy.constants as const
+import time
 from scipy import interpolate
 
 from . import johnson
@@ -55,6 +56,9 @@ class Cse():
     molecule: str
         chemical formula str
 
+    statelabel : list of str
+        symbolic state label for potential curves, (2S+1)ΛΩ e.g. ³Σ₁
+
     AM : 1d array of tuples
         Angular momenta quantum numbers (Ω, S, Λ, Σ) for each electronic state
 
@@ -84,6 +88,7 @@ class Cse():
         self._evcm = 8065.541
         self.set_μ(μ=μ)
         self.rot = rot
+        self.mx = mx
 
         if R is not None:
             # PEC array provided directly
@@ -191,7 +196,7 @@ class Cse():
         Voo = V[-1]*self._evcm
 
         if ntrial is None:
-            ntrial = max(int((Voo - Te)/2000), 5)
+            ntrial = max(int((Voo - Te)/2000), 10)
 
         for en in np.linspace(Te+100, Voo-10, ntrial):
             self.solve(en)
@@ -375,7 +380,7 @@ class Xs():
         if eni is not None or roti is not None:
             if eni is None:
                 eni = self.gs.cm
-            self.gs.solve(eni, roti, mx=mx)
+            self.gs.solve(eni, roti)
 
         if rotf is not None:
             self.us.rot = rotf
@@ -389,13 +394,35 @@ class Xs():
         else:
             self.honl = 1
 
+        if mx is not None:
+            self.mx = mx
+
         if self.honl > 0:
+            if self.time_est and (sz := len(self.wavenumber)) > 1000:
+                    tmpwn = transition_energy.copy()
+                    self.wavenumber = self.wavenumber[:100]
+
+                    ts = time.time()
+                    xswav = expectation.xs_vs_wav(self)
+                    dt = (time.time() - ts)*sz*1.2/100   # est 20% more
+
+                    self.wavenumber = tmpwn
+
+                    dm = int(dt // 60)
+                    print(f' {tmpwn[0]:,g} to {tmpwn[-1]:,g} step '
+                          f'{tmpwn[1]-tmpwn[0]:g} ')
+                    print('      ... estimated calculation time about ', end='')
+                    if dm > 1:
+                        plural = 's' if dm > 1 else ''
+                        print(f'{dm:d} minute{plural}\n')
+                    else:
+                        print(f'{dt:.0f} seconds\n')
+
             xswav = expectation.xs_vs_wav(self)
+
             self.xs, self.wavenumber = zip(*xswav)
             self.xs = np.array(self.xs)*self.honl
             self.wavenumber = np.array(self.wavenumber)
-            self.oci = np.any(self.xs > 0, axis=0)  # open channels xs > 0
-            self.nopen = self.oci.sum()
         else:  # don't waste time on the calculation
             self.xs = np.zeros((len(transition_energy), self.us.VT.shape[0]))
 
@@ -432,7 +459,8 @@ class Transition(Xs):
 
     def __init__(self, final_coupled_states, initial_coupled_states,
                  dipolemoment=None, transition_energy=None, eni=None,
-                 roti=None, rotf=None, dirpath='./', suffix=''):
+                 roti=None, rotf=None, time_est=True, dirpath='./', suffix='',
+                 honl=False, mx=None):
         """
         Parameters
         ----------
@@ -456,6 +484,7 @@ class Transition(Xs):
 
         self.gs = initial_coupled_states
         self.us = final_coupled_states
+        self.time_est = time_est
 
         self.align_grids()
 
@@ -467,4 +496,5 @@ class Transition(Xs):
                                 suffix=suffix)
 
         if transition_energy is not None:
-            self.calculate_xs(transition_energy, roti=roti, rotf=rotf, eni=eni)
+            self.calculate_xs(transition_energy, roti=roti, rotf=rotf, eni=eni,
+                              mx=mx, honl=honl)

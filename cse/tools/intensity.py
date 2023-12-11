@@ -1,6 +1,71 @@
 import numpy as np
 import scipy.constants as const
 from scipy.special import factorial
+from scipy.interpolate import InterpolatedUnivariateSpline, splrep, splev
+
+def bandosc(transition_instance, vmax=None, verbose=True):
+    """ Band oscillator strength and density of states
+
+    Parameters
+    ----------
+    transition_instance : Cse Transition class 
+    vmax : int
+        highest vibrational level for which to evaluate the oscillator strength
+    verbose : bool
+        print the band oscillator strengths
+
+    Returns
+    -------
+    vib : numpy array of ints
+        vibrational quantum numbers
+    bands : numpy array of floats
+        transition energies in cm⁻¹)
+    fosc : numpy array of floats
+        band oscillator strengths
+    dvdE : numpy array of floats
+        density of states dv/dE
+
+    """
+
+    SX = transition_instance
+    S = SX.us  # final state
+    X = SX.gs  # initial state
+
+    if verbose:
+        print('\nBand oscillator stengths')
+        print(f' {S.statelabel[0]} <- {X.statelabel[0]}:')
+
+    try:
+        Xzpe = X.cm
+    except:
+        X.solve(X.VT[0, 0].min()*X._evcm+500)
+        Xzpe = X.results[0][0]  # Tv=0
+
+    S.levels(vmax)
+
+    vib = []
+    bands = []
+    for v, (Tv, *_) in S.results.items():
+        vib.append(v)
+        bands.append(Tv - Xzpe)
+
+    spl = InterpolatedUnivariateSpline(bands, vib, k=1)
+    dvdE = spl.derivative()(bands)
+
+    SX.calculate_xs(transition_energy=bands)
+    fosc = SX.xs[:, 0]
+
+    if verbose:
+        print(' v      fosc          ratio')
+        for v, f in zip(vib, fosc):
+            print(f'{v:2d}   {f:10.3e}    ', end='')
+            if (ratio := f/fosc[0]) > 1e-3:
+                print(f'   {ratio:5.3f}')
+            else:
+                print(f'   {ratio:5.1e}')
+        print()
+
+    return vib, bands, fosc, dvdE
 
 
 def Boltzmann(en, J, T):
@@ -21,6 +86,13 @@ def Boltzmann(en, J, T):
     """
 
     return (2*J + 1)*np.exp(-en*const.h*const.c*100/const.k/T)
+
+
+def gfactor(Λd, Λdd):
+    """ (2 - δ₀Λ'δ₀Λ")/(2 - δ₀Λ").
+
+    """
+    return (2 - np.kron(0, Λd)*np.kron(0, Λdd))/(2 - np.kron(0, Λdd))
 
 
 def honl(Jd, Jdd, Ωd, Ωdd, q=None):
