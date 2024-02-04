@@ -33,7 +33,7 @@ bands = np.array([49357.4, 50044.9, 50710, 51351.5, 51968.4, 52559.6,
                   55784.8, 56085.6, 56340.7, 56551.1, 56720.1, 56852.7,
                   56955.2, 57032.5, 57086.9, 57120.7])
 
-continuum = np.arange(57300, 85000, 100)
+continuum = np.arange(57300, 87500, 100)
 
 # CSE model Schumann-Runge B³Σᵤ⁻ ← X³Σg⁻ single channel ----
 O2X = cse.Cse('O2', VT=['potentials/X3S-1.dat'], en=800)

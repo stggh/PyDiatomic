@@ -19,7 +19,7 @@ Bf = cse.Cse('O2', dirpath='potentials', suffix='.dat',
 
 band = [(v, w[0]-Xf.cm) for v, w in B.results.items()]
 
-# variable transition energy grid, 0.1 cm⁻¹ near band, 10 cm⁻ between bands
+# variable transition energy grid, 0.1 cm⁻¹ near band, 10 cm⁻¹ between bands
 wn = np.zeros(1)
 dw = 0.05
 for v, w in band[:-1]:
@@ -55,7 +55,7 @@ for x in BXf.xs.T:  # each partial cross section
     partfwhm.append(fwhm*dw)
 '''
 
-anu = np.genfromtxt('SRBwidths.dat', unpack=True, dtype=[int, float, float])
+anu = np.genfromtxt('data/SRBwidths.dat', unpack=True, dtype=[int, float, float])
 
 # plot -------------------------------------------
 fig, axes = plt.subplot_mosaic('''
