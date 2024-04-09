@@ -5,7 +5,7 @@ import os
 import gzip
 import re
 from scipy.signal import find_peaks, peak_widths
-from scipy.integrate import simps
+from scipy.integrate import simpson
 from scipy.interpolate import splrep, splev
 import matplotlib.pyplot as plt
 
@@ -87,7 +87,7 @@ def analyse(dirpath, suffix='.dat.gz', lambda23=3, wn_offset=3):
         wn_table[row, col] = wnJ
         fwhm_table[row, col] = fwhmJ
 
-        xs_table[row, col] = simps(xst[pk0-5:pk0+5], wn[pk0-5:pk0+5])
+        xs_table[row, col] = simpson(xst[pk0-5:pk0+5], wn[pk0-5:pk0+5])
 
         row += 1
     return Ncol[:row], wn_table[:row], fwhm_table[:row], xs_table[:row]
