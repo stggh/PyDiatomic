@@ -369,7 +369,7 @@ class Xs():
         emax = np.abs(transition_energy).max()
         if emax < 50:
             # energy unit is eV
-            self.wavenumber = transition_energy*self._evcm
+            self.wavenumber = transition_energy*self.us._evcm
         elif emax < 500:
             # energy unit is nm wavelength
             self.wavenumber = 1.0e7/transition_energy
