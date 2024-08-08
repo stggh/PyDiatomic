@@ -151,14 +151,14 @@ emax = xs370Kdis[0][Er][-1]
 v.append((emin+emax)/2)
 # func = interp1d(xs370Kdis[0][Er], xs370Kdis[1][Er])
 # fq, efq = quad(func, xs370Kdis[0][Er][0], xs370Kdis[0][Er][-1])
-fq = simpson(xs370Kdis[1][Er], xs370Kdis[0][Er])
+fq = simpson(xs370Kdis[1][Er], x=xs370Kdis[0][Er])
 f.append(fq)
 
 emin = emax
 for emax in bandlimits[1:]:
     Er = np.logical_and(xs370Kdis[0] >= emin, xs370Kdis[0] < emax)
     v.append((emin+emax)/2)
-    f.append(simpson(xs370Kdis[1][Er], xs370Kdis[0][Er]))
+    f.append(simpson(xs370Kdis[1][Er], x=xs370Kdis[0][Er]))
     # func = interp1d(xs370Kdis[0][Er], xs370Kdis[1][Er])
     # fq, efq = quad(func, xs370Kdis[0][Er][0], xs370Kdis[0][Er][-1])
     emin = emax
@@ -166,7 +166,7 @@ for emax in bandlimits[1:]:
 Er = xs370Kdis[0] >= bandlimits[-1]
 emax = xs370Kdis[0][Er][-1]
 v.append((emin+emax)/2)
-f.append(simpson(xs370Kdis[1][Er], xs370Kdis[0][Er]))
+f.append(simpson(xs370Kdis[1][Er], x=xs370Kdis[0][Er]))
 
 v = np.array(v)
 fexp = np.array(f)

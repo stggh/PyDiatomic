@@ -318,7 +318,7 @@ def normalize(wf, R):
     oo, n, nopen = wf.shape
     norm = 0.0
     for j in range(n):
-        norm += simpson(wf[:, j, 0]**2, R)
+        norm += simpson(wf[:, j, 0]**2, x=R)
 
     return wf/np.sqrt(norm)
 

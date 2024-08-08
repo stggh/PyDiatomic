@@ -65,8 +65,8 @@ def cross_section(wavenumber, Xs):
         oci = oci[Xs.us.openchann]  # indices of open channels
 
     for j in range(no):
-        Rx = simpson(overlap[:, j].real, Xs.us.R)
-        Ix = simpson(overlap[:, j].imag, Xs.us.R)
+        Rx = simpson(overlap[:, j].real, x=Xs.us.R)
+        Ix = simpson(overlap[:, j].imag, x=Xs.us.R)
         xsp[oci[j]] = Rx**2 + Ix**2
 
     if np.any(Xs.us.openchann):
@@ -113,7 +113,7 @@ def Bv(Cse):
     wavefunction = Cse.wavefunction[:, 0, 0]
     μ = Cse.μ
 
-    ex = simpson((wavefunction/R)**2, R)
+    ex = simpson((wavefunction/R)**2, x=R)
     return ex*const.hbar*1.0e18/(4*π*const.c*μ)
 
 
@@ -149,7 +149,7 @@ def Dv(self):
         R1 = _lideo(v, g, R0, oo, e, dR, wks, R2, mid)
 
         g *= R1
-        Dv += simpson(g, self.R)
+        Dv += simpson(g, x=self.R)
 
     return -(Dv/kk)*self._evcm
 

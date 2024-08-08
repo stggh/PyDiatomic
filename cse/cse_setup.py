@@ -176,6 +176,8 @@ def potential_energy_curves(pecfs=None, R=None, dirpath='./', suffix='',
 
                 if Λ in range(4):  
                     label += ['Σ', 'Π', 'Δ', 'Φ'][Λ]
+                else:
+                    label += 'U'
 
                 if isinstance(Ω, int):
                     label += chr(8320+Ω)
