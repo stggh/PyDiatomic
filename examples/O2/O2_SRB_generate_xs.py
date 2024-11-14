@@ -50,15 +50,18 @@ def cse_model(iso, lun=2.005, sf=1.):
     # B-X transition instances -------
     O2 = {}
     O2['f'] = cse.Transition(O2Bf, O2Xf, dirpath='transitionmoments',
-                             dipolemoment=['dipole_b_valence.dat', *([0]*4)])
+                             dipolemoment=['dipole_b_valence.dat', *([0]*4)],
+                             time_est=False)
 
     O2['e1'] = cse.Transition(O2Be1, O2Xe, dirpath='transitionmoments',
                               dipolemoment=['dipole_b_valence.dat', *([0]*12),
-                                            'dipole_b_valence.dat', *([0]*10)])
+                                            'dipole_b_valence.dat', *([0]*10)],
+                              time_est=False)
 
     O2['e2'] = cse.Transition(O2Be2, O2Xe, dirpath='transitionmoments',
                               dipolemoment=['dipole_b_valence.dat', *([0]*12),
-                                            'dipole_b_valence.dat', *([0]*10)])
+                                            'dipole_b_valence.dat', *([0]*10)],
+                              time_est=False)
     return O2, O2B, O2Xf
 
 def decode(br):   # evaluate quantum number changes from branch label
