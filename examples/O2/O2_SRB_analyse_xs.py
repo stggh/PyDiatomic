@@ -87,7 +87,7 @@ def analyse(dirpath, suffix='.dat.gz', lambda23=3, wn_offset=3):
         wn_table[row, col] = wnJ
         fwhm_table[row, col] = fwhmJ
 
-        xs_table[row, col] = simpson(xst[pk0-5:pk0+5], wn[pk0-5:pk0+5])
+        xs_table[row, col] = simpson(xst[pk0-5:pk0+5], x=wn[pk0-5:pk0+5])
 
         row += 1
     return Ncol[:row], wn_table[:row], fwhm_table[:row], xs_table[:row]
@@ -233,7 +233,7 @@ Ncol, wn_table, fwhm_table, xs_table  = analyse(dirpath, lambda23=lambda23,
 print_out(f'({vd}, 0) transition energies', Ncol, wn_table)
 
 expt = {12:'data/Harvard/Yosh_120.dat', 0:'data/Vijre/Ubachs_00.dat',
-         2:'data/Vijre/Ubachs_20.dat'}
+         2:'data/Vrije/Ubachs_20.dat'}
 if vd in expt.keys(): 
     diff_table = differences(wn_table, expt[vd])
     print_out(f'({vd},0) transition energies difference to {expt[vd][:-4]}', 

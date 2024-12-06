@@ -27,8 +27,8 @@ gaussian = np.exp(-(gx/sigma)**2/2)/sigma/np.sqrt(2*np.pi)
 
 convy = np.convolve(xs, gaussian, mode='same')
 
-yarea = simpson(xs, wn)
-conarea = simpson(convy, wn)
+yarea = simpson(xs, x=wn)
+conarea = simpson(convy, x=wn)
 convy *= (yarea/conarea)
 
 
