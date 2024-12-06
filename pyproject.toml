@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "PyDiatomic"
-version = "0.3.0"
+dynamic = ["version"]
 authors = [{name = "Stephen Gibson", email = "Stephen.Gibson@anu.edu.au"}]
 description = "A Python package to solve the time-independent coupled-channel Schr&oumlinger equation using the Johnson renormalized Numerov method"
 classifiers = [
@@ -30,3 +30,6 @@ include-package-data = false
 
 [tool.setuptools.packages]
 find = {namespaces = false}
+
+[tool.setuptools.dynamic]
+version = {attr = "cse.__version__"}
