@@ -6,9 +6,9 @@ import matplotlib.pyplot as plt
 #
 # fit Wei analytical function to a potential energy curve
 #
-#             [ 1 - exp(-b(r-re))  ]^2
+#             [ 1 - exp(-b(r-Re))  ]^2
 #   V(r) = De [ ----------------   ]   + Te       |h| < 1
-#             [ 1- h exp(-b(r-re)) ]
+#             [ 1- h exp(-b(r-Re)) ]
 #
 #####################################################################
 
@@ -18,12 +18,12 @@ B.levels(5)
 print(B)
 
 print('B-state Wei analytical fit:')
-voo = B.VT[0, 0][-1]*evcm
+Voo = B.VT[0, 0][-1]*evcm
 subr = np.logical_and(B.R > 1.3, B.R < 2.8)
 r = B.R[subr]
 v = B.VT[0, 0][subr]*evcm
 
-res = cse.tools.analytical.Wei_fit(r, v, voo=voo, adjust=['re', 'De', 'b', 'h'],
+res = cse.tools.analytical.Wei_fit(r, v, Voo=Voo, adjust=['Re', 'De', 'b', 'h'],
                                    verbose=True)
 
 WB = cse.tools.analytical.Wei(B.R, **res.paramdict) 

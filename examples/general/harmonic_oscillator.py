@@ -2,6 +2,7 @@ import numpy as np
 import cse
 import matplotlib.pyplot as plt
 from scipy.special import hermite
+from math import factorial
 
 ######################################################
 #
@@ -14,7 +15,7 @@ from scipy.special import hermite
 
 def phi(v, R, alpha):
     y = R*np.sqrt(alpha)
-    Nv = (alpha/np.pi)**0.25/np.sqrt(2**v*np.math.factorial(v))
+    Nv = (alpha/np.pi)**0.25/np.sqrt(2**v*factorial(v))
     Hv = hermite(v)
     sum = 0.0
     for i, h in enumerate(Hv.coeffs[::-1]):
@@ -49,8 +50,8 @@ for en in [220, 300, 400, 500, 700]:  # guess energies in cm⁻¹
                 fontsize='small')
     ax.plot(R, phi(X.vib, R, 10)*100 + X.cm, 'k--')
 
-ax.plot(np.NaN, np.NaN, 'k-', label=r'PyDiatomic')
-ax.plot(np.NaN, np.NaN, 'k--', label=r'analytical')
+ax.plot(np.nan, np.nan, 'k-', label=r'PyDiatomic')
+ax.plot(np.nan, np.nan, 'k--', label=r'analytical')
 ax.plot(R, V*8065.541, ':', label='potential curve')
 ax.axis(xmin=-2.5, xmax=2.5, ymin=-50, ymax=1000)
 ax.legend(labelspacing=0.3, fontsize='small')
