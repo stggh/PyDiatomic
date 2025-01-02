@@ -57,7 +57,7 @@ ax['p'].plot(RTP[vint], PTP[vint], 'o', mfc='w', ms=4, label='turning point')
 ax['p'].legend()
 ax['p'].axis(xmin=1.1, xmax=4, ymin=PEC.min()-1000, ymax=PEC[-1]+5000)
 ax['p'].ticklabel_format(axis='y', style='sci', scilimits=(4, 4))
-ax['p'].set_xlabel(r'internuclear distance $/$ $\AA$')
+ax['p'].set_xlabel(r'internuclear distance $/$ Å')
 ax['p'].set_ylabel(r'potential energy (rel. to $X$-min.) $/$ cm$^{-1}$')
 
 ax['g'].plot(vv, dG, 'C2')

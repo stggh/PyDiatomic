@@ -54,12 +54,12 @@ print(Efit.fitstr)
 # least-squares fit -----------------------------------------------
 t0 = time.time()
 fit = cse.tools.model_fit.Model_fit(EBX, method='lm',
-          data2fit={'total':{'xs':(wn, expt)}
-                    #lb1:{'position': 82945}},
-                    },
+          data2fit={'total':{'xs':(wn, expt)},
+                     # lb1:{'position': [82945]}
+                   },
           VT_adj={# lb1:{'ΔV':-1000},
                   # lb1:{'ΔR':(0.1, -0.5, 0.5)}},
-                  lb0:{'spline':np.arange(0.9, 1.4, 0.1)},
+                  lb0:{'spline':np.arange(0.9, 1.4, 0.05)},
                   lb1:{'Wei':Efit.paramdict | {'Rm':0.98, 'Rn':1.31}}
                   },
           coup_adj={lb1+'<->'+lb0:1},

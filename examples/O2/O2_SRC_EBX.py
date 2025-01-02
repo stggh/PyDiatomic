@@ -45,15 +45,15 @@ axx.plot(xsO1D[1]*1e-19, 1e8/xsO1D[0], 'C2', label=r'expt. O($^1D_2$)')
 axx.set_ylabel(r'wavenumber above $X$min. ($10^4$cm$^{-1}$)')
 axx.set_xlabel(r'cross section (cm$^{2}$)')
 axx.axis(xmin=1.5e-17, xmax=-0.1e-17, ymin=4, ymax=10)
-axx.set_title("photodissociation", fontsize=12)
+axx.set_title('photodissociation', fontsize=12)
 axx.legend(fontsize='small', labelspacing=0.3)
 axx.ticklabel_format(axis='y', style='sci', scilimits=(4, 4))
 
 axp.plot(X.R, X.VT[0, 0]*evcm, color='k', label=X.statelabel[0])
 
-axp.set_title("diabatic PECs", fontsize=12)
+axp.set_title('diabatic PECs', fontsize=12)
 axp.axis(xmin=0.8, xmax=2.8, ymin=40000+X.cm, ymax=100000+X.cm)
-axp.set_xlabel("internuclear distance ($\AA$)")
+axp.set_xlabel('internuclear distance (Å)')
 axp.axes.get_yaxis().set_visible(False)
 axp.legend(fontsize='small', labelspacing=0.3)
 

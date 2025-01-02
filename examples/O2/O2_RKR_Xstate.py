@@ -69,7 +69,7 @@ def plot(R, PEC, vdv, RTP, PTP, vint, dG, dB):
     ax['p'].legend(fontsize='small', labelspacing=0.3)
     ax['p'].axis(xmin=0.8, xmax=3, ymin=PEC.min()-1000, ymax=PEC[-1]+5000)
     ax['p'].ticklabel_format(axis='y', style='sci', scilimits=(4, 4))
-    ax['p'].set_xlabel(r'internuclear distance $/$ $\AA$')
+    ax['p'].set_xlabel(r'internuclear distance $/$ Å')
     ax['p'].set_ylabel(r'potential energy (rel. to $X$-min.) $/$ cm$^{-1}$')
 
     # ΔGv

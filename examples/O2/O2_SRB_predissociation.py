@@ -45,7 +45,7 @@ shift = []
 print(' v   position   FWHM   shift')
 for vb, p, f in zip(band, peaks, FWHM):
     shift.append(wn[p]-vb[1])
-    print(f'{vb[0]:2d} {wn[p]:,.2f} {f:5.2f} {shift[-1]:.2f}')
+    print(f'{vb[0]:2d} {wn[p]:,.2f} {f:5.2f} {shift[-1]:6.2f}')
 
 '''
 partfwhm = []

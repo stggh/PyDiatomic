@@ -33,10 +33,11 @@ convy *= (yarea/conarea)
 
 
 # plot -----------------------------------------------------
-plt.plot(wn, convy)
-plt.plot(wn1D, xs1D)
+plt.plot(wn, convy, label='PyD. convolved')
+plt.plot(wn1D, xs1D, label='expt.')
 plt.xlabel('Wavenumber (cm$^{-1}$)')
 plt.ylabel('Cross section (cm$^{2}$)')
+plt.legend()
 plt.ticklabel_format(axis='y', style='sci', scilimits=(-19, -19))
 plt.title(r'O$_2$ $^3\Sigma_u^-$ Rydberg-valence interaction')
 
