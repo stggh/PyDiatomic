@@ -268,7 +268,7 @@ def coupling_function(R, VT, coup=None):
                     cval = coup[cnt]
                     Vjk = cval[1]
                     width = cval[2] if len(cval) > 2 else 0.5
-                    Rm = cval[3] if len(cval)> 3 else 3
+                    Rm = cval[3] if len(cval)> 3 else 0.5
                     Rx = cval[4] if len(cval)> 4 else 5
 
                     # radial crossing point of Vjj<->Vkk PECs
