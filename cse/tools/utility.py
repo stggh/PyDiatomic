@@ -1,12 +1,13 @@
 import numpy as np
 from scipy.signal import find_peaks, peak_widths
+from scipy.integrate import simpson
 
-def peaks(wavenumber, xs, dw=None, width=(0.1, 400), verbose=True):
+def peaks(wavenumber, xs, dw=None, height=1e-25, width=(0.1, 400), verbose=True):
     if dw is None:
         dw = wavenumber[1] - wavenumber[0]
 
     width = (width[0]/dw, width[1]/dw)
-    pks, _ = find_peaks(xs, width=width)
+    pks, _ = find_peaks(xs, width=width, height=height)
     widths = peak_widths(xs, pks, rel_height=1/2)[0]*dw
     pos = wavenumber[pks]
 
@@ -21,6 +22,25 @@ def peaks(wavenumber, xs, dw=None, width=(0.1, 400), verbose=True):
 
     return pos, widths, pks
 
+def percent(Cse, Rmax=None, indxmax=None):
+    R = Cse.R
+    wavefunction = Cse.wavefunction
+
+    if Rmax is not None:
+        subR = R < Rmax
+        wavefunction = wavefunction[subR]
+        R = R[subR]
+
+    if indxmax is None:
+        indxmax = wavefunction.shape[1]
+
+    per = []
+    norm = 0
+    for j in range(indxmax):
+        per.append(simpson(np.abs(wavefunction[:, j, 0]), x=R))
+        norm += per[-1]
+
+    return np.array(per)*100/norm
 
 def turning_points(state, Xzpe=0, vmax=5):
     evcm = state._evcm
