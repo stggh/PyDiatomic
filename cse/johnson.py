@@ -424,7 +424,7 @@ def solveCSE(Cse, en, mx=None, bounds=None):
         # Cse.K = K
 
         # K = BA-1 = U tan xi UT
-        eig, U = np.linalg.eig(K)
+        eig, U = np.linalg.eigh(K)  # K - real, symmetric
         Cse.eig = eig
 
         # form A^-1 U cos xi exp(i xi) UT
